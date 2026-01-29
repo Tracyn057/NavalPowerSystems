@@ -1,8 +1,8 @@
-﻿using ModularAssemblies.Communication;
-using static ModularAssemblies.Communication.DefinitionDefs;
+﻿using NavalPowerSystems.Communication;
+using static NavalPowerSystems.Communication.DefinitionDefs;
 
 // ReSharper disable once CheckNamespace
-namespace ModularAssemblies
+namespace NavalPowerSystems
 {
     internal partial class ModularDefinition
     {

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.9.34723.18
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11415.280
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modular Assemblies Client Mod Template", "Modular Assemblies Client Mod Template.csproj", "{9CBE0E88-C4A4-422A-B618-D1C86800F969}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NavalPowerSystems", "NavalPowerSystems.csproj", "{9CBE0E88-C4A4-422A-B618-D1C86800F969}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

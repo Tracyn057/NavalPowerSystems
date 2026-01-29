@@ -7,7 +7,7 @@ using VRage.Game.ModAPI;
 using VRage.Utils;
 using VRageMath;
 
-namespace ModularAssemblies.Communication
+namespace NavalPowerSystems.Communication
 {
     /// <summary>
     ///     Class used to communicate with the Modular Assemblies Framework mod. <br /><br />
@@ -196,7 +196,7 @@ namespace ModularAssemblies.Communication
         {
             object value = _getAssemblyProperty(assemblyId, propertyName);
 
-            return value == null ? default(T) : (T) value;
+            return value == null ? default(T) : (T)value;
         }
 
         /// <summary>
@@ -284,6 +284,7 @@ namespace ModularAssemblies.Communication
                 RegisterOnPartRemove(definition.Name, definition.OnPartRemove);
                 RegisterOnPartDestroy(definition.Name, definition.OnPartDestroy);
                 RegisterOnAssemblyClose(definition.Name, definition.OnAssemblyClose);
+                MyAPIGateway.Utilities.ShowMessage("Definition API", "{definition} Initialized.");
 
                 if (validDefinitions.Contains(definition.Name))
                     definition.OnInit?.Invoke();
@@ -689,6 +690,12 @@ namespace ModularAssemblies.Communication
             /// </summary>
             [ProtoMember(4)]
             public string BaseBlockSubtype { get; set; }
+
+            /// <summary>
+            ///     The primary block of a PhysicalAssembly. Make sure this is an AssemblyCore block OR null.
+            /// </summary>
+            [ProtoMember(5)]
+            public string[] BaseBlockSubtypes { get; set; }
         }
     }
 }

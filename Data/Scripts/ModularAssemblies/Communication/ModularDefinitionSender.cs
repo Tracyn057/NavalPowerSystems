@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Sandbox.ModAPI;
+using System;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Utils;
-using static ModularAssemblies.Communication.DefinitionDefs;
+using static NavalPowerSystems.Communication.DefinitionDefs;
 
-namespace ModularAssemblies.Communication
+namespace NavalPowerSystems.Communication
 {
     [MySessionComponentDescriptor(MyUpdateOrder.Simulation, int.MinValue)]
     internal class ModularDefinitionSender : MySessionComponentBase
@@ -31,6 +32,7 @@ namespace ModularAssemblies.Communication
         private void SendDefinitions()
         {
             ModularDefinition.ModularApi.RegisterDefinitions(StoredDef);
+            MyAPIGateway.Utilities.ShowMessage("NPS Debug", "Sending definitions to Framework...");
         }
     }
 }
