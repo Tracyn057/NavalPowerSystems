@@ -158,36 +158,6 @@ namespace NavalPowerSystems.Extraction
             }
         }
 
-        
-
-        private IMySlimBlock TraceToHead(out int count)
-        {
-            count = 0;
-            Matrix localMatrix;
-            _block.Orientation.GetMatrix(out localMatrix);
-            Vector3 localDown = Vector3.Down;
-            Vector3 gridDirection = Vector3.TransformNormal(localDown, localMatrix);
-            Vector3I stepDir = Vector3I.Round(gridDirection);
-
-            Vector3I currentPos = _block.Position + stepDir;
-            IMySlimBlock current = _block.CubeGrid.GetCubeBlock(currentPos);
-
-            while (current != null)
-            {
-                string subtype = current.BlockDefinition.Id.SubtypeName;
-                if (subtype == "NPSExtractionDrillHead") return current;
-                if (subtype == "NPSExtractionDrillPipe")
-                {
-                    count++;
-                    currentPos += stepDir;
-                    current = _block.CubeGrid.GetCubeBlock(currentPos);
-                    continue;
-                }
-                break;
-            }
-            return null;
-        }
-
         private void SetIdle(string reason)
         {
             _status = reason;
