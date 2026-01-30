@@ -12,6 +12,24 @@ namespace ModularAssemblies.Data.Scripts.ModularAssemblies.Drivetrain
         private int _assemblyId = -1;
         private int _requestedPower;
         private int _outputPower;
+        private IMyFunctionalBlock _inputBlock;
+        private IMyFunctionalBlock _outputBlock;
+
+
+        private void GetInput(IMyfunctionalBlock block)
+        {
+
+        }
+
+        private void GetOutput(IMyFunctionalBlock block)
+        {
+
+        }
+
+        private void SetOutput(IMyFunctionalBlock block)
+        {
+
+        }
 
     }
 }
