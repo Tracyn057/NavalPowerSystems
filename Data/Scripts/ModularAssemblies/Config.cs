@@ -65,6 +65,38 @@ namespace NavalPowerSystems
             public float PropellerMN;        //Max output without override
         }
 
+        public struct EfficiencyPoint
+        {
+            public float Throttle;   // 0.0 to 1.25
+            public float Multiplier; // Fuel burn or Thrust efficiency
+
+            public EfficiencyPoint(float t, float m)
+            {
+                Throttle = t;
+                Multiplier = m;
+            }
+        }
+
+        public static class DieselEngineConfigs
+        {
+            public static readonly EfficiencyPoint[] DieselFuelTable = {
+            new EfficiencyPoint(0.00f, 0.05f), // Idle: 5% burn
+            new EfficiencyPoint(0.40f, 0.35f), // Ahead Standard: Highly efficient
+            new EfficiencyPoint(1.00f, 1.00f), // Ahead Full: Rated Baseline
+            new EfficiencyPoint(1.25f, 1.80f)  // Emergency: 25% more power costs 80% more fuel
+            };
+        }
+
+        public static class GasTurbineConfigs
+        {
+            public static readonly EfficiencyPoint[] TurbineFuelTable = {
+            new EfficiencyPoint(0.00f, 0.05f), // Idle: 5% burn
+            new EfficiencyPoint(0.40f, 0.35f), // Ahead Standard: Highly efficient
+            new EfficiencyPoint(1.00f, 1.00f), // Ahead Full: Rated Baseline
+            new EfficiencyPoint(1.25f, 1.80f)  // Emergency: 25% more power costs 80% more fuel
+            };
+        }
+
         //Component stats assignment
         public static readonly Dictionary<string, GasTurbineStats> GasTurbineSettings = new Dictionary<string, GasTurbineStats>
         {
