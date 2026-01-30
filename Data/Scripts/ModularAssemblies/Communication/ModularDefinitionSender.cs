@@ -17,10 +17,8 @@ namespace NavalPowerSystems.Communication
             MyLog.Default.WriteLineAndConsole(
                 $"{ModContext.ModName}.ModularDefinition: Init new ModularAssembliesDefinition");
 
-            // Init
             StoredDef = ModularDefinition.GetBaseDefinitions();
 
-            // Send definitions over as soon as the API loads, and create the API before anything else can init.
             ModularDefinition.ModularApi.Init(ModContext, SendDefinitions);
         }
 
@@ -32,7 +30,7 @@ namespace NavalPowerSystems.Communication
         private void SendDefinitions()
         {
             ModularDefinition.ModularApi.RegisterDefinitions(StoredDef);
-            MyAPIGateway.Utilities.ShowMessage("NPS Debug", "Sending definitions to Framework...");
+            //MyAPIGateway.Utilities.ShowMessage("NPS Debug", "Sending definitions to Framework...");
         }
     }
 }

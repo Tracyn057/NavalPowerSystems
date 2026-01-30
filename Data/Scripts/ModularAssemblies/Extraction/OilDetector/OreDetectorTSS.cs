@@ -12,7 +12,7 @@ using IMyTextSurface = Sandbox.ModAPI.Ingame.IMyTextSurface;
 
 namespace OilExtraction.Detector
 {
-    [MyTextSurfaceScript("OilDetector", "Oil Heatmap Scanner")]
+    [MyTextSurfaceScript("OilDetector", "Oil Deposit Scanner")]
     public class OilDetectorTSS : MyTSSCommon
     {
         public override ScriptUpdate NeedsUpdate => ScriptUpdate.Update100;
@@ -25,7 +25,7 @@ namespace OilExtraction.Detector
 
         private HeatmapData _data;
         private IMyCubeBlock _block;
-        private int _ticks = 0; // Custom tick counter
+        private int _ticks = 0;
 
         public OilDetectorTSS(IMyTextSurface surface, IMyCubeBlock block, Vector2 size) : base(surface, block, size)
         {
@@ -36,7 +36,6 @@ namespace OilExtraction.Detector
         {
             _ticks++;
 
-            // 1. LINKING LOGIC
             if (_data == null)
             {
                 var core = OilDetectorCore.Instance;
@@ -44,14 +43,11 @@ namespace OilExtraction.Detector
 
                 if (core?.DefExtensions != null && core.ModCtx != null && termBlock != null)
                 {
-                    // Register the type factory
                     core.DefExtensions.RegisterTSSDataComponent<OilDetectorTSS, HeatmapData>(core.ModCtx, () => new HeatmapData());
 
-                    // Attempt to grab the instance for this block
                     _data = core.DefExtensions.GetTSSDataComponent<OilDetectorTSS>(termBlock) as HeatmapData;
                 }
 
-                // 2. FALLBACK: If API fails to link for ~5 seconds (Update100 * 3), use local data
                 if (_data == null && _ticks > 3)
                 {
                     _data = new HeatmapData();
@@ -59,12 +55,11 @@ namespace OilExtraction.Detector
 
                 if (_data == null)
                 {
-                    DrawMessage("Linking to Oil Network...");
+                    DrawMessage("Initializing...");
                     return;
                 }
             }
 
-            // 3. SCANNING
             int gridSize = NavalPowerSystems.Config.scanSize;
             Vector3D myPos = _block.WorldMatrix.Translation;
             MyPlanet planet = MyGamePruningStructure.GetClosestPlanet(myPos);
@@ -81,10 +76,8 @@ namespace OilExtraction.Detector
                 }
             }
 
-            // 4. DRAWING
             using (MySpriteDrawFrame frame = Surface.DrawFrame())
             {
-                // Solid Background
                 frame.Add(new MySprite(SpriteType.TEXTURE, "SquareSimple", Surface.SurfaceSize / 2, Surface.SurfaceSize, Color.Black));
 
                 if (planet == null)
@@ -113,12 +106,10 @@ namespace OilExtraction.Detector
                     float yield = _data.Values[x, z];
                     Vector2 screenPos = center + new Vector2((x - 2) * cellSize, (z - 2) * cellSize);
 
-                    // Dark Gray to Gold
                     Color color = Color.Lerp(new Color(20, 20, 20), Color.Gold, yield);
                     frame.Add(new MySprite(SpriteType.TEXTURE, "SquareSimple", screenPos, new Vector2(cellSize * 0.9f), color));
                 }
             }
-            // Player Crosshair
             frame.Add(new MySprite(SpriteType.TEXTURE, "Circle", center, new Vector2(10), Color.White));
         }
 

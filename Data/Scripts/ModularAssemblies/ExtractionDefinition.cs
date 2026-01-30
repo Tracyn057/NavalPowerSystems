@@ -19,15 +19,15 @@ namespace NavalPowerSystems
 
             OnInit = () =>
             {
-                MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Extraction Initialized.");
+                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Extraction Initialized.");
                 ExtractionManager.Instance.ExtractionDefinition = this;
             },
 
             // Triggers whenever a new part is added to an assembly.
             OnPartAdd = (assemblyId, block, isBasePart) =>
             {
-                MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartAdd called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
-                MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
+                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartAdd called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
+                //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
 
                 ExtractionManager.Instance.OnPartAdd(assemblyId, block, isBasePart);
             },
@@ -35,8 +35,8 @@ namespace NavalPowerSystems
             // Triggers whenever a part is removed from an assembly.
             OnPartRemove = (assemblyId, block, isBasePart) =>
             {
-                MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartRemove called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
-                MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
+                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartRemove called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
+                //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
 
                 ExtractionManager.Instance.OnPartRemove(assemblyId, block, isBasePart);
             },

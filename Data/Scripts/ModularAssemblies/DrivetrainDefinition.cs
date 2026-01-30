@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using NavalPowerSystems.Production;
+﻿using NavalPowerSystems.Extraction;
 using Sandbox.ModAPI;
+using System.Collections.Generic;
 using VRageMath;
 using static NavalPowerSystems.Communication.DefinitionDefs;
 
@@ -12,33 +12,33 @@ namespace NavalPowerSystems
         // However, for all but the simplest of assemblies it would be wise to have a separate utilities class.
 
         // This is the important bit.
-        private ModularPhysicalDefinition ProductionDefinition => new ModularPhysicalDefinition
+        private ModularPhysicalDefinition DrivetrainDefinition => new ModularPhysicalDefinition
         {
             // Unique name of the definition.
-            Name = "Production_Definition",
+            Name = "Drivetrain_Definition",
 
             OnInit = () =>
             {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Production Initialized.");
-                ProductionManager.Instance.ProductionDefinition = this;
+                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Extraction Initialized.");
+                DrivetrainManager.Instance.DrivetrainDefinition = this;
             },
 
             // Triggers whenever a new part is added to an assembly.
             OnPartAdd = (assemblyId, block, isBasePart) =>
             {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Production_Definition.OnPartAdd called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
+                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartAdd called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
                 //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
 
-                ProductionManager.Instance.OnPartAdd(assemblyId, block, isBasePart);
+                DrivetrainManager.Instance.OnPartAdd(assemblyId, block, isBasePart);
             },
 
             // Triggers whenever a part is removed from an assembly.
             OnPartRemove = (assemblyId, block, isBasePart) =>
             {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Production_Definition.OnPartRemove called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
+                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartRemove called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
                 //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
 
-                ProductionManager.Instance.OnPartRemove(assemblyId, block, isBasePart);
+                DrivetrainManager.Instance.OnPartRemove(assemblyId, block, isBasePart);
             },
 
             // Triggers whenever a part is destroyed, just after OnPartRemove.
@@ -60,12 +60,7 @@ namespace NavalPowerSystems
             // All SubtypeIds that can be part of this assembly.
             AllowedBlockSubtypes = new[]
             {
-                "NPSProductionCrudeInput",
-                "NPSProductionFuelInput",
-                "NPSProductionFuelOutput",
-                "NPSProductionDieselOutput",
-                "NPSProductionOilCracker",
-                "NPSProductionFuelRefinery"
+                ""
             },
 
             // Allowed connection directions & whitelists, measured in blocks.

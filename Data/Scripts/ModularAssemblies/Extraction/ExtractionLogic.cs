@@ -187,7 +187,6 @@ namespace NavalPowerSystems.Extraction
             double surfaceDist = (surfacePoint - planet.WorldMatrix.Translation).Length();
             double headDist = (headPos - planet.WorldMatrix.Translation).Length();
 
-            // Returns true if head is at or below surface (with 1m buffer)
             return headDist <= surfaceDist + 2.5;
         }
     }

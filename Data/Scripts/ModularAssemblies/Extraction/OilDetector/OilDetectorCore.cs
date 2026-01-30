@@ -42,7 +42,7 @@ namespace OilExtraction.Detector
         {
             if (messageText.ToLower().StartsWith("/oil debug"))
             {
-                sendToOthers = false; // Don't broadcast the command to the whole server
+                sendToOthers = false;
 
                 OilMap.oilGenDebug = !OilMap.oilGenDebug;
 

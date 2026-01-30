@@ -48,7 +48,6 @@ namespace NavalPowerSystems.Utilities
             double newRatio = Math.Min(1.0, newGas / tank.Capacity);
 
             tank.ChangeFilledRatio(newRatio, true);
-            //MyAPIGateway.Utilities.ShowNotification($"Processing {tank}: {newRatio}", 2000, "Green");
         }
     }
 }
