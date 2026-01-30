@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <CubeBlocks>
+
+        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+            <Id>
+                <TypeId>HydrogenEngine</TypeId>
+                <SubtypeId>NPSDieselGenerator500KW</SubtypeId>
+            </Id>
+            <DisplayName>Marine Diesel Generator, 500KW</DisplayName>
+            <Description>Description_PowerGenerator</Description>
+            <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>false</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="1" z="2" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Model>Models\Cubes\Large\HydrogenEngine.mwm</Model>
+            <Components>
+                <Component Subtype="SteelPlate" Count="80" />
+                <Component Subtype="Construction" Count="60" />
+                <Component Subtype="LargeTube" Count="12" />
+                <Component Subtype="SmallTube" Count="20" />
+                <Component Subtype="Motor" Count="12" />
+                <Component Subtype="Computer" Count="4" />
+                <Component Subtype="PowerCell" Count="1" />
+                <Component Subtype="Construction" Count="10" />
+                <Component Subtype="SteelPlate" Count="20" />
+            </Components>
+            <CriticalComponent Subtype="PowerCell" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Bottom" StartX="0.15" StartY="0.15" EndX="0.85" EndY="1.85" Default="true" />
+                <MountPoint Side="Front" StartX="0.15" StartY="0.15" EndX="0.85" EndY="0.85" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\HydrogenEngine_Construction1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenEngine_Construction2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenEngine_Construction3.mwm" />
+            </BuildProgressModels>
+            <BlockPairName>DieselGen500kw</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>60</BuildTimeSeconds>
+            <ResourceSinkGroup>Generators</ResourceSinkGroup>
+            <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+            <MaxPowerOutput>0.5</MaxPowerOutput>
+            <FuelCapacity>160</FuelCapacity>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
+            <IsAirTight>false</IsAirTight>
+            <InventorySize>
+                <X>1</X>
+                <Y>1</Y>
+                <Z>1</Z>
+            </InventorySize>
+            <FuelInfos>
+                <FuelInfo>
+                    <Id>
+                        <TypeId>GasProperties</TypeId>
+                        <SubtypeId>DieselFuel</SubtypeId>
+                    </Id>
+                </FuelInfo>
+            </FuelInfos>
+            <FuelProductionToCapacityMultiplier>0.1333</FuelProductionToCapacityMultiplier>
+            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
+
+            <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
+            <DamagedSound>ParticleWeapExpl</DamagedSound>
+            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+
+            <AnimationSpeed>5</AnimationSpeed>
+            <PistonAnimationMin>-0.15</PistonAnimationMin>
+            <PistonAnimationMax>0.01</PistonAnimationMax>
+            <PistonAnimationOffsets>
+                <float>0.5</float>
+                <float>0.0</float>
+                <float>0.0</float>
+                <float>0.0</float>
+                <float>0.5</float>
+                <float>0.0</float>
+                <float>0.5</float>
+                <float>0.5</float>
+                <float>0.0</float>
+                <float>0.5</float>
+            </PistonAnimationOffsets>
+            <AnimationSpinUpSpeed>5</AnimationSpinUpSpeed>
+            <AnimationSpinDownSpeed>5</AnimationSpinDownSpeed>
+            <PCU>25</PCU>
+            <TargetingGroups>
+                <string>PowerSystems</string>
+            </TargetingGroups>
+        </Definition>
+
+        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+            <Id>
+                <TypeId>HydrogenEngine</TypeId>
+                <SubtypeId>NPSDieselGenerator15MW</SubtypeId>
+            </Id>
+            <DisplayName>Marine Diesel Generator, 1.5MW</DisplayName>
+            <Description>Description_PowerGenerator</Description>
+            <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>false</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="1" z="2" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Model>Models\Cubes\Large\HydrogenEngine.mwm</Model>
+            <Components>
+                <Component Subtype="SteelPlate" Count="80" />
+                <Component Subtype="Construction" Count="60" />
+                <Component Subtype="LargeTube" Count="12" />
+                <Component Subtype="SmallTube" Count="20" />
+                <Component Subtype="Motor" Count="12" />
+                <Component Subtype="Computer" Count="4" />
+                <Component Subtype="PowerCell" Count="1" />
+                <Component Subtype="Construction" Count="10" />
+                <Component Subtype="SteelPlate" Count="20" />
+            </Components>
+            <CriticalComponent Subtype="PowerCell" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Bottom" StartX="0.15" StartY="0.15" EndX="0.85" EndY="1.85" Default="true" />
+                <MountPoint Side="Front" StartX="0.15" StartY="0.15" EndX="0.85" EndY="0.85" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\HydrogenEngine_Construction1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenEngine_Construction2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenEngine_Construction3.mwm" />
+            </BuildProgressModels>
+            <BlockPairName>DieselGen15mw</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>60</BuildTimeSeconds>
+            <ResourceSinkGroup>Generators</ResourceSinkGroup>
+            <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+            <MaxPowerOutput>1.5</MaxPowerOutput>
+            <FuelCapacity>160</FuelCapacity>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
+            <IsAirTight>false</IsAirTight>
+            <InventorySize>
+                <X>1</X>
+                <Y>1</Y>
+                <Z>1</Z>
+            </InventorySize>
+            <FuelInfos>
+                <FuelInfo>
+                    <Id>
+                        <TypeId>GasProperties</TypeId>
+                        <SubtypeId>DieselFuel</SubtypeId>
+                    </Id>
+                </FuelInfo>
+            </FuelInfos>
+            <FuelProductionToCapacityMultiplier>0.1333</FuelProductionToCapacityMultiplier>
+            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
+
+            <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
+            <DamagedSound>ParticleWeapExpl</DamagedSound>
+            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+
+            <AnimationSpeed>5</AnimationSpeed>
+            <PistonAnimationMin>-0.15</PistonAnimationMin>
+            <PistonAnimationMax>0.01</PistonAnimationMax>
+            <PistonAnimationOffsets>
+                <float>0.5</float>
+                <float>0.0</float>
+                <float>0.0</float>
+                <float>0.0</float>
+                <float>0.5</float>
+                <float>0.0</float>
+                <float>0.5</float>
+                <float>0.5</float>
+                <float>0.0</float>
+                <float>0.5</float>
+            </PistonAnimationOffsets>
+            <AnimationSpinUpSpeed>5</AnimationSpinUpSpeed>
+            <AnimationSpinDownSpeed>5</AnimationSpinDownSpeed>
+            <PCU>25</PCU>
+            <TargetingGroups>
+                <string>PowerSystems</string>
+            </TargetingGroups>
+        </Definition>
+
+        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+            <Id>
+                <TypeId>HydrogenEngine</TypeId>
+                <SubtypeId>NPSDieselGenerator2.5MW</SubtypeId>
+            </Id>
+            <DisplayName>Marine Diesel Generator, 2.5MW</DisplayName>
+            <Description>Description_PowerGenerator</Description>
+            <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
+            <CubeSize>Large</CubeSize>
+            <GuiVisible>false</GuiVisible>
+            <BlockTopology>TriangleMesh</BlockTopology>
+            <Size x="1" y="1" z="2" />
+            <ModelOffset x="0" y="0" z="0" />
+            <Model>Models\Cubes\Large\HydrogenEngine.mwm</Model>
+            <Components>
+                <Component Subtype="SteelPlate" Count="80" />
+                <Component Subtype="Construction" Count="60" />
+                <Component Subtype="LargeTube" Count="12" />
+                <Component Subtype="SmallTube" Count="20" />
+                <Component Subtype="Motor" Count="12" />
+                <Component Subtype="Computer" Count="4" />
+                <Component Subtype="PowerCell" Count="1" />
+                <Component Subtype="Construction" Count="10" />
+                <Component Subtype="SteelPlate" Count="20" />
+            </Components>
+            <CriticalComponent Subtype="PowerCell" Index="0" />
+            <MountPoints>
+                <MountPoint Side="Bottom" StartX="0.15" StartY="0.15" EndX="0.85" EndY="1.85" Default="true" />
+                <MountPoint Side="Front" StartX="0.15" StartY="0.15" EndX="0.85" EndY="0.85" />
+            </MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\HydrogenEngine_Construction1.mwm" />
+                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenEngine_Construction2.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenEngine_Construction3.mwm" />
+            </BuildProgressModels>
+            <BlockPairName>DieselGen25mw</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>60</BuildTimeSeconds>
+            <ResourceSinkGroup>Generators</ResourceSinkGroup>
+            <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+            <MaxPowerOutput>2.5</MaxPowerOutput>
+            <FuelCapacity>160</FuelCapacity>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
+            <IsAirTight>false</IsAirTight>
+            <InventorySize>
+                <X>1</X>
+                <Y>1</Y>
+                <Z>1</Z>
+            </InventorySize>
+            <FuelInfos>
+                <FuelInfo>
+                    <Id>
+                        <TypeId>GasProperties</TypeId>
+                        <SubtypeId>DieselFuel</SubtypeId>
+                    </Id>
+                </FuelInfo>
+            </FuelInfos>
+            <FuelProductionToCapacityMultiplier>0.1333</FuelProductionToCapacityMultiplier>
+            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
+
+            <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
+            <DamagedSound>ParticleWeapExpl</DamagedSound>
+            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
+            <DestroySound>WepSmallWarheadExpl</DestroySound>
+
+            <AnimationSpeed>5</AnimationSpeed>
+            <PistonAnimationMin>-0.15</PistonAnimationMin>
+            <PistonAnimationMax>0.01</PistonAnimationMax>
+            <PistonAnimationOffsets>
+                <float>0.5</float>
+                <float>0.0</float>
+                <float>0.0</float>
+                <float>0.0</float>
+                <float>0.5</float>
+                <float>0.0</float>
+                <float>0.5</float>
+                <float>0.5</float>
+                <float>0.0</float>
+                <float>0.5</float>
+            </PistonAnimationOffsets>
+            <AnimationSpinUpSpeed>5</AnimationSpinUpSpeed>
+            <AnimationSpinDownSpeed>5</AnimationSpinDownSpeed>
+            <PCU>25</PCU>
+            <TargetingGroups>
+                <string>PowerSystems</string>
+            </TargetingGroups>
+        </Definition>
+
+    </CubeBlocks>
+</Definitions>

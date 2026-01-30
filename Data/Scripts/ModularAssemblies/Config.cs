@@ -25,51 +25,56 @@ namespace NavalPowerSystems
         public const int scanSize = 500;                //Grid size for the LCD scan component
 
         //Viable component lists
-        public static readonly HashSet<string> Boilers = new HashSet<string>()
-        {
-
-        };
-
-        public static readonly HashSet<string> SteamTurbines = new HashSet<string>()
-        {
-
-        };
 
         public static readonly HashSet<string> GasTurbines = new HashSet<string>()
         {
 
         };
 
-        public static readonly HashSet<string> SSTGs = new HashSet<string>()
+        public static readonly HashSet<string> DieselEngines = new HashSet<string>()
         {
-            
+
+        };
+
+        public static readonly HashSet<string> GasTurbineGens = new HashSet<string>()
+        {
+
+        };
+
+        public static readonly HashSet<string> DieselGens = new HashSet<string>()
+        {
+
+        };
+
+        public static readonly HashSet<string> Propellers = new HashSet<string>()
+        {
+
         };
 
         //Component stats definition
-        public class BoilerStats
-        {
-            public float BoilerBar;     //Max pressure boiler can produce
-            public float BoilerFlow;    //Max flow the boiler can put out in kg of steam
-            public float BoilerFuel;    //How much fuel the boiler uses per kg of steam - Multiplied by globalFuelMult
-        }
-
-        public class SteamTurbineStats
-        {
-            public float TurbineBar;    //Max pressure the turbine needs to operate at max capacity
-            public float TurbineFlow;   //Required flow to operate at max capacity
-            public float TurbineMW;     //Max MW production of the turbine at 100% - This gets converted to MN, not used for electricity
-        }
 
         public class GasTurbineStats
         {
-            public float GasTurbineMW;      //Max MW output of the turbine - Can be used for electricity or converted to MN
+            public float GasTurbineMW;      //Max MW output - Mechanical only
             public float GasTurbineFuel;    //Fuel consumption at max output - Multiplied by globalFuelMult
         }
 
-        public class SSTGStats
+        public class DieselEngineStats
         {
-            public float SSTGMW;        //Max output MW of the generator - Only for electricity production
-            public float SSTGPctSteam;  //Percent of steam siphoned from the steam line - 1.0=100%
+            public float DieselEngineMW;    //Max MW output - Mechanical only
+            public float DieselEngineFuel;  //Fuel consumption at max output - Multiplied by globalFuelMult
+        }
+
+        public class GasTurbineGenStats
+        {
+            public float GasTurbineGenMW;   //Max MW output - Electricity only
+            public float GasTurbineGenFuel; //Fuel consumption at max output - Multiplied by globalFuelMult
+        }
+
+        public class DieselGenStats
+        {
+            public float DieselGenMW;       //Max MW output - Electricity only
+            public float DieselGenFuel;     //Fuel consumption at max output - Multiplied by globalFuelMult
         }
 
         public class PropellerStats
@@ -79,24 +84,24 @@ namespace NavalPowerSystems
         }
 
         //Component stats assignment
-        public static readonly Dictionary<string, BoilerStats> BoilerSettings = new Dictionary<string, BoilerStats>()
-        {
-            
-        };
-
-        public static readonly Dictionary<string, SteamTurbineStats> SteamTurbineSettings = new Dictionary<string, SteamTurbineStats>
-        {
-            
-        };
-
         public static readonly Dictionary<string, GasTurbineStats> GasTurbineSettings = new Dictionary<string, GasTurbineStats>
         {
             
         };
 
-        public static readonly Dictionary<string, SSTGStats> SSTGSettings = new Dictionary<string, SSTGStats>
+        public static readonly Dictionary<string, DieselGenStats> DieselSettings = new Dictionary<string, DieselGenStats>
         {
-            
+
+        };
+
+        public static readonly Dictionary<string, GasTurbineGenStats> GasTurbineGenSettings = new Dictionary<string, GasTurbineGenStats>
+        {
+
+        };
+
+        public static readonly Dictionary<string, DieselGenStats> DieselGenSettings = new Dictionary<string, DieselGenStats>
+        {
+
         };
 
         public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>

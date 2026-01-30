@@ -8,5 +8,6 @@ namespace ModularAssemblies.Data.Scripts.ModularAssemblies.Drivetrain
 {
     internal class DrivetrainLogic
     {
+
     }
 }
