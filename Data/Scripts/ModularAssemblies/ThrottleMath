@@ -101,3 +101,16 @@ if (CruiseModeActive)
     // Update the Internal Throttle
     _internalThrottle = MathHelper.Clamp(_internalThrottle + adjustment, 0f, 1.0f);
 }
+
+
+
+
+// Simple conversion constants
+const float MS_TO_KNOTS = 1.94384f;
+const float KNOTS_TO_MS = 0.514444f;
+
+public string GetSpeedDisplay(float speedInMS)
+{
+    float speedInKnots = speedInMS * MS_TO_KNOTS;
+    return $"{speedInKnots:F1} KN ({speedInMS:F1} M/S)";
+}
