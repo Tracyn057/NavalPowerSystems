@@ -28,22 +28,18 @@ namespace NavalPowerSystems
 
         public static readonly HashSet<string> GasTurbines = new HashSet<string>()
         {
-
+            "NPSDieselTurbine2MW",
+            "NPSDieselTurbine5MW",
+            "NPSDieselTurbine12MW",
+            "NPSDieselTurbine25MW",
+            "NPSDieselTurbine40MW"
         };
 
         public static readonly HashSet<string> DieselEngines = new HashSet<string>()
         {
-
-        };
-
-        public static readonly HashSet<string> GasTurbineGens = new HashSet<string>()
-        {
-
-        };
-
-        public static readonly HashSet<string> DieselGens = new HashSet<string>()
-        {
-
+            "NPSDieselEngine500KW",
+            "NPSDieselEngine15MW",
+            "NPSDieselEngine25MW"
         };
 
         public static readonly HashSet<string> Propellers = new HashSet<string>()
@@ -65,22 +61,10 @@ namespace NavalPowerSystems
             public float DieselEngineFuel;  //Fuel consumption at max output - Multiplied by globalFuelMult
         }
 
-        public class GasTurbineGenStats
-        {
-            public float GasTurbineGenMW;   //Max MW output - Electricity only
-            public float GasTurbineGenFuel; //Fuel consumption at max output - Multiplied by globalFuelMult
-        }
-
-        public class DieselGenStats
-        {
-            public float DieselGenMW;       //Max MW output - Electricity only
-            public float DieselGenFuel;     //Fuel consumption at max output - Multiplied by globalFuelMult
-        }
-
         public class PropellerStats
         {
             public float PropellerMW;       //Max input MW the propeller can handle - More will damage
-            public float PropellerPctDmg;   //Percent block damage per second per MW above rated output, 1.0=100%
+            public float PropellerMN;        //Max output without override
         }
 
         //Component stats assignment
@@ -89,17 +73,7 @@ namespace NavalPowerSystems
             
         };
 
-        public static readonly Dictionary<string, DieselGenStats> DieselSettings = new Dictionary<string, DieselGenStats>
-        {
-
-        };
-
-        public static readonly Dictionary<string, GasTurbineGenStats> GasTurbineGenSettings = new Dictionary<string, GasTurbineGenStats>
-        {
-
-        };
-
-        public static readonly Dictionary<string, DieselGenStats> DieselGenSettings = new Dictionary<string, DieselGenStats>
+        public static readonly Dictionary<string, DieselEngineStats> DieselSettings = new Dictionary<string, DieselEngineStats>
         {
 
         };
