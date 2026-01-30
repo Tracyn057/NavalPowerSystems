@@ -114,3 +114,63 @@ public string GetSpeedDisplay(float speedInMS)
     float speedInKnots = speedInMS * MS_TO_KNOTS;
     return $"{speedInKnots:F1} KN ({speedInMS:F1} M/S)";
 }
+
+
+
+
+
+
+
+public void ParseSpeedInput(string input)
+{
+    float parsedValue;
+    string cleanInput = input.ToLower().Trim();
+
+    if (cleanInput.Contains("kn") || cleanInput.Contains("kts"))
+    {
+        // Remove the letters to leave just the number
+        string numericPart = cleanInput.Replace("kn", "").Replace("kts", "").Trim();
+        if (float.TryParse(numericPart, out parsedValue))
+        {
+            _targetSpeedMS = parsedValue * 0.514444f;
+        }
+    }
+    else
+    {
+        // Treat as raw m/s
+        if (float.TryParse(cleanInput, out parsedValue))
+        {
+            _targetSpeedMS = parsedValue;
+        }
+    }
+}
+
+
+
+
+
+
+
+public void ParseSpeedInput(string input)
+{
+    float parsedValue;
+    string cleanInput = input.ToLower().Trim();
+
+    if (cleanInput.Contains("kn") || cleanInput.Contains("kts"))
+    {
+        // Remove the letters to leave just the number
+        string numericPart = cleanInput.Replace("kn", "").Replace("kts", "").Trim();
+        if (float.TryParse(numericPart, out parsedValue))
+        {
+            _targetSpeedMS = parsedValue * 0.514444f;
+        }
+    }
+    else
+    {
+        // Treat as raw m/s
+        if (float.TryParse(cleanInput, out parsedValue))
+        {
+            _targetSpeedMS = parsedValue;
+        }
+    }
+}
