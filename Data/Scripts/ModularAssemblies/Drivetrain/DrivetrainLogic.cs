@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Sandbox.ModAPI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VRage.Game.Components;
 
-namespace ModularAssemblies.Data.Scripts.ModularAssemblies.Drivetrain
+namespace NavalPowerSystems.Drivetrain
 {
     internal class DrivetrainLogic : MyGameLogicComponent
     {
@@ -16,7 +18,7 @@ namespace ModularAssemblies.Data.Scripts.ModularAssemblies.Drivetrain
         private IMyFunctionalBlock _outputBlock;
 
 
-        private void GetInput(IMyfunctionalBlock block)
+        private void GetInput(IMyFunctionalBlock block)
         {
 
         }

@@ -8,7 +8,6 @@ namespace NavalPowerSystems.Extraction
     public class ExtractionSystem
     {
         public readonly int AssemblyId;
-        private static ModularDefinitionApi ModularApi => NavalPowerSystems.ModularDefinition.ModularApi;
 
         public IMyFunctionalBlock RigBase;
         public IMySlimBlock DrillHead;

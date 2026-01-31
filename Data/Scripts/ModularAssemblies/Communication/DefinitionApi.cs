@@ -59,8 +59,6 @@ namespace NavalPowerSystems.Communication
             _isRegistered = true;
             MyAPIGateway.Utilities.RegisterMessageHandler(ApiChannel, HandleMessage);
             MyAPIGateway.Utilities.SendModMessage(ApiChannel, "ApiEndpointRequest");
-            MyLog.Default.WriteLineAndConsole(
-                $"{_modContext.ModName}: ModularDefinitionsAPI listening for API methods...");
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems
 {
@@ -24,17 +25,13 @@ namespace NavalPowerSystems
 
         //Viable component lists
 
-        public static readonly HashSet<string> GasTurbines = new HashSet<string>()
+        public static readonly HashSet<string> Engines = new HashSet<string>()
         {
             "NPSDieselTurbine2MW",
             "NPSDieselTurbine5MW",
             "NPSDieselTurbine12MW",
             "NPSDieselTurbine25MW",
-            "NPSDieselTurbine40MW"
-        };
-
-        public static readonly HashSet<string> DieselEngines = new HashSet<string>()
-        {
+            "NPSDieselTurbine40MW",
             "NPSDieselEngine500KW",
             "NPSDieselEngine15MW",
             "NPSDieselEngine25MW"
@@ -46,25 +43,7 @@ namespace NavalPowerSystems
         };
 
         //Component stats definition
-
-        public class GasTurbineStats
-        {
-            public float GasTurbineMW;      //Max MW output - Mechanical only
-            public float GasTurbineFuel;    //Fuel consumption at max output - Multiplied by globalFuelMult
-        }
-
-        public class DieselEngineStats
-        {
-            public float DieselEngineMW;    //Max MW output - Mechanical only
-            public float DieselEngineFuel;  //Fuel consumption at max output - Multiplied by globalFuelMult
-        }
-
-        public class PropellerStats
-        {
-            public float PropellerMW;       //Max input MW the propeller can handle - More will damage
-            public float PropellerMN;        //Max output without override
-        }
-
+        public enum EngineType { Diesel, Turbine }
         public struct EfficiencyPoint
         {
             public float Throttle;   // 0.0 to 1.25
@@ -77,40 +56,48 @@ namespace NavalPowerSystems
             }
         }
 
-        public static class DieselEngineConfigs
+        //Engine stats assignment
+        public static readonly Dictionary<string, EngineStats> EngineSettings = new Dictionary<string, EngineStats>
         {
-            public static readonly EfficiencyPoint[] DieselFuelTable = {
-            new EfficiencyPoint(0.00f, 0.05f), // Idle: 5% burn
-            new EfficiencyPoint(0.40f, 0.35f), // Ahead Standard: Highly efficient
-            new EfficiencyPoint(1.00f, 1.00f), // Ahead Full: Rated Baseline
-            new EfficiencyPoint(1.25f, 1.80f)  // Emergency: 25% more power costs 80% more fuel
+            //Gas Turbines
+            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 2, FuelRate = 19.5f, SpoolRate = 0.02f } },
+            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 5, FuelRate = 48.75f, SpoolRate = 0.02f } },
+            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 12, FuelRate = 117.0f, SpoolRate = 0.02f } },
+            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 25, FuelRate = 243.75f, SpoolRate = 0.02f } },
+            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 40, FuelRate = 390.0f, SpoolRate = 0.02f } },
+            //Internal Combustion Diesel
+            {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, FuelRate = 3.75f, SpoolRate = 0.08f } },
+            {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, FuelRate = 11.25f, SpoolRate = 0.08f } },
+            {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, FuelRate = 18.75f, SpoolRate = 0.08f } },
+        };
+    }
+
+    public class EngineStats
+    {
+        public EngineType Type;
+        public float MaxMW;         //Max MW output - Mechanical only
+        public float FuelRate;      //Fuel consumption at max output in liters/second - Multiplied by globalFuelMult
+        public float SpoolRate;     //How fast the engine responds to throttle changes
+    }
+
+    public static class DieselEngineConfigs
+    {
+        public static readonly EfficiencyPoint[] DieselFuelTable = {
+            new EfficiencyPoint(0.00f, 0.05f), // Idle
+            new EfficiencyPoint(0.40f, 0.35f), // Cruising
+            new EfficiencyPoint(1.00f, 1.00f), // Rated Max
+            new EfficiencyPoint(1.25f, 1.80f)  // Emergency
             };
-        }
+    }
 
-        public static class GasTurbineConfigs
-        {
-            public static readonly EfficiencyPoint[] TurbineFuelTable = {
-            new EfficiencyPoint(0.00f, 0.05f), // Idle: 5% burn
-            new EfficiencyPoint(0.40f, 0.35f), // Ahead Standard: Highly efficient
-            new EfficiencyPoint(1.00f, 1.00f), // Ahead Full: Rated Baseline
-            new EfficiencyPoint(1.25f, 1.80f)  // Emergency: 25% more power costs 80% more fuel
+    public static class TurbineEngineConfigs
+    {
+        public static readonly EfficiencyPoint[] TurbineFuelTable = {
+            new EfficiencyPoint(0.00f, 0.20f), // Idle
+            new EfficiencyPoint(0.30f, 0.45f), // Low Power
+            new EfficiencyPoint(0.70f, 0.75f), // Cruising
+            new EfficiencyPoint(1.00f, 1.00f), // Rated Max
+            new EfficiencyPoint(1.25f, 2.25f)  // Emergency
             };
-        }
-
-        //Component stats assignment
-        public static readonly Dictionary<string, GasTurbineStats> GasTurbineSettings = new Dictionary<string, GasTurbineStats>
-        {
-            
-        };
-
-        public static readonly Dictionary<string, DieselEngineStats> DieselSettings = new Dictionary<string, DieselEngineStats>
-        {
-
-        };
-
-        public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
-        {
-            
-        };
     }
 }

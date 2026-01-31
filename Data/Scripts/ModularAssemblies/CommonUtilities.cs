@@ -1,6 +1,7 @@
 ﻿using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
 using System.Collections.Generic;
 using VRage.Game;
@@ -11,6 +12,12 @@ namespace NavalPowerSystems.Utilities
 {
     public class CommonUtilities
     {
+        public void init()
+        {
+            RemoveActions();
+            RemoveControls();
+        }
+
         public static void UpdatePowerConsumption(IMyFunctionalBlock block, bool isActive)
         {
             if (block == null) return;
@@ -33,21 +40,73 @@ namespace NavalPowerSystems.Utilities
         {
             if (tank == null || !tank.Enabled)
             {
-                MyAPIGateway.Utilities.ShowNotification($"Processing {tank} Failed", 2000, "Red");
                 return;
             }
             float capacity = tank.Capacity;
             if (capacity <= 0)
             {
-                MyAPIGateway.Utilities.ShowNotification($"Processing {tank} Failed at {capacity}", 2000, "Red");
                 return;
             }
 
             double currentGas = tank.Capacity * tank.FilledRatio;
             double newGas = currentGas + amountLiters;
-            double newRatio = Math.Min(1.0, newGas / tank.Capacity);
+            double newRatio = Math.Round((newGas / tank.Capacity), 6, MidpointRounding.AwayFromZero);
 
-            tank.ChangeFilledRatio(newRatio, true);
+            if (Math.Abs(tank.FilledRatio - newRatio) >= 0.000001)
+            {
+                tank.ChangeFilledRatio((float)newRatio, true);
+            }
+        }
+
+        private static bool ShouldRemoveTankControls(IMyTerminalBlock block)
+        {
+            if (block == null) return false;
+            string subtype = block.BlockDefinition.SubtypeName;
+
+            return Config.Engines.Contains(subtype) || 
+                Config.Propellers.Contains(subtype) ||
+                subtype.Contains("NPSExtractionCrudeOutput");
+        }
+
+        private static void RemoveControls()
+        {
+            List<IMyTerminalControl> controls;
+            MyAPIGateway.TerminalControls.GetControls<IMyGasTank>(out controls);
+
+            foreach (IMyTerminalControl control in controls)
+            {
+                switch (control.Id)
+                {
+                    case "Stockpile":
+                    case "Refill":
+                    case "Auto-Refill":
+                    case "ShowInInventory":
+                        control.Visible = (block) => !ShouldRemoveTankControls(block);
+                        break;
+                }
+            }
+        }
+
+        private static void RemoveActions()
+        {
+            List<IMyTerminalAction> actions;
+            MyAPIGateway.TerminalControls.GetActions<IMyGasTank>(out actions);
+
+            foreach (IMyTerminalAction action in actions)
+            {
+                switch (action.Id)
+                {
+                    case "Stockpile":
+                    case "Stockpile_On":
+                    case "Stockpile_Off":
+                    case "Refill":
+                    case "Auto-Refill":
+                        {
+                            action.Enabled = (block) => !ShouldRemoveTankControls(block);
+                            break;
+                        }
+                }
+            }
         }
     }
 }
