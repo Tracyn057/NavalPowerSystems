@@ -12,7 +12,7 @@ using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems.DieselEngines
 {
-    public class EngineChild
+    public class EngineChildOld
     {
         public IMyGasTank _engine;
         public EngineStats _engineStats;
@@ -41,7 +41,7 @@ namespace NavalPowerSystems.DieselEngines
     }
 
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_ToolbarItemTerminalBlock), false, "NPSEnginesController")]
-    public class EngineLogic : MyGameLogicComponent
+    public class EngineLogicOld : MyGameLogicComponent
     {
         internal static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         private List<EngineChild> _engines = new List<EngineChild>();

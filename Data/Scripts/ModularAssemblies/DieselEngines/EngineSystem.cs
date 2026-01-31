@@ -4,7 +4,7 @@ using VRageMath;
 
 namespace NavalPowerSystems.DieselEngines
 {
-    internal class EngineSystem
+    internal class EngineSystemOld
     {
         public readonly int AssemblyId;
         public IMyFunctionalBlock Controller;

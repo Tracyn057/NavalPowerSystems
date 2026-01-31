@@ -14,7 +14,7 @@ using VRageMath;
 namespace NavalPowerSystems.DieselEngines
 {
     [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation | MyUpdateOrder.Simulation)]
-    internal class EngineManager : MySessionComponentBase
+    internal class EngineManagerOld : MySessionComponentBase
     {
         public static EngineManager Instance = new EngineManager();
         public static Dictionary<int, EngineSystem> EngineSystems = new Dictionary<int, EngineSystem>();
