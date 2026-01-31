@@ -1,17 +1,8 @@
-﻿using EmptyKeys.UserInterface;
-using NavalPowerSystems.Communication;
-using NavalPowerSystems.Extraction;
-using Sandbox.ModAPI;
+﻿using NavalPowerSystems.Communication;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
-using VRage.Game.Components;
 using VRage.Game.ModAPI;
-using VRageRender.Utils;
-using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems.DieselEngines
 {
@@ -36,7 +27,14 @@ namespace NavalPowerSystems.DieselEngines
         {
             foreach (var system in EngineSystems.Values)
             {
-                system.Update();
+                if (system.Controller == null || !system.Controller.IsWorking)
+                {
+                    system.Logic.Update10(0f);
+                }
+                else
+                {
+                    system.Logic.Update10(system.TargetThrottle);
+                }
             }
         }
 

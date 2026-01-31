@@ -1,18 +1,15 @@
 ﻿using Sandbox.ModAPI;
-using Sandbox.ModAPI.Interfaces.Terminal;
-using System.Collections.Generic;
 using VRage.Game.ModAPI;
-using static NavalPowerSystems.Config;
-using static VRage.Game.MyObjectBuilder_BehaviorTreeDecoratorNode;
 
 namespace NavalPowerSystems.DieselEngines
 {
     internal class EngineSystem
     {
         public readonly int AssemblyId;
-
         public IMyFunctionalBlock Controller;
         public EngineLogic Logic;
+        public float TargetThrottle { get; private set; } = 0f;
+        public void SetTargetThrottle(float throttle) => TargetThrottle = throttle;
 
         public EngineSystem(int id)
         {
@@ -25,31 +22,23 @@ namespace NavalPowerSystems.DieselEngines
             if (block == null) return;
 
             string subtype = block.BlockDefinition.SubtypeName;
-            var engine = block as IMyGasTank;
-            if (engine != null)
-            {
-               
-            }
 
             if (subtype == "NPSEnginesController")
             {
                 Controller = block as IMyFunctionalBlock;
             }
-            else if (EngineSettings.ContainsKey(subtype))
+            else if (Config.EngineSettings.ContainsKey(subtype))
             {
-                var stats = EngineSettings[subtype];
-                var table = (stats.Type == EngineType.Turbine) ? TurbineEngineConfigs.TurbineFuelTable : DieselEngineConfigs.DieselFuelTable;
+                var stats = Config.EngineSettings[subtype];
+                var table = (stats.Type == Config.EngineType.Turbine) ? TurbineEngineConfigs.TurbineFuelTable : DieselEngineConfigs.DieselFuelTable;
 
                 Logic.AddEngine(block as IMyGasTank, stats, table);
             }
-            
         }
 
         public void RemovePart(IMyCubeBlock block)
         {
-            string subtype = block.BlockDefinition.SubtypeName;
-
-            if (subtype == "NPSEnginesController")
+            if (block.BlockDefinition.SubtypeName == "NPSEnginesController")
                 Controller = null;
             else 
                 Logic.RemoveEngine(block);

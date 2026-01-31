@@ -23,8 +23,20 @@ namespace NavalPowerSystems
         public const int minWaterDepth = 25;            //Depth in m to utilize OceanMult
         public const int scanSize = 500;                //Grid size for the LCD scan component
 
-        //Viable component lists
 
+
+        public enum SpeedSetting { Stop, Slow, Half, Full, Flank, Emergency, Custom }
+        public static readonly Dictionary<SpeedSetting, float> SpeedThresholds = new Dictionary<SpeedSetting, float>
+        {
+            { SpeedSetting.Stop, 0.00f },
+            { SpeedSetting.Slow, 0.20f },
+            { SpeedSetting.Half, 0.50f },
+            { SpeedSetting.Full, 0.80f },
+            { SpeedSetting.Flank, 1.00f },
+            { SpeedSetting.Emergency, 1.25f }
+        };
+
+        //Viable component lists
         public static readonly HashSet<string> Engines = new HashSet<string>()
         {
             "NPSDieselTurbine2MW",
