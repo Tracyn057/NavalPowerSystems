@@ -1,0 +1,62 @@
+<?xml version="1.0"  encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<CategoryClasses>
+		
+		<Category xsi:type="MyObjectBuilder_GuiBlockCategoryDefinition">
+			<Id>
+				<TypeId>GuiBlockCategoryDefinition</TypeId>
+				<SubtypeId>NavalPowerSystems</SubtypeId>
+			</Id>
+			<DisplayName>Naval Power Systems</DisplayName>
+			<Name>NavalPowerSystems</Name>
+			<StrictSearch>true</StrictSearch>
+			<ItemIds>
+				<!-- Engines -->
+				<string>ButtonPanel/NPSEnginesController</string>
+				<string>OxygenTank/NPSDieselEngine500KW</string>
+				<string>OxygenTank/NPSDieselEngine15MW</string>
+				<string>OxygenTank/NPSDieselEngine25MW</string>
+				<string>OxygenTank/NPSDieselTurbine2MW</string>
+				<string>OxygenTank/NPSDieselTurbine5MW</string>
+				<string>OxygenTank/NPSDieselTurbine12MW</string>
+				<string>OxygenTank/NPSDieselTurbine25MW</string>
+				<string>OxygenTank/NPSDieselTurbine40MW</string>
+				<!-- Generators -->
+				 <string>HydrogenEngine/NPSDieselGenerator500KW</string>
+				 <string>HydrogenEngine/NPSDieselGenerator15MW</string>
+				 <string>HydrogenEngine/NPSDieselGenerator25MW</string>
+				 <string>HydrogenEngine/NPSMarineGasTurbineGen2MW</string>
+				 <string>HydrogenEngine/NPSMarineGasTurbineGen5MW</string>
+				 <string>HydrogenEngine/NPSMarineGasTurbineGen12MW</string>
+				 <string>HydrogenEngine/NPSMarineGasTurbineGen25MW</string>
+				 <string>HydrogenEngine/NPSMarineGasTurbineGen40MW</string>
+				 <!-- Production -->
+				 <string>OxygenTank/NPSProductionCrudeInput</string>
+				 <string>OxygenTank/NPSProductionFuelInput</string>
+				 <string>OxygenTank/NPSProductionFuelOutput</string>
+				 <string>OxygenTank/NPSProductionDieselOutput</string>
+				 <string>OxygenGenerator/NPSProductionOilCracker</string>
+				 <string>OxygenGenerator/NPSProductionFuelRefinery</string>
+				<!-- Extraction -->
+				 <string>OxygenTank/NPSExtractorOilDerrick</string>
+				 <string>CubeBlock/NPSExtractionDrillPipe</string>
+				 <string>TerminalBlock/NPSExtractionDrillHead</string>
+				 <string>OxygenTank/NPSExtractionCrudeOutput</string>
+				 <!-- Drivetrain -->
+				 <string>TerminalBlock/NPSDrivetrainClutch</string>
+				 <string>TerminalBlock/NPSDrivetrainMRG</string>
+				 <string>CubeBlock/NPSDrivetrainDriveshaft</string>
+				 <string>CubeBlock/NPSDrivetrainDriveshaftPassthrough</string>
+				 <string>Thrust/NPSDrivetrainScrew3b3m</string>
+				 <!-- Fuel Tanks -->
+				 <string>OxygenTank/LargeDieselTank</string>
+				 <string>OxygenTank/LargeDieselTankSmall</string>
+				 <string>OxygenTank/LargeCrudeTank</string>
+				 <string>OxygenTank/LargeCrudeTankSmall</string>
+				 <string>OxygenTank/LargeFuelTank</string>
+				 <string>OxygenTank/LargeFuelTankSmall</string>
+			</ItemIds>
+		</Category>
+
+	</CategoryClasses>
+</Definitions>

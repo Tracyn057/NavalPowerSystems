@@ -1,6 +1,7 @@
 ﻿using NavalPowerSystems.Communication;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces.Terminal;
+using System.Text;
 using VRage.ModAPI;
 using VRage.Utils;
 using static NavalPowerSystems.Config;
@@ -34,8 +35,30 @@ namespace NavalPowerSystems.DieselEngines
             speedList.Visible = (block) => block.BlockDefinition.SubtypeName == "NPSEnginesController";
             MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(speedList);
 
-            var customSlider = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlSlider, IMyFunctionalBlock>(ID_PREFIX + "CustomThrottle");
-            customSlider.Title = MyStringId.GetOrCompute("Custom Throttle");
+            var speedInput = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlTextbox, IMyFunctionalBlock>(ID_PREFIX + "TargetSpeedText");
+            speedInput.Title = MyStringId.GetOrCompute("Target Speed");
+            speedInput.Tooltip = MyStringId.GetOrCompute("Enter speed in m/s, or append kn or kts for knots.");
+
+            speedInput.Getter = (block) => {
+                var system = GetSystem(block);
+                return new StringBuilder(system?.UserSpeedInput ?? "0");
+            };
+
+            speedInput.Setter = (block, sb) => {
+                string input = sb.ToString();
+                var system = GetSystem(block);
+                if (system != null)
+                {
+                    system.UserSpeedInput = input;
+                    system.ParseSpeedInput(input);
+                }
+            };
+
+            speedInput.Visible = (block) => block.BlockDefinition.SubtypeName == "NPSEnginesController";
+            MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(speedInput);
+
+            var customSlider = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlSlider, IMyFunctionalBlock>(ID_PREFIX + "TargetThrottle");
+            customSlider.Title = MyStringId.GetOrCompute("Target Throttle");
             customSlider.SetLimits(0, 125);
             customSlider.Writer = (block, sb) => sb.Append((int)customSlider.Getter(block)).Append("%");
             customSlider.Getter = (block) => GetCustomThrottle(block);
@@ -53,16 +76,6 @@ namespace NavalPowerSystems.DieselEngines
             {
                 system.SetTargetThrottle(val);
             }
-        }
-
-        private static float GetTarget(IMyTerminalBlock block)
-        {
-            EngineSystem system;
-            if (EngineManager.EngineSystems.TryGetValue(GetAssemblyId(block), out system))
-            {
-                return system.TargetThrottle;
-            }
-            return 0f;
         }
 
         private static int GetAssemblyId(IMyTerminalBlock block)
@@ -92,6 +105,21 @@ namespace NavalPowerSystems.DieselEngines
             }
 
             return 0f;
+        }
+
+        private static EngineSystem GetSystem(IMyTerminalBlock block)
+        {
+            if (block == null) return null;
+
+            int assemblyId = ModularApi.GetContainingAssembly(block, "Engine_Definition");
+
+            EngineSystem system;
+            if (EngineManager.EngineSystems.TryGetValue(assemblyId, out system))
+            {
+                return system;
+            }
+
+            return null;
         }
     }
 }

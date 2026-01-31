@@ -72,7 +72,6 @@ namespace NavalPowerSystems.Production
         private void ProcessLinearConversion()
         {
             ProductionSystem system;
-            //MyAPIGateway.Utilities.ShowNotification($"Logic checking Assembly: {_assemblyId}", 1000);
             if (!ProductionManager.ProductionSystems.TryGetValue(_assemblyId, out system) || !system.IsFunctional)
                 return;
 
@@ -84,8 +83,6 @@ namespace NavalPowerSystems.Production
             double inputCurrentLiters = _inputTank.FilledRatio * _inputTank.Capacity;
             double amountToProcess = Math.Min(inputCurrentLiters, Config.baseRefineRate);
             double outputAmount = amountToProcess * _activeRatio;
-
-            //MyAPIGateway.Utilities.ShowNotification($"Processing: {amountToProcess} In -> {outputAmount} Out", 2000, "Green");
 
             double outputSpace = _outputTank.Capacity - (_outputTank.FilledRatio * _outputTank.Capacity);
 

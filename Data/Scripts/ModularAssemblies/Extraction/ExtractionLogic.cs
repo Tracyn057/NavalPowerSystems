@@ -133,27 +133,27 @@ namespace NavalPowerSystems.Extraction
             float baseRate = Config.derrickExtractRate > 0 ? Config.derrickExtractRate : 1.0f;
             float oceanMult = Config.derrickOceanMult > 0 ? Config.derrickOceanMult : 2.0f;
             _isDebug = _block.CustomData.Trim().ToUpper().Contains("DEBUG");
-            _isDebugOcean = _block.CustomData.Trim().ToUpper().Contains("DEBUGOCEAN");
+            _isDebugOcean = _block.CustomData.Trim().ToUpper().Contains("OCEAN");
             if (_isDebug)
             {
-                _extractionRate = baseRate;
+                _extractionRate = 100;
                 _status = "Extracting OVERRIDE";
                 return;
             }
-            else if (_isDebugOcean)
+            else if (_isDebug && _isDebugOcean)
             {
-                _extractionRate = baseRate * oceanMult;
+                _extractionRate = 100 * oceanMult;
                 _status = "Extracting (Oceanic) OVERRIDE";
                 return;
             }
             else if (_IsOcean)
             {
-                _extractionRate = (baseRate * _YieldMult) * oceanMult;
+                _extractionRate = ((baseRate * _YieldMult) * 1.6f) * oceanMult;
                 _status = "Extracting (Oceanic)";
             }
             else
             {
-                _extractionRate = baseRate * _YieldMult;
+                _extractionRate = (baseRate * _YieldMult) * 1.6f;
                 _status = "Extracting";
             }
         }

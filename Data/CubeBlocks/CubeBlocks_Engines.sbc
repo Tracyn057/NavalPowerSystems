@@ -2,14 +2,101 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <CubeBlocks>
 
-        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+		<Definition xsi:type="MyObjectBuilder_ButtonPanelDefinition">
+			<Id>
+				<TypeId>ButtonPanel</TypeId>
+				<SubtypeId>NPSEnginesController</SubtypeId>
+			</Id>
+			<DisplayName>Engine Control Panel</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\ButtonPanel.dds</Icon>
+			<Description>Description_ButtonPanel</Description>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="1" />
+			<ModelOffset x="0" y="0" z="0" />
+			<Model>Models\Cubes\Large\ButtonPanel.mwm</Model>
+			<Components>
+				<Component Subtype="InteriorPlate" Count="10" />
+				<Component Subtype="Construction" Count="10" />
+				<Component Subtype="Computer" Count="20" />
+				<Component Subtype="Construction" Count="10" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="0.4" />
+				<MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1" EndY="0.1" Default="true" />
+				<MountPoint Side="Left" StartX="0" StartY="0" EndX="0.1" EndY="0.4" />
+				<MountPoint Side="Right" StartX="0.9" StartY="0" EndX="1" EndY="0.4" />
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\ButtonPanelConstruction_1.mwm" />
+				<Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\ButtonPanelConstruction_2.mwm" />
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\ButtonPanelConstruction_3.mwm" />
+			</BuildProgressModels>
+			<BlockPairName>EngineController</BlockPairName>
+			<EdgeType>Light</EdgeType>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<BuildTimeSeconds>10</BuildTimeSeconds>
+			<ResourceSinkGroup>Utility</ResourceSinkGroup>
+			<ButtonCount>4</ButtonCount>
+			<ButtonSymbols>
+				<string>Textures\GUI\Icons\buttons\OneButton.dds</string>
+				<string>Textures\GUI\Icons\buttons\TwoButton.dds</string>
+				<string>Textures\GUI\Icons\buttons\ThreeButton.dds</string>
+				<string>Textures\GUI\Icons\buttons\FourButton.dds</string>
+			</ButtonSymbols>
+			<UnassignedButtonColor>
+				<X>0.34</X>
+				<Y>0.34</Y>
+				<Z>0.34</Z>
+				<W>0</W>
+			</UnassignedButtonColor>
+			<ButtonColors>
+				<Vector4>
+					<X>1</X>
+					<Y>1</Y>
+					<Z>0.3</Z>
+					<W>1</W>
+				</Vector4>
+				<Vector4>
+					<X>1</X>
+					<Y>1</Y>
+					<Z>0.3</Z>
+					<W>1</W>
+				</Vector4>
+				<Vector4>
+					<X>1</X>
+					<Y>1</Y>
+					<Z>0.3</Z>
+					<W>1</W>
+				</Vector4>
+				<Vector4>
+					<X>1</X>
+					<Y>1</Y>
+					<Z>0.3</Z>
+					<W>1</W>
+				</Vector4>
+			</ButtonColors>
+			<DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
+			<DamagedSound>ParticleElectrical</DamagedSound>
+			<DestroyEffect>BlockDestroyedExplosion_Small</DestroyEffect>
+			<DestroySound>WepSmallWarheadExpl</DestroySound>
+			<PCU>5</PCU>
+			<IsAirTight>false</IsAirTight>
+            <TargetingGroups>
+                <string>Propulsion</string>
+            </TargetingGroups>
+		</Definition>
+
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
             <Id>
-                <TypeId>HydrogenEngine</TypeId>
-                <SubtypeId>NPSDieselGenerator500KW</SubtypeId>
+                <TypeId>OxygenTank</TypeId>
+                <SubtypeId>NPSDieselEngine500KW</SubtypeId>
             </Id>
-            <DisplayName>Marine Diesel Generator, 500KW</DisplayName>
-            <Description>Description_PowerGenerator</Description>
+            <DisplayName>Marine Diesel Engine, 500KW</DisplayName>
             <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
+            <Description>Description_PowerGenerator</Description>
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
@@ -37,69 +124,54 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenEngine_Construction2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenEngine_Construction3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>DieselGen500kw</BlockPairName>
+            <BlockPairName>DieselEngine</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <BuildTimeSeconds>60</BuildTimeSeconds>
-            <ResourceSinkGroup>Generators</ResourceSinkGroup>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <MaxPowerOutput>0.5</MaxPowerOutput>
-            <FuelCapacity>1000</FuelCapacity>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
-            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>1000</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
-                <Y>1</Y>
+                <Y>1</Y> 
                 <Z>1</Z>
             </InventorySize>
-            <FuelInfos>
-                <FuelInfo>
-                    <Id>
-                        <TypeId>GasProperties</TypeId>
-                        <SubtypeId>DieselFuel</SubtypeId>
-                    </Id>
-                </FuelInfo>
-            </FuelInfos>
-            <FuelProductionToCapacityMultiplier>0.1333</FuelProductionToCapacityMultiplier>
-            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
-
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
-            <DestroySound>WepSmallWarheadExpl</DestroySound>
-
-            <AnimationSpeed>5</AnimationSpeed>
-            <PistonAnimationMin>-0.15</PistonAnimationMin>
-            <PistonAnimationMax>0.01</PistonAnimationMax>
-            <PistonAnimationOffsets>
-                <float>0.5</float>
-                <float>0.0</float>
-                <float>0.0</float>
-                <float>0.0</float>
-                <float>0.5</float>
-                <float>0.0</float>
-                <float>0.5</float>
-                <float>0.5</float>
-                <float>0.0</float>
-                <float>0.5</float>
-            </PistonAnimationOffsets>
-            <AnimationSpinUpSpeed>5</AnimationSpinUpSpeed>
-            <AnimationSpinDownSpeed>5</AnimationSpinDownSpeed>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>PowerSystems</string>
+                <string>Propulsion</string>
             </TargetingGroups>
         </Definition>
 
-        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
             <Id>
-                <TypeId>HydrogenEngine</TypeId>
-                <SubtypeId>NPSDieselGenerator15MW</SubtypeId>
+                <TypeId>OxygenTank</TypeId>
+                <SubtypeId>NPSDieselEngine15MW</SubtypeId>
             </Id>
-            <DisplayName>Marine Diesel Generator, 1.5MW</DisplayName>
-            <Description>Description_PowerGenerator</Description>
+            <DisplayName>Marine Diesel Engine, 1.5MW</DisplayName>
             <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
+            <Description>Description_PowerGenerator</Description>
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
@@ -127,69 +199,54 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenEngine_Construction2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenEngine_Construction3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>DieselGen15mw</BlockPairName>
+            <BlockPairName>DieselEngine</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <BuildTimeSeconds>60</BuildTimeSeconds>
-            <ResourceSinkGroup>Generators</ResourceSinkGroup>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <MaxPowerOutput>1.5</MaxPowerOutput>
-            <FuelCapacity>1000</FuelCapacity>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
-            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>1000</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
-                <Y>1</Y>
+                <Y>1</Y> 
                 <Z>1</Z>
             </InventorySize>
-            <FuelInfos>
-                <FuelInfo>
-                    <Id>
-                        <TypeId>GasProperties</TypeId>
-                        <SubtypeId>DieselFuel</SubtypeId>
-                    </Id>
-                </FuelInfo>
-            </FuelInfos>
-            <FuelProductionToCapacityMultiplier>0.1333</FuelProductionToCapacityMultiplier>
-            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
-
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
-            <DestroySound>WepSmallWarheadExpl</DestroySound>
-
-            <AnimationSpeed>5</AnimationSpeed>
-            <PistonAnimationMin>-0.15</PistonAnimationMin>
-            <PistonAnimationMax>0.01</PistonAnimationMax>
-            <PistonAnimationOffsets>
-                <float>0.5</float>
-                <float>0.0</float>
-                <float>0.0</float>
-                <float>0.0</float>
-                <float>0.5</float>
-                <float>0.0</float>
-                <float>0.5</float>
-                <float>0.5</float>
-                <float>0.0</float>
-                <float>0.5</float>
-            </PistonAnimationOffsets>
-            <AnimationSpinUpSpeed>5</AnimationSpinUpSpeed>
-            <AnimationSpinDownSpeed>5</AnimationSpinDownSpeed>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>PowerSystems</string>
+                <string>Propulsion</string>
             </TargetingGroups>
         </Definition>
 
-        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
             <Id>
-                <TypeId>HydrogenEngine</TypeId>
-                <SubtypeId>NPSDieselGenerator25MW</SubtypeId>
+                <TypeId>OxygenTank</TypeId>
+                <SubtypeId>NPSDieselEngine25MW</SubtypeId>
             </Id>
-            <DisplayName>Marine Diesel Generator, 2.5MW</DisplayName>
-            <Description>Description_PowerGenerator</Description>
+            <DisplayName>Marine Diesel Engine, 2.5MW</DisplayName>
             <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
+            <Description>Description_PowerGenerator</Description>
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
@@ -217,69 +274,54 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenEngine_Construction2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenEngine_Construction3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>DieselGen25mw</BlockPairName>
+            <BlockPairName>DieselEngine</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <BuildTimeSeconds>60</BuildTimeSeconds>
-            <ResourceSinkGroup>Generators</ResourceSinkGroup>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <MaxPowerOutput>2.5</MaxPowerOutput>
-            <FuelCapacity>1000</FuelCapacity>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
-            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>1000</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
-                <Y>1</Y>
+                <Y>1</Y> 
                 <Z>1</Z>
             </InventorySize>
-            <FuelInfos>
-                <FuelInfo>
-                    <Id>
-                        <TypeId>GasProperties</TypeId>
-                        <SubtypeId>DieselFuel</SubtypeId>
-                    </Id>
-                </FuelInfo>
-            </FuelInfos>
-            <FuelProductionToCapacityMultiplier>0.1333</FuelProductionToCapacityMultiplier>
-            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
-
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
-            <DestroySound>WepSmallWarheadExpl</DestroySound>
-
-            <AnimationSpeed>5</AnimationSpeed>
-            <PistonAnimationMin>-0.15</PistonAnimationMin>
-            <PistonAnimationMax>0.01</PistonAnimationMax>
-            <PistonAnimationOffsets>
-                <float>0.5</float>
-                <float>0.0</float>
-                <float>0.0</float>
-                <float>0.0</float>
-                <float>0.5</float>
-                <float>0.0</float>
-                <float>0.5</float>
-                <float>0.5</float>
-                <float>0.0</float>
-                <float>0.5</float>
-            </PistonAnimationOffsets>
-            <AnimationSpinUpSpeed>5</AnimationSpinUpSpeed>
-            <AnimationSpinDownSpeed>5</AnimationSpinDownSpeed>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>PowerSystems</string>
+                <string>Propulsion</string>
             </TargetingGroups>
         </Definition>
 
 
 
-        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
             <Id>
-                <TypeId>HydrogenEngine</TypeId>
-                <SubtypeId>NPSMarineGasTurbineGen2MW</SubtypeId>
+                <TypeId>OxygenTank</TypeId>
+                <SubtypeId>NPSDieselTurbine2MW</SubtypeId>
             </Id>
-            <DisplayName>Marine Gas Turbine Generator, 2MW</DisplayName>
+            <DisplayName>Marine Gas Turbine, 2MW</DisplayName>
             <Description>Description_PowerGenerator</Description>
             <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
             <CubeSize>Large</CubeSize>
@@ -323,48 +365,52 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>TurbineGen2mw</BlockPairName>
+            <BlockPairName>DieselTurbine2mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <BuildTimeSeconds>60</BuildTimeSeconds>
-            <ResourceSinkGroup>Generators</ResourceSinkGroup>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <MaxPowerOutput>2</MaxPowerOutput>
-            <FuelCapacity>1000</FuelCapacity>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
-            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>1000</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
-                <Y>1</Y>
+                <Y>1</Y> 
                 <Z>1</Z>
             </InventorySize>
-            <FuelInfos>
-                <FuelInfo>
-                    <Id>
-                        <TypeId>GasProperties</TypeId>
-                        <SubtypeId>DieselFuel</SubtypeId>
-                    </Id>
-                </FuelInfo>
-            </FuelInfos>
-            <FuelProductionToCapacityMultiplier>0.1026</FuelProductionToCapacityMultiplier>
-            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
-            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>PowerSystems</string>
+                <string>Propulsion</string>
             </TargetingGroups>
         </Definition>
 
-        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
             <Id>
-                <TypeId>HydrogenEngine</TypeId>
-                <SubtypeId>NPSMarineGasTurbineGen5MW</SubtypeId>
+                <TypeId>OxygenTank</TypeId>
+                <SubtypeId>NPSDieselTurbine5MW</SubtypeId>
             </Id>
-            <DisplayName>Marine Gas Turbine Generator, 5MW</DisplayName>
+            <DisplayName>Marine Gas Turbine, 5MW</DisplayName>
             <Description>Description_PowerGenerator</Description>
             <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
             <CubeSize>Large</CubeSize>
@@ -408,48 +454,52 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>TurbineGen5mw</BlockPairName>
+            <BlockPairName>DieselTurbine5mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <BuildTimeSeconds>60</BuildTimeSeconds>
-            <ResourceSinkGroup>Generators</ResourceSinkGroup>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <MaxPowerOutput>5</MaxPowerOutput>
-            <FuelCapacity>1000</FuelCapacity>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
-            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>1000</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
-                <Y>1</Y>
+                <Y>1</Y> 
                 <Z>1</Z>
             </InventorySize>
-            <FuelInfos>
-                <FuelInfo>
-                    <Id>
-                        <TypeId>GasProperties</TypeId>
-                        <SubtypeId>DieselFuel</SubtypeId>
-                    </Id>
-                </FuelInfo>
-            </FuelInfos>
-            <FuelProductionToCapacityMultiplier>0.1026</FuelProductionToCapacityMultiplier>
-            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
-            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>PowerSystems</string>
+                <string>Propulsion</string>
             </TargetingGroups>
         </Definition>
 
-        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
             <Id>
-                <TypeId>HydrogenEngine</TypeId>
-                <SubtypeId>NPSMarineGasTurbineGen12MW</SubtypeId>
+                <TypeId>OxygenTank</TypeId>
+                <SubtypeId>NPSDieselTurbine12MW</SubtypeId>
             </Id>
-            <DisplayName>Marine Gas Turbine Generator, 12MW</DisplayName>
+            <DisplayName>Marine Gas Turbine, 12MW</DisplayName>
             <Description>Description_PowerGenerator</Description>
             <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
             <CubeSize>Large</CubeSize>
@@ -493,48 +543,52 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>TurbineGen12mw</BlockPairName>
+            <BlockPairName>DieselTurbine12mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <BuildTimeSeconds>60</BuildTimeSeconds>
-            <ResourceSinkGroup>Generators</ResourceSinkGroup>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <MaxPowerOutput>12</MaxPowerOutput>
-            <FuelCapacity>1000</FuelCapacity>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
-            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>1000</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
-                <Y>1</Y>
+                <Y>1</Y> 
                 <Z>1</Z>
             </InventorySize>
-            <FuelInfos>
-                <FuelInfo>
-                    <Id>
-                        <TypeId>GasProperties</TypeId>
-                        <SubtypeId>DieselFuel</SubtypeId>
-                    </Id>
-                </FuelInfo>
-            </FuelInfos>
-            <FuelProductionToCapacityMultiplier>0.1026</FuelProductionToCapacityMultiplier>
-            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
-            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>PowerSystems</string>
+                <string>Propulsion</string>
             </TargetingGroups>
         </Definition>
 
-        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
             <Id>
-                <TypeId>HydrogenEngine</TypeId>
-                <SubtypeId>NPSMarineGasTurbineGen25MW</SubtypeId>
+                <TypeId>OxygenTank</TypeId>
+                <SubtypeId>NPSDieselTurbine25MW</SubtypeId>
             </Id>
-            <DisplayName>Marine Gas Turbine Generator, 25MW</DisplayName>
+            <DisplayName>Marine Gas Turbine, 25MW</DisplayName>
             <Description>Description_PowerGenerator</Description>
             <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
             <CubeSize>Large</CubeSize>
@@ -578,48 +632,52 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>TurbineGen25mw</BlockPairName>
+            <BlockPairName>DieselTurbine25mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <BuildTimeSeconds>60</BuildTimeSeconds>
-            <ResourceSinkGroup>Generators</ResourceSinkGroup>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <MaxPowerOutput>25</MaxPowerOutput>
-            <FuelCapacity>1000</FuelCapacity>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
-            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>1000</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
-                <Y>1</Y>
+                <Y>1</Y> 
                 <Z>1</Z>
             </InventorySize>
-            <FuelInfos>
-                <FuelInfo>
-                    <Id>
-                        <TypeId>GasProperties</TypeId>
-                        <SubtypeId>DieselFuel</SubtypeId>
-                    </Id>
-                </FuelInfo>
-            </FuelInfos>
-            <FuelProductionToCapacityMultiplier>0.1026</FuelProductionToCapacityMultiplier>
-            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
-            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>PowerSystems</string>
+                <string>Propulsion</string>
             </TargetingGroups>
         </Definition>
 
-        <Definition xsi:type="MyObjectBuilder_HydrogenEngineDefinition">
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
             <Id>
-                <TypeId>HydrogenEngine</TypeId>
-                <SubtypeId>NPSMarineGasTurbineGen40MW</SubtypeId>
+                <TypeId>OxygenTank</TypeId>
+                <SubtypeId>NPSDieselTurbine40MW</SubtypeId>
             </Id>
-            <DisplayName>Marine Gas Turbine Generator, 40MW</DisplayName>
+            <DisplayName>Marine Gas Turbine, 40MW</DisplayName>
             <Description>Description_PowerGenerator</Description>
             <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
             <CubeSize>Large</CubeSize>
@@ -663,39 +721,43 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>TurbineGen40mw</BlockPairName>
+            <BlockPairName>DieselTurbine40mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <BuildTimeSeconds>60</BuildTimeSeconds>
-            <ResourceSinkGroup>Generators</ResourceSinkGroup>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <MaxPowerOutput>40</MaxPowerOutput>
-            <FuelCapacity>1000</FuelCapacity>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
-            <IsAirTight>false</IsAirTight>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>1000</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
-                <Y>1</Y>
+                <Y>1</Y> 
                 <Z>1</Z>
             </InventorySize>
-            <FuelInfos>
-                <FuelInfo>
-                    <Id>
-                        <TypeId>GasProperties</TypeId>
-                        <SubtypeId>DieselFuel</SubtypeId>
-                    </Id>
-                </FuelInfo>
-            </FuelInfos>
-            <FuelProductionToCapacityMultiplier>0.1026</FuelProductionToCapacityMultiplier>
-            <PrimarySound>ArcBlockHydrogenEngine</PrimarySound>
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <DestroyEffect>Explosion_Warhead_02</DestroyEffect>
-            <DestroySound>WepSmallWarheadExpl</DestroySound>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>PowerSystems</string>
+                <string>Propulsion</string>
             </TargetingGroups>
         </Definition>
 

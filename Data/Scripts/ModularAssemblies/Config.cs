@@ -58,8 +58,8 @@ namespace NavalPowerSystems
         public enum EngineType { Diesel, Turbine }
         public struct EfficiencyPoint
         {
-            public float Throttle;   // 0.0 to 1.25
-            public float Multiplier; // Fuel burn or Thrust efficiency
+            public float Throttle;
+            public float Multiplier;
 
             public EfficiencyPoint(float t, float m)
             {

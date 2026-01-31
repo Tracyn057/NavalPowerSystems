@@ -12,12 +12,6 @@ namespace NavalPowerSystems.Utilities
 {
     public class CommonUtilities
     {
-        public void init()
-        {
-            RemoveActions();
-            RemoveControls();
-        }
-
         public static void UpdatePowerConsumption(IMyFunctionalBlock block, bool isActive)
         {
             if (block == null) return;
@@ -58,7 +52,7 @@ namespace NavalPowerSystems.Utilities
             }
         }
 
-        private static bool ShouldRemoveTankControls(IMyTerminalBlock block)
+        public static bool ShouldRemoveTankControls(IMyTerminalBlock block)
         {
             if (block == null) return false;
             string subtype = block.BlockDefinition.SubtypeName;
@@ -68,7 +62,7 @@ namespace NavalPowerSystems.Utilities
                 subtype.Contains("NPSExtractionCrudeOutput");
         }
 
-        private static void RemoveControls()
+        public static void RemoveControls()
         {
             List<IMyTerminalControl> controls;
             MyAPIGateway.TerminalControls.GetControls<IMyGasTank>(out controls);
@@ -87,7 +81,7 @@ namespace NavalPowerSystems.Utilities
             }
         }
 
-        private static void RemoveActions()
+        public static void RemoveActions()
         {
             List<IMyTerminalAction> actions;
             MyAPIGateway.TerminalControls.GetActions<IMyGasTank>(out actions);

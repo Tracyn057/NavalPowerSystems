@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <BlockVariantGroups>
+
+        <BlockVariantGroup>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSDieselGenerator" />
+            <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
+            <DisplayName>MarineDieselGenerator</DisplayName>
+            <Description>Description_PowerGenerator</Description>
+            <Blocks>
+                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSDieselGenerator500KW" />
+                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSDieselGenerator15MW" />
+                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSDieselGenerator25MW" />
+            </Blocks>
+        </BlockVariantGroup>   
+
+        <BlockVariantGroup>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSMarineGasTurbineGenerator" />
+            <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
+            <DisplayName>MarineGasTurbineGenerator</DisplayName>
+            <Description>Description_PowerGenerator</Description>
+            <Blocks>
+                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSMarineGasTurbineGen2MW" />
+                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSMarineGasTurbineGen5MW" />
+                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSMarineGasTurbineGen12MW" />
+                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSMarineGasTurbineGen25MW" />
+                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSMarineGasTurbineGen40MW" />
+            </Blocks>
+        </BlockVariantGroup>   
+
+        <BlockVariantGroup>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSDieselEngine" />
+            <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
+            <DisplayName>MarineDieselEngine</DisplayName>
+            <Description>Description_PowerGenerator</Description>
+            <Blocks>
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSDieselEngine500KW" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSDieselEngine15MW" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSDieselEngine25MW" />
+            </Blocks>
+        </BlockVariantGroup>   
+
+        <BlockVariantGroup>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSMarineGasTurbineEngine" />
+            <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
+            <DisplayName>MarineGasTurbineEngine</DisplayName>
+            <Description>Description_PowerGenerator</Description>
+            <Blocks>
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine2MW" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine5MW" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine12MW" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine25MW" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine40MW" />
+            </Blocks>
+        </BlockVariantGroup>   
+
+        <BlockVariantGroup>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSProductionInputOutput" />
+            <Icon>Textures\GUI\Icons\Cubes\largeHydrogenTankSmall.dds</Icon>
+            <DisplayName>OilRefineryInputOutput</DisplayName>
+            <Description>Description_PowerGenerator</Description>
+            <Blocks>
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionCrudeInput" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionFuelInput" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionFuelOutput" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionDieselOutput" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine40MW" />
+            </Blocks>
+        </BlockVariantGroup>   
+
+    </BlockVariantGroups>
+</Definitions>
