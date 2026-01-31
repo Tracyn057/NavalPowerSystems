@@ -1,4 +1,5 @@
-﻿using Sandbox.Definitions;
+﻿using NavalPowerSystems;
+using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces.Terminal;
@@ -8,9 +9,9 @@ using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Utils;
 
-namespace NavalPowerSystems.Utilities
+namespace NavalPowerSystems.Common
 {
-    public class CommonUtilities
+    public class Utilities
     {
         public static void UpdatePowerConsumption(IMyFunctionalBlock block, bool isActive)
         {

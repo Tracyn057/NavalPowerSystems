@@ -282,7 +282,6 @@ namespace NavalPowerSystems.Communication
                 RegisterOnPartRemove(definition.Name, definition.OnPartRemove);
                 RegisterOnPartDestroy(definition.Name, definition.OnPartDestroy);
                 RegisterOnAssemblyClose(definition.Name, definition.OnAssemblyClose);
-                MyAPIGateway.Utilities.ShowMessage("Definition API", "{definition} Initialized.");
 
                 if (validDefinitions.Contains(definition.Name))
                     definition.OnInit?.Invoke();

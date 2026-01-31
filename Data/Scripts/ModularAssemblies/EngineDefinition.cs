@@ -1,5 +1,5 @@
-﻿using NavalPowerSystems.DieselEngines;
-using NavalPowerSystems.Utilities;
+﻿using NavalPowerSystems.Common;
+using NavalPowerSystems.DieselEngines;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRageMath;
@@ -21,8 +21,6 @@ namespace NavalPowerSystems
             OnInit = () =>
             {
                 EngineManager.Instance.EngineDefinition = this;
-                //CommonUtilities.RemoveActions();
-                //CommonUtilities.RemoveControls();
             },
 
             // Triggers whenever a new part is added to an assembly.

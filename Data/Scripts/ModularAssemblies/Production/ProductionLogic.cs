@@ -1,5 +1,5 @@
-﻿using NavalPowerSystems.Communication;
-using NavalPowerSystems.Utilities;
+﻿using NavalPowerSystems.Common;
+using NavalPowerSystems.Communication;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
 using Sandbox.Game.EntityComponents;
@@ -55,7 +55,7 @@ namespace NavalPowerSystems.Production
             if (_assemblyId == -1) return;
 
             bool isActive = _refineryBlock.IsWorking;
-            CommonUtilities.UpdatePowerConsumption(_producerBlock, isActive);
+            Utilities.UpdatePowerConsumption(_producerBlock, isActive);
 
             ProductionSystem system;
             if (ProductionManager.ProductionSystems.TryGetValue(_assemblyId, out system))
@@ -88,8 +88,8 @@ namespace NavalPowerSystems.Production
 
             if (outputSpace >= outputAmount && amountToProcess > 0)
             {
-                CommonUtilities.ChangeTankLevel(_inputTank, -amountToProcess);
-                CommonUtilities.ChangeTankLevel(_outputTank, outputAmount);
+                Utilities.ChangeTankLevel(_inputTank, -amountToProcess);
+                Utilities.ChangeTankLevel(_outputTank, outputAmount);
             }
         }
 

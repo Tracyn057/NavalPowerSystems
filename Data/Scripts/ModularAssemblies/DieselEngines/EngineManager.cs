@@ -1,18 +1,30 @@
-﻿using NavalPowerSystems.Communication;
+﻿using NavalPowerSystems.Common;
+using NavalPowerSystems.Communication;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace NavalPowerSystems.DieselEngines
 {
-    internal class EngineManager
+    [MySessionComponentDescriptor(MyUpdateOrder.BeforeSimulation | MyUpdateOrder.Simulation)]
+    internal class EngineManager : MySessionComponentBase
     {
         public static EngineManager Instance = new EngineManager();
         public static Dictionary<int, EngineSystem> EngineSystems = new Dictionary<int, EngineSystem>();
+        internal readonly HashSet<IMyTerminalControl> ThrottleControls = new HashSet<IMyTerminalControl>();
         public ModularDefinition EngineDefinition;
+        private int _ticks;
+        public bool _controlsCreated = false;
         private static ModularDefinitionApi ModularApi => NavalPowerSystems.ModularDefinition.ModularApi;
+
+        private bool _initialized = false;
 
         public void Load()
         {
@@ -25,8 +37,24 @@ namespace NavalPowerSystems.DieselEngines
             EngineSystems.Clear();
         }
 
+        public void UpdateTick()
+        {
+            if (_ticks % 10 == 0)
+                Update10();
+
+            _ticks++;
+        }
+
         public void Update10()
         {
+            MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Update10");
+            if (!_initialized)
+            {
+                MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Init Engine Controls");
+                _initialized = true;
+                InitTerminal();
+            }
+
             foreach (var system in EngineSystems.Values)
             {
                 if (system.Controller == null || !system.Controller.IsWorking)
@@ -53,6 +81,10 @@ namespace NavalPowerSystems.DieselEngines
                     finalThrottle = system.TargetThrottle;
                 }
                 system.Logic.Update10(system.TargetThrottle);
+                if (system.Controller != null && system.Controller.HasLocalPlayerAccess())
+                {
+                    system.Controller.RefreshCustomInfo();
+                }
             }
         }
 
@@ -89,13 +121,30 @@ namespace NavalPowerSystems.DieselEngines
             if (!EngineSystems.ContainsKey(assemblyId))
                 EngineSystems.Add(assemblyId, new EngineSystem(assemblyId));
 
+            if (block.BlockDefinition.SubtypeName == "NPSEnginesController")
+            {
+                var terminal = block as IMyTerminalBlock;
+
+                terminal.RefreshCustomInfo();
+            }
+
             EngineSystems[assemblyId].AddPart(block);
         }
 
         public void OnPartRemove(int assemblyId, IMyCubeBlock block, bool isBasePart)
         {
+            if (block.BlockDefinition.SubtypeName == "NPSEnginesController")
+            {
+                var terminal = block as IMyTerminalBlock;
+            }
+
             if (EngineSystems.ContainsKey(assemblyId))
                 EngineSystems[assemblyId].RemovePart(block);
+        }
+
+        private void InitTerminal()
+        {
+            EngineTerminalHelpers.AddEngineControls<IMyTerminalBlock>(this);
         }
     }
 }

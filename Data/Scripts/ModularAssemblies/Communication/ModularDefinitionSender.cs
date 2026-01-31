@@ -1,4 +1,6 @@
-﻿using Sandbox.ModAPI;
+﻿using NavalPowerSystems.Common;
+using NavalPowerSystems.DieselEngines;
+using Sandbox.ModAPI;
 using System;
 using VRage.Game;
 using VRage.Game.Components;
@@ -17,6 +19,10 @@ namespace NavalPowerSystems.Communication
             StoredDef = ModularDefinition.GetBaseDefinitions();
 
             ModularDefinition.ModularApi.Init(ModContext, SendDefinitions);
+            MyAPIGateway.Utilities.InvokeOnGameThread(() => {
+                Utilities.RemoveActions();
+                Utilities.RemoveControls();
+            });
         }
 
         protected override void UnloadData()

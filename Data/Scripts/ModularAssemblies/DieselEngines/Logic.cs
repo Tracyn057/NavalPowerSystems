@@ -1,59 +1,52 @@
 ﻿using Jakaria.API;
 using NavalPowerSystems.Common;
 using NavalPowerSystems.Communication;
-using NavalPowerSystems.Production;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
-using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRageMath;
 
-namespace NavalPowerSystems.Extraction
+namespace NavalPowerSystems.DieselEngines
 {
-    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_OxygenGenerator), false, "NPSExtractorOilDerrick")]
+    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_Collector), false, "NPSEnginesController")]
     public class ExtractionLogic : MyGameLogicComponent
     {
         internal static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
 
         private IMyFunctionalBlock _block;
-        private IMyGasTank _outputTank;
-        private IMyCubeBlock _rigBlock;
+        private IMyTerminalBlock _controller;
+        private IMyGasTank _engine;
         private int _assemblyId = -1;
-        private string _status = "Idle";
-        private int _pipeCount = 0;
-        private float _extractionRate = 0f;
-        private bool _isDebug = false;
-        private bool _isDebugOcean = false;
-
-        private float _YieldMult;
-        private bool _IsOcean;
-        private bool _IsRig;
+        private float _requestedThrottle = 0.0f;
+        private float _currentThrottle = 0.0f;
+        private float _maxOutput = 0.0f;
+        private float _currentOutput = 0.0f;
+        private float _fuelFlow = 0.0f;
+        private float _fuelBurn = 0.0f;
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
             _block = Entity as IMyFunctionalBlock;
-            _rigBlock = Entity as IMyCubeBlock;
-            ExtractionManager.Register(this);
+            _controller = Entity as IMyCubeBlock;
+            EngineManager.Register(this);
 
-            if (_block == null) return;
+            if (_controller == null) return;
 
-            _block.AppendingCustomInfo += AppendCustomInfo;
+            _controller.AppendingCustomInfo += AppendCustomInfo;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public override void UpdateAfterSimulation100()
         {
-            if (!MyAPIGateway.Session.IsServer || _block == null || !_block.IsWorking) 
+            if (!MyAPIGateway.Session.IsServer || _block == null || !_block.IsWorking)
                 return;
 
             _assemblyId = ModularApi.GetContainingAssembly(_rigBlock, "Extraction_Definition");
@@ -108,15 +101,15 @@ namespace NavalPowerSystems.Extraction
                 SetIdle("Insufficient Power");
                 return;
             }
-            if (_outputTank == null) 
-            { 
-                SetIdle("No Storage Found"); 
-                return; 
+            if (_outputTank == null)
+            {
+                SetIdle("No Storage Found");
+                return;
             }
-            else if (_outputTank.FilledRatio >= 1.0f) 
-            { 
-                SetIdle("Storage Full"); 
-                return; 
+            else if (_outputTank.FilledRatio >= 1.0f)
+            {
+                SetIdle("Storage Full");
+                return;
             }
             else
             {
@@ -170,7 +163,7 @@ namespace NavalPowerSystems.Extraction
         {
             sb.AppendLine($"Status: {_status}");
             sb.AppendLine($"Extension Pipes: {_pipeCount}");
-            sb.AppendLine($"Extraction Rate: {(_extractionRate  + " l/s")}");
+            sb.AppendLine($"Extraction Rate: {(_extractionRate + " l/s")}");
         }
 
         public override void OnRemovedFromScene()

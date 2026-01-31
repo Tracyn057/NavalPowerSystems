@@ -1,9 +1,13 @@
-﻿using NavalPowerSystems.Communication;
-using NavalPowerSystems.Utilities;
+﻿using NavalPowerSystems.Common;
+using NavalPowerSystems.Communication;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
+using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems.DieselEngines
@@ -36,11 +40,34 @@ namespace NavalPowerSystems.DieselEngines
         
     }
 
-    public class EngineLogic
+    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_ToolbarItemTerminalBlock), false, "NPSEnginesController")]
+    public class EngineLogic : MyGameLogicComponent
     {
         internal static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         private List<EngineChild> _engines = new List<EngineChild>();
         public int _assemblyId = -1;
+
+        private IMyTerminalBlock _block;
+
+        public override void Init(MyObjectBuilder_EntityBase objectBuilder)
+        {
+            base.Init(objectBuilder);
+            _block = Entity as IMyTerminalBlock;
+
+            if (_block == null) return;
+
+            // WeaponCore style: Hook the info panel
+            _block.AppendingCustomInfo += EngineTerminalHelpers.AppendingCustomInfo;
+            EngineManager.Instance.EngineSystems.Add((int)Entity.EntityId, this);
+
+            // Tell the game to tick this specific block
+            Entity.NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
+        }
+
+        public override void UpdateBeforeSimulation10()
+        {
+            
+        }
 
         public EngineLogic(int id)
         {
@@ -78,7 +105,7 @@ namespace NavalPowerSystems.DieselEngines
                 double fuelBurn = (engine._engineStats.FuelRate * fuelMult) / 6;
                 totalFuelNeeded += fuelBurn;
 
-                CommonUtilities.ChangeTankLevel(engine._engine, -fuelBurn);
+                Utilities.ChangeTankLevel(engine._engine, -fuelBurn);
 
                 if (Math.Abs(engine.CurrentThrottle - targetThrottle) < 0.01)
                 {
@@ -113,6 +140,12 @@ namespace NavalPowerSystems.DieselEngines
                 }
             }
             return 1.0f;
+        }
+
+        public override void OnRemovedFromScene()
+        {
+            if (EngineManager.I != null)
+                EngineManager.I.EngineSystems.Remove(Entity.EntityId);
         }
     }
 }
