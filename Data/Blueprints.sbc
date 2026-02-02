@@ -5,14 +5,42 @@
         <Blueprint>
             <Id>
                 <TypeId>BlueprintDefinition</TypeId>
-                <SubtypeId>StoneToOil</SubtypeId>
+                <SubtypeId>CrudeDummy</SubtypeId>
             </Id>
             <DisplayName>DisplayName_Item_Oxygen</DisplayName>
             <Icon>Textures\GUI\Icons\ingot\gravel_ingot.dds</Icon>
             <Prerequisites>
-                <Item Amount="1" TypeId="Ore" SubtypeId="Stone" />
+                <Item Amount="1" TypeId="Ore" SubtypeId="Crude" />
             </Prerequisites>
-            <Result Amount="0.9" TypeId="Ingot" SubtypeId="Stone" />
+            <Result Amount="0.9" TypeId="Ore" SubtypeId="Stone" />
+            <BaseProductionTimeInSeconds>0.1</BaseProductionTimeInSeconds>
+        </Blueprint>
+
+        <Blueprint>
+            <Id>
+                <TypeId>BlueprintDefinition</TypeId>
+                <SubtypeId>FuelDummy</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Item_Oxygen</DisplayName>
+            <Icon>Textures\GUI\Icons\ingot\gravel_ingot.dds</Icon>
+            <Prerequisites>
+                <Item Amount="1" TypeId="Ore" SubtypeId="Fuel" />
+            </Prerequisites>
+            <Result Amount="0.9" TypeId="Ore" SubtypeId="Stone" />
+            <BaseProductionTimeInSeconds>0.1</BaseProductionTimeInSeconds>
+        </Blueprint>
+
+        <Blueprint>
+            <Id>
+                <TypeId>BlueprintDefinition</TypeId>
+                <SubtypeId>DieselDummy</SubtypeId>
+            </Id>
+            <DisplayName>DisplayName_Item_Oxygen</DisplayName>
+            <Icon>Textures\GUI\Icons\ingot\gravel_ingot.dds</Icon>
+            <Prerequisites>
+                <Item Amount="1" TypeId="Ore" SubtypeId="Diesel" />
+            </Prerequisites>
+            <Result Amount="0.9" TypeId="Ore" SubtypeId="Stone" />
             <BaseProductionTimeInSeconds>0.1</BaseProductionTimeInSeconds>
         </Blueprint>
 
