@@ -1,7 +1,6 @@
 ﻿using NavalPowerSystems.Common;
 using NavalPowerSystems.Communication;
 using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
@@ -29,7 +28,7 @@ namespace NavalPowerSystems.DieselEngines
             "NPSDieselEngine15MW",
             "NPSDieselEngine25MW"
     )]
-    public abstract class NavalEngineLogic : MyGameLogicComponent, IMyEventProxy
+    public class NavalEngineLogic : MyGameLogicComponent, IMyEventProxy
     {
         #region Variables
         private static ModularDefinitionApi ModularApi => NavalPowerSystems.ModularDefinition.ModularApi;
@@ -99,15 +98,17 @@ namespace NavalPowerSystems.DieselEngines
             SelectedThrottleIndexSync.ValueChanged += obj =>
             {
                 if (obj.Value == -1) return;
+
+                float newTarget = 0f;
                 switch (obj.Value)
                 {
-                    case 0: _requestedThrottle = 0f; break;
-                    case 1: _requestedThrottle = 0.2f; break;
-                    case 2: _requestedThrottle = 0.5f; break;
-                    case 3: _requestedThrottle = 0.8f; break;
-                    case 4: _requestedThrottle = 1.0f; break;
-                    case -1: break;
+                    case 0: newTarget = 0f; break;
+                    case 1: newTarget = 0.2f; break;
+                    case 2: newTarget = 0.5f; break;
+                    case 3: newTarget = 0.8f; break;
+                    case 4: newTarget = 1.0f; break;
                 }
+                RequestedThrottleSync.Value = newTarget;
                 _engine.RefreshCustomInfo();
             };
 
@@ -118,12 +119,6 @@ namespace NavalPowerSystems.DieselEngines
         {
             if (_assemblyId != -1)
             {
-                UpdateThrottle();
-                UpdateFuel();
-
-                _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
-                _status = (_currentThrottle > 0.01f) ? "Running" : "Idle";
-
                 SetAssemblyStats(_assemblyId);
             }
             else
@@ -131,6 +126,14 @@ namespace NavalPowerSystems.DieselEngines
                 _assemblyId = GetAssemblyId();
                 if (_assemblyId != -1) SetAssemblyStats(_assemblyId);
             }
+
+            UpdateThrottle();
+            UpdateFuel();
+            UpdatePower();
+
+            _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
+            _status = (_currentThrottle > 0.01f) ? "Running" : "Idle";
+            
             _engine.RefreshCustomInfo();
         }
 
@@ -185,7 +188,7 @@ namespace NavalPowerSystems.DieselEngines
         private void ResetAssemblyId(IMyCubeGrid grid)
         {
             _assemblyId = -1;
-            SetIdle("Disconnected");
+            //SetIdle("Disconnected");
         }
 
         private void SetAssemblyStats(int assemblyId)
@@ -198,13 +201,6 @@ namespace NavalPowerSystems.DieselEngines
 
         #region Fuel and Throttle
 
-        private void SetIdle(string reason)
-        {
-            _status = reason;
-            _requestedThrottle = 0;
-            UpdateThrottle();
-            _engine.RefreshCustomInfo();
-        }
 
         private static float GetFuelMultiplier(EfficiencyPoint[] table, float currentThrottle)
         {
@@ -230,7 +226,7 @@ namespace NavalPowerSystems.DieselEngines
 
         public void Spool(float target)
         {
-            float rate10 = _engineStats.SpoolRate * 10;
+            float rate10 = _engineStats.SpoolRate / 6;
             if (Math.Abs(_currentThrottle - target) < rate10)
                 _currentThrottle = target;
             else
@@ -254,6 +250,11 @@ namespace NavalPowerSystems.DieselEngines
             Utilities.ChangeTankLevel(_engine, _fuelBurn);
         }
 
+        private void UpdatePower()
+        {
+            _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
+        }
+
         #endregion
 
         #region UI and Controls
@@ -266,7 +267,7 @@ namespace NavalPowerSystems.DieselEngines
             sb.AppendLine($"Max Output: {_engineStats.MaxMW:F2} MW");
             sb.AppendLine($"Fuel Rate: {(_fuelBurn * 6):F2} l/s");
             sb.AppendLine($"Throttle: {(_currentThrottle * 100):F0}");
-            sb.AppendLine($"Requested Throttle: {(_requestedThrottle * 100):F0}");
+            sb.AppendLine($"Requested Throttle: {(RequestedThrottleSync.Value * 100):F0}");
         }
 
         public void ParseSpeedInput(string input)
