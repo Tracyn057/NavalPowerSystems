@@ -226,7 +226,7 @@ namespace NavalPowerSystems.DieselEngines
 
         public void Spool(float target)
         {
-            float rate10 = _engineStats.SpoolRate / 6;
+            float rate10 = _engineStats.SpoolRate;
             if (Math.Abs(_currentThrottle - target) < rate10)
                 _currentThrottle = target;
             else
