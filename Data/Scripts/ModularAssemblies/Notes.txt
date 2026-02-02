@@ -7,6 +7,7 @@ Direct drive -> double reduction can maintain only single engine connection and 
 Clutch and main reduction gear has no real max inputs/outputs -- Arleigh Burke: 4 inputs, 2 outputs. Possibly max at 4 each?
 
 Add random component to each time Spool() is called?
+Add another spool rate config for engines and propellers to define low-end and high-end reaction times.
 Propeller will need RequestedOutput and CurrentOutput -> spool rate for response time.
 Main reduction gearbox will need to maintain list of attached clutches and propellers. Sum all inputs based on IsEngaged bool. Clutches need to maintain knowledge of input engine state? 
 Gearbox and clutches will need to know what clutch has what input and keep track of on/off bool to know what inputs to use in summation math. Table matching clutch, input power and IsEngaged?
