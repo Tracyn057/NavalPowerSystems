@@ -58,8 +58,8 @@ namespace NavalPowerSystems.Common
             if (block == null) return false;
             string subtype = block.BlockDefinition.SubtypeName;
 
-            return Config.Engines.Contains(subtype) || 
-                Config.Propellers.Contains(subtype) ||
+            return Config.EngineSubtypes.Contains(subtype) || 
+                Config.PropellerSubtypes.Contains(subtype) ||
                 subtype.Contains("NPSExtractionCrudeOutput");
         }
 

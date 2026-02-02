@@ -43,7 +43,6 @@ namespace NavalPowerSystems.Extraction
             base.Init(objectBuilder);
             _block = Entity as IMyFunctionalBlock;
             _rigBlock = Entity as IMyCubeBlock;
-            ExtractionManager.Register(this);
 
             if (_block == null) return;
 
@@ -175,7 +174,6 @@ namespace NavalPowerSystems.Extraction
 
         public override void OnRemovedFromScene()
         {
-            ExtractionManager.Unregister(this);
             if (_block != null) _block.AppendingCustomInfo -= AppendCustomInfo;
         }
 

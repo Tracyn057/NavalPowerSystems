@@ -21,7 +21,6 @@ namespace NavalPowerSystems.Extraction
         public static ExtractionManager Instance = new ExtractionManager();
         private int _ticks;
         public ModularDefinition ExtractionDefinition;
-        public static List<ExtractionLogic> ActiveRigs = new List<ExtractionLogic>();
         public static Dictionary<int, ExtractionSystem> ExtractionSystems = new Dictionary<int, ExtractionSystem>();
         private static ModularDefinitionApi ModularApi => NavalPowerSystems.ModularDefinition.ModularApi;
 
@@ -33,7 +32,6 @@ namespace NavalPowerSystems.Extraction
         public void Unload()
         {
             Instance = null;
-            ActiveRigs.Clear();
         }
 
         public void UpdateTick()
@@ -118,18 +116,6 @@ namespace NavalPowerSystems.Extraction
             if (!isBasePart)
                 ExtractionSystems[assemblyId].RemovePart(block);
             ValidateRig(assemblyId, block);
-        }
-
-        public static void Register(ExtractionLogic assemblyId)
-        {
-            if (!ActiveRigs.Contains(assemblyId))
-                ActiveRigs.Add(assemblyId);
-        }
-
-        public static void Unregister(ExtractionLogic assemblyId)
-        {
-            if (ActiveRigs.Contains(assemblyId))
-                ActiveRigs.Remove(assemblyId);
         }
     }
 }
