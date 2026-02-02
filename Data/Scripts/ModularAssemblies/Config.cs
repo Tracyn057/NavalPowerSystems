@@ -80,6 +80,12 @@ namespace NavalPowerSystems
         public float SpoolRate;     //How fast the engine responds to throttle changes
     }
 
+    public class PropellerStats
+    {
+        public float MaxMW;         //Soft cap max input power
+        public float SpoolRate;      //How fast the propeller responds to input power changes
+    }
+
     public static class DieselEngineConfigs
     {
         public static readonly EfficiencyPoint[] DieselFuelTable = {
