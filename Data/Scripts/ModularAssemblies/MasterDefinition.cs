@@ -10,8 +10,7 @@
             LoadDefinitions
                 (
                     ProductionDefinition,
-                    ExtractionDefinition,
-                    EngineDefinition
+                    ExtractionDefinition
                 );
         }
     }
