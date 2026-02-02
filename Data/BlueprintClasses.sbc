@@ -5,7 +5,35 @@
 		<Class>
 			<Id>
 				<TypeId>BlueprintClassDefinition</TypeId>
-				<SubtypeId>Oil</SubtypeId>
+				<SubtypeId>CrudeDummy</SubtypeId>
+			</Id>
+			<DisplayName>DisplayName_BlueprintClass_Ice</DisplayName>
+			<Description>Description_BlueprintClass_Ice</Description>
+			<Icon>Textures\GUI\Icons\ore_H2O_ice.dds</Icon>
+			<HighlightIcon>Textures\GUI\Icons\ore_H2O_ice.dds</HighlightIcon>
+			<FocusIcon>Textures\GUI\Icons\ore_H2O_ice.dds</FocusIcon>
+			<InputConstraintIcon>Textures\GUI\Icons\filter_ore.dds</InputConstraintIcon>
+			<InputConstraintDescription>ToolTipItemFilter_IceInput</InputConstraintDescription>
+		</Class>
+
+		<Class>
+			<Id>
+				<TypeId>BlueprintClassDefinition</TypeId>
+				<SubtypeId>FuelDummy</SubtypeId>
+			</Id>
+			<DisplayName>DisplayName_BlueprintClass_Ice</DisplayName>
+			<Description>Description_BlueprintClass_Ice</Description>
+			<Icon>Textures\GUI\Icons\ore_H2O_ice.dds</Icon>
+			<HighlightIcon>Textures\GUI\Icons\ore_H2O_ice.dds</HighlightIcon>
+			<FocusIcon>Textures\GUI\Icons\ore_H2O_ice.dds</FocusIcon>
+			<InputConstraintIcon>Textures\GUI\Icons\filter_ore.dds</InputConstraintIcon>
+			<InputConstraintDescription>ToolTipItemFilter_IceInput</InputConstraintDescription>
+		</Class>
+
+		<Class>
+			<Id>
+				<TypeId>BlueprintClassDefinition</TypeId>
+				<SubtypeId>DieselDummy</SubtypeId>
 			</Id>
 			<DisplayName>DisplayName_BlueprintClass_Ice</DisplayName>
 			<Description>Description_BlueprintClass_Ice</Description>
@@ -20,7 +48,9 @@
 
 	<BlueprintClassEntries>
 
-		<Entry Class="Oil" BlueprintSubtypeId="StoneToOil" />
+		<Entry Class="CrudeDummy" BlueprintSubtypeId="CrudeDummy" />
+		<Entry Class="FuelDummy" BlueprintSubtypeId="FuelDummy" />
+		<Entry Class="DieselDummy" BlueprintSubtypeId="DieselDummy" />
 		
 	</BlueprintClassEntries>
 </Definitions>
