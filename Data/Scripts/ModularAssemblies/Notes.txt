@@ -1,0 +1,19 @@
+Clutch and direct drive inputs
+Clutch is bool based on currentThrottle
+Direct drive input is always on
+Direct drive only pairs to double reduction gearbox
+Clutch only pairs to main reduction gearbox
+Direct drive -> double reduction can maintain only single engine connection and single propeller connection -- Old technology
+Clutch and main reduction gear has no real max inputs/outputs -- Arleigh Burke: 4 inputs, 2 outputs. Possibly max at 4 each?
+
+Add random component to each time Spool() is called?
+Propeller will need RequestedOutput and CurrentOutput -> spool rate for response time.
+Main reduction gearbox will need to maintain list of attached clutches and propellers. Sum all inputs based on IsEngaged bool. Clutches need to maintain knowledge of input engine state? 
+Gearbox and clutches will need to know what clutch has what input and keep track of on/off bool to know what inputs to use in summation math. Table matching clutch, input power and IsEngaged?
+Any link knowledge would be updated OnPartAdd/Remove and OnGridChanged. Not at specific tick intervals.
+
+
+Production and Extraction output logic change to utilize O2 Generators' push to conveyor network using AddItem intermediary to start output's conversion process. Maybe remove outputs alltogether and maintain 2-block assemblies. 
+Input being tank with Stockpile=On and converter itself being the O2 generator spawning items in it's own inventory to convert to "gas".
+Items and blueprints+classes already made. Double check accuracy
+
