@@ -10,27 +10,35 @@ namespace NavalPowerSystems.Drivetrain
     {
 
 
-            // Example for your ApplyForce method
-public void ApplyPropellerForce(float thrustNewtons)
+private void ApplySplitForce(float totalThrustNewtons)
 {
-    var physics = Entity.CubeGrid?.Physics;
-    if (physics == null) return;
+    var grid = Entity.CubeGrid;
+    if (grid?.Physics == null) return;
 
-    // Direction the propeller 'pushes' (Backward matrix to go Forward)
+    // 1. Calculate the direction (Pushing backward to go forward)
     Vector3D forceDirection = Entity.WorldMatrix.Backward;
-    Vector3D forceVector = forceDirection * thrustNewtons;
+    Vector3D totalForceVector = forceDirection * totalThrustNewtons;
 
-    // Position of the propeller block in world space
-    Vector3D blockPosition = Entity.WorldMatrix.Translation;
+    // 2. Define your split ratio (e.g., 70% stable, 30% realistic torque)
+    float stabilityFactor = 0.7f; 
+    Vector3D stableForce = totalForceVector * stabilityFactor;
+    Vector3D torqueForce = totalForceVector * (1.0f - stabilityFactor);
 
-    // Based on the docs you found:
-    // APPLY_WORLD_FORCE: Interprets the vector as World coordinates
-    // null: This is the 'torque' argument. By passing null, SE calculates 
-    // torque naturally based on the offset from the Center of Mass.
-    physics.AddForce(
+    // 3. Apply the 'Stable' portion to the Center of Mass
+    // This moves the ship forward without turning it at all.
+    grid.Physics.AddForce(
         MyPhysicsForceType.APPLY_WORLD_FORCE, 
-        forceVector, 
-        blockPosition, 
+        stableForce, 
+        grid.Physics.CenterOfMassWorld, 
+        null
+    );
+
+    // 4. Apply the 'Torque' portion to the Block Position
+    // This creates the yaw/pitch/roll based on where the prop is mounted.
+    grid.Physics.AddForce(
+        MyPhysicsForceType.APPLY_WORLD_FORCE, 
+        torqueForce, 
+        Entity.WorldMatrix.Translation, 
         null
     );
 }
