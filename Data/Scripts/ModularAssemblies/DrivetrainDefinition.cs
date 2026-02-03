@@ -64,6 +64,8 @@ namespace NavalPowerSystems
             // All SubtypeIds that can be part of this assembly.
             AllowedBlockSubtypes = new[]
             {
+                "NPSDrivetrainMRG",
+                "NPSDrivetrainDRG",
                 "NPSDrivetrainClutch",
                 "NPSDrivetrainDirectDrive"
             },
