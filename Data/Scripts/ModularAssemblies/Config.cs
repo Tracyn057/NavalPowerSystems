@@ -9,6 +9,7 @@ namespace NavalPowerSystems
         //Constant variables
         public const float globalFuelMult = 1;         //Multiplier for fuel consumption
         public const float drivetrainLoss = 0.0467f;    //Percent loss of MW (MN) over the drivetrain
+        public const float throttleVariance = 0.04f;    //Amount of random variance in throttle response
         public const float mwPerMN = 12.52f;            //MNs of force for every MW of input
         public const float hpPerMW = 1341.02f;          //Horsepower made per MW, for display only
         public const float crudeFuelOilRatio = 0.75f;   //Ratio of conversion from crude oil to fuel oil
@@ -60,15 +61,15 @@ namespace NavalPowerSystems
         public static readonly Dictionary<string, EngineStats> EngineSettings = new Dictionary<string, EngineStats>
         {
             //Gas Turbines
-            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 2, FuelRate = 19.5f, SpoolRate = 0.02f } },
-            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 5, FuelRate = 48.75f, SpoolRate = 0.02f } },
-            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 12, FuelRate = 117.0f, SpoolRate = 0.02f } },
-            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 25, FuelRate = 243.75f, SpoolRate = 0.02f } },
-            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 40, FuelRate = 390.0f, SpoolRate = 0.02f } },
+            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 2, FuelRate = 19.5f, SpoolLo = 0.02f, SpoolHi = 0.12f, SpoolSwitch = 0.65f } },
+            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 5, FuelRate = 48.75f, SpoolLo = 0.02f, SpoolHi = 0.12f, SpoolSwitch = 0.65f } },
+            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 12, FuelRate = 117.0f, SpoolLo = 0.02f, SpoolHi = 0.12f, SpoolSwitch = 0.65f } },
+            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 25, FuelRate = 243.75f, SpoolLo = 0.02f, SpoolHi = 0.12f, SpoolSwitch = 0.65f } },
+            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 40, FuelRate = 390.0f, SpoolLo = 0.02f, SpoolHi = 0.12f, SpoolSwitch = 0.65f } },
             //Internal Combustion Diesel
-            {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, FuelRate = 3.75f, SpoolRate = 0.08f } },
-            {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, FuelRate = 11.25f, SpoolRate = 0.08f } },
-            {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, FuelRate = 18.75f, SpoolRate = 0.08f } },
+            {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, FuelRate = 3.75f, SpoolLo = 0.04f, SpoolHi = 0.08f, SpoolSwitch = 0.45f } },
+            {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, FuelRate = 11.25f, SpoolLo = 0.04f, SpoolHi = 0.08f, SpoolSwitch = 0.45f } },
+            {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, FuelRate = 18.75f, SpoolLo = 0.04f, SpoolHi = 0.08f, SpoolSwitch = 0.45f } },
         };
     }
 
@@ -77,13 +78,17 @@ namespace NavalPowerSystems
         public EngineType Type;
         public float MaxMW;         //Max MW output - Mechanical only
         public float FuelRate;      //Fuel consumption at max output in liters/second - Multiplied by globalFuelMult
-        public float SpoolRate;     //How fast the engine responds to throttle changes
+        public float SpoolLo;       //How fast the engine responds to throttle changes at low throttle
+        public float SpoolHi;       //How fast the engine responds to throttle changes at high throttle
+        public float SpoolSwitch;   //The point at which low throttle turns to high throttle
     }
 
     public class PropellerStats
     {
         public float MaxMW;         //Soft cap max input power
-        public float SpoolRate;      //How fast the propeller responds to input power changes
+        public float SpoolLo;       //How fast the engine responds to power changes at low end
+        public float SpoolHi;       //How fast the engine responds to power changes at high end
+        public float SpoolSwitch;   //The point at which low end turns to high end
     }
 
     public static class DieselEngineConfigs

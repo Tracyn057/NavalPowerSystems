@@ -1,5 +1,4 @@
 ﻿using NavalPowerSystems.Common;
-using NavalPowerSystems.Communication;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces.Terminal;
@@ -7,13 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using VRage.Game.Components;
-using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Network;
 using VRage.ModAPI;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Sync;
 using VRage.Utils;
+using VRageMath;
 using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems.DieselEngines
@@ -31,17 +30,15 @@ namespace NavalPowerSystems.DieselEngines
     public class NavalEngineLogic : MyGameLogicComponent, IMyEventProxy
     {
         #region Variables
-        private static ModularDefinitionApi ModularApi => NavalPowerSystems.ModularDefinition.ModularApi;
         private IMyGasTank _engine;
         private EngineStats _engineStats;
         private EfficiencyPoint[] _engineEfficiency;
-        private int _assemblyId;
         private string _status = "Idle";
 
-        private float _requestedThrottle = 0f;
-        private float _currentThrottle = 0f;
         private float _requestedMS = 0f;
-        private float _currentOutputMW = 0f;
+        public float _requestedThrottle { get; private set; }
+        public float _currentThrottle { get; private set; }
+        public float _currentOutputMW { get; private set; }
         private float _fuelBurn = 0f;
         private static bool _controlsInit = false;
 
@@ -64,7 +61,6 @@ namespace NavalPowerSystems.DieselEngines
         {
             _engine = (IMyGasTank)Entity;
             _engineStats = Config.EngineSettings[_engine.BlockDefinition.SubtypeName];
-            _engine.CubeGrid.OnGridChanged += ResetAssemblyId;
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
@@ -72,14 +68,8 @@ namespace NavalPowerSystems.DieselEngines
 
         public override void UpdateOnceBeforeFrame()
         {
-            _assemblyId = GetAssemblyId();
 
             SetInitialStats();
-
-            if (_assemblyId != -1)
-            {
-                SetAssemblyStats(_assemblyId);
-            }
 
             if (!_controlsInit)
             {
@@ -117,16 +107,6 @@ namespace NavalPowerSystems.DieselEngines
 
         public override void UpdateBeforeSimulation10()
         {
-            if (_assemblyId != -1)
-            {
-                SetAssemblyStats(_assemblyId);
-            }
-            else
-            {
-                _assemblyId = GetAssemblyId();
-                if (_assemblyId != -1) SetAssemblyStats(_assemblyId);
-            }
-
             UpdateThrottle();
             UpdateFuel();
             UpdatePower();
@@ -135,15 +115,6 @@ namespace NavalPowerSystems.DieselEngines
             _status = (_currentThrottle > 0.01f) ? "Running" : "Idle";
             
             _engine.RefreshCustomInfo();
-        }
-
-        public override void OnRemovedFromScene()
-        {
-            if (_engine.CubeGrid != null)
-            {
-                _engine.CubeGrid.OnGridChanged -= ResetAssemblyId;
-            }
-            if (_engine != null) _engine.AppendingCustomInfo -= AppendCustomInfo;
         }
 
         private void SetInitialStats()
@@ -158,43 +129,6 @@ namespace NavalPowerSystems.DieselEngines
             {
                 _engineEfficiency = DieselEngineConfigs.DieselFuelTable;
             }
-        }
-
-        #endregion
-
-        #region Assembly Functions
-
-        private int GetAssemblyId()
-        {
-            List<IMySlimBlock> clutches = new List<IMySlimBlock>();
-            _engine.CubeGrid.GetBlocks(clutches, c =>
-                c.FatBlock != null && c.FatBlock.BlockDefinition.SubtypeName == "NPSDrivetrainClutch");
-
-            foreach (var clutch in clutches)
-            {
-                IMyCubeBlock[] connected = ModularApi.GetConnectedBlocks(clutch as IMyCubeBlock, "Drivetrain_Definition", true);
-                if (connected == null) continue;
-                foreach (var block in connected)
-                {
-                    if (block.EntityId == _engine.EntityId)
-                    {
-                        return ModularApi.GetContainingAssembly(block, "Drivetrain_Definition");
-                    }
-                }
-            }
-            return -1;
-        }
-
-        private void ResetAssemblyId(IMyCubeGrid grid)
-        {
-            _assemblyId = -1;
-            //SetIdle("Disconnected");
-        }
-
-        private void SetAssemblyStats(int assemblyId)
-        {
-            ModularApi.SetAssemblyProperty<float>(_assemblyId, "CurrentOutMW_Engine_" + _engine.EntityId, _currentOutputMW);
-            ModularApi.SetAssemblyProperty<float>(_assemblyId, "CurrentThrottle_Engine_" + _engine.EntityId, _currentThrottle);
         }
 
         #endregion
@@ -226,11 +160,20 @@ namespace NavalPowerSystems.DieselEngines
 
         public void Spool(float target)
         {
-            float rate10 = _engineStats.SpoolRate;
-            if (Math.Abs(_currentThrottle - target) < rate10)
-                _currentThrottle = target;
+            float progress = _currentThrottle / _engineStats.SpoolSwitch;
+            float baseRate = MathHelper.Lerp((_engineStats.SpoolLo / 6), (_engineStats.SpoolHi / 6), MathHelper.Clamp(progress, 0f, 1f));
+
+            float noiseMult = 1f + MyUtils.GetRandomFloat(-Config.throttleVariance, Config.throttleVariance);
+            float finalRate = baseRate * noiseMult;
+
+            if (Math.Abs(_currentThrottle - target) < finalRate)
+            {
+                _currentThrottle = target + MyUtils.GetRandomFloat(-0.015f, 0.015f);
+            }
             else
-                _currentThrottle += (_currentThrottle < target) ? rate10 : -rate10;
+            {
+                _currentThrottle += (_currentThrottle < target) ? finalRate : -finalRate;
+            }
         }
 
         private void UpdateThrottle()
