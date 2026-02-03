@@ -151,7 +151,7 @@ namespace NavalPowerSystems.Drivetrain
 
         private void SetPower()
         {
-            if (_outputCount <= 0) return;
+            if (_outputCount <= 0 || _propellers == null) return;
             _outputMW = _inputMW / _outputCount;
 
             foreach (var prop in _propellers)
