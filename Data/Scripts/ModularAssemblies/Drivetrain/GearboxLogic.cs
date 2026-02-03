@@ -22,6 +22,8 @@ namespace NavalPowerSystems.Drivetrain
         private bool _controlsInit = false;
         private int _inputCount;
         private int _outputCount;
+        private float _inputMW;
+        private float _outputMW;
         private List<IMyTerminalBlock> _clutches = new List<IMyTerminalBlock>();
         private List<IMyTerminalBlock> _propellers = new List<IMyTerminalBlock>();
         
@@ -43,20 +45,19 @@ namespace NavalPowerSystems.Drivetrain
         {
             TriggerRefresh(_gearbox.SlimBlock);
             
-
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public override void UpdateBeforeSimulation10()
         {
-            
-            
-            
+            GetPower();
+            SetPower();
         }
 
         public override void UpdateBeforeSimulation100()
         {
+            UpdateIsEngaged();
             _gearbox.RefreshCustomInfo();
         }
 
@@ -99,19 +100,25 @@ namespace NavalPowerSystems.Drivetrain
                 var logic = clutch.GameLogic?.GetAs<ClutchLogic>();
                 if (logic == null) continue;
 
-                if (logic.EngineThrottle > highestEngineThrottle) 
-                    highestEngineThrottle = logic.EngineThrottle;
+                if (logic._requestedThrottle > hiRequestedThrottle) 
+                    hiRequestedThrottle = logic._requestedThrottle;
             
-                if (logic.ShaftThrottle > highestShaftThrottle) 
-                    highestShaftThrottle = logic.ShaftThrottle;
+                if (logic._currentThrottle > hiCurrentThrottle) 
+                    hiCurrentThrottle = logic._currentThrottle;
             }
 
-            float diff = Math.Abs(highestEngineThrottle - highestShaftThrottle);
+            float diff = Math.Abs(hiRequestedThrottle - hiCurrentThrottle);
 
             foreach (var clutch in _clutches)
             {
                 var logic = clutch.GameLogic?.GetAs<ClutchLogic>();
                 if (logic == null) continue;
+
+                if (hiRequestedThrottle < 0.01f)
+                {
+                    logic._isEngaged = false;
+                    continue;
+                }
 
                 if (logic._isEngaged)
                 {
@@ -123,10 +130,39 @@ namespace NavalPowerSystems.Drivetrain
                 }
             }
         }
-
+        
         private void TriggerRefresh(IMyFunctionalBlock block)
         {
             _needsRefresh = true;
         }
+
+        private void GetPower()
+        {
+            if (_clutches == null) return;
+            _inputMW = 0f;
+
+            foreach (var clutch in _clutches)
+            {
+                var logic = clutch.GameLogic?.GetAs<ClutchLogic>();
+                if (logic == null) continue;
+                _inputMW += logic._outputMW;
+            }
+        }
+
+        private void SetPower()
+        {
+            if (_outputCount <= 0) return;
+            _outputMW = _inputMW / _outputCount;
+
+            foreach (var prop in _propellers)
+            {
+                var logic = prop.GameLogic?.GetAs<PropellerLogic>();
+                if (logic == null) continue;
+                logic._inputMW = _outputMW;
+            }
+        }
+
+
+        
     }
 }
