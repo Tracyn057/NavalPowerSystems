@@ -60,7 +60,8 @@ namespace NavalPowerSystems
             // All SubtypeIds that can be part of this assembly.
             AllowedBlockSubtypes = new[]
             {
-                ""
+                "NPSDrivetrainClutch",
+                "NPSDrivetrainDirectDrive"
             },
 
             // Allowed connection directions & whitelists, measured in blocks.
