@@ -7,14 +7,14 @@ namespace NavalPowerSystems
     public static class Config
     {
         //Constant variables
-        public const float globalFuelMult = 1;         //Multiplier for fuel consumption
+        public const float globalFuelMult = 1;          //Multiplier for fuel consumption
         public const float drivetrainLoss = 0.0467f;    //Percent loss of MW (MN) over the drivetrain
         public const float throttleVariance = 0.04f;    //Amount of random variance in throttle response
-        public const float mwPerMN = 12.52f;            //MNs of force for every MW of input
+        public const float mnPerMW = 0.75f;             //MN produced per MW
         public const float hpPerMW = 1341.02f;          //Horsepower made per MW, for display only
         public const float crudeFuelOilRatio = 0.75f;   //Ratio of conversion from crude oil to fuel oil
         public const float fuelOilDieselRatio = 0.66f;  //Ratio of conversion from fuel oil to diesel fuel
-        public const float baseRefineRate = 50;        //Base rate in liters for oil cracker and refinery
+        public const float baseRefineRate = 50;         //Base rate in liters for oil cracker and refinery
 
         //Oil extraction variables
         public const double rarityThreshold = 0.8;      //How much of the available oil spawn locations are empty. 1.0 = No oil ever 
@@ -76,8 +76,8 @@ namespace NavalPowerSystems
     public class EngineStats
     {
         public EngineType Type;
-        public float MaxMW;         //Max MW output - Mechanical only
-        public float FuelRate;      //Fuel consumption at max output in liters/second - Multiplied by globalFuelMult
+        public float MaxMW;         //Soft cap max output power - Mechanical only
+        public float FuelRate;      //Fuel consumption at max output in liters/second
         public float SpoolLo;       //How fast the engine responds to throttle changes at low throttle
         public float SpoolHi;       //How fast the engine responds to throttle changes at high throttle
         public float SpoolSwitch;   //The point at which low throttle turns to high throttle
