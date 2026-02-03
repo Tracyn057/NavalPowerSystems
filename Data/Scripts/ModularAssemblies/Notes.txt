@@ -6,12 +6,11 @@ Clutch only pairs to main reduction gearbox
 Direct drive -> double reduction can maintain only single engine connection and single propeller connection -- Old technology
 Clutch and main reduction gear has no real max inputs/outputs -- Arleigh Burke: 4 inputs, 2 outputs. Possibly max at 4 each?
 
-Add random component to each time Spool() is called?
-Add another spool rate config for engines and propellers to define low-end and high-end reaction times.
 Propeller will need RequestedOutput and CurrentOutput -> spool rate for response time.
-Main reduction gearbox will need to maintain list of attached clutches and propellers. Sum all inputs based on IsEngaged bool. Clutches need to maintain knowledge of input engine state? 
-Gearbox and clutches will need to know what clutch has what input and keep track of on/off bool to know what inputs to use in summation math. Table matching clutch, input power and IsEngaged?
-Any link knowledge would be updated OnPartAdd/Remove and OnGridChanged. Not at specific tick intervals.
+Main reduction gearbox will need to maintain list of attached clutches and propellers. Sum all inputs based on IsEngaged bool, maintain authority of IsEngaged.
+Gearboxes maintain list of clutches and propellers. Clutches decide if input power is 0 or current power. Gearbox sums all inputs, all the time. Divides inputs by current propellers. Opens up final output to propellers.
+Propellers look at gearbox final output variable to set requested power. Knows where to look from assembly base block?
+Any link knowledge would be updated OnPartAdd/Remove. Not at specific tick intervals.
 
 
 Production and Extraction output logic change to utilize O2 Generators' push to conveyor network using AddItem intermediary to start output's conversion process. Maybe remove outputs alltogether and maintain 2-block assemblies. 
