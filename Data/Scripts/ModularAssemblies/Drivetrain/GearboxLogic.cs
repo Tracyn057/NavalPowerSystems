@@ -153,13 +153,14 @@ namespace NavalPowerSystems.Drivetrain
         {
             if (_outputCount <= 0 || _propellers == null) return;
             _outputMW = _inputMW / _outputCount;
+            if (_isReverse)
+                _outputMW *= -0.4f;
 
-            float shaftMW = _isReverse ? -(_outputMW * 0.4) : _outputMW;
             foreach (var prop in _propellers)
             {
                 var logic = prop.GameLogic?.GetAs<PropellerLogic>();
                 if (logic == null) continue;
-                logic._inputMW = shaftMW;
+                logic._inputMW = _outputMW;
             }
         }
 
