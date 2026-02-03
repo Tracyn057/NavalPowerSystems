@@ -55,7 +55,11 @@ namespace NavalPowerSystems
             },
 
             // Optional - if this is set, an assembly will not be created until a baseblock exists.
-            BaseBlockSubtype = null,
+            BaseBlockSubtype = new[]
+            {
+                 "NPSDrivetrainMRG",
+                "NPSDrivetrainDRG"
+            },
 
             // All SubtypeIds that can be part of this assembly.
             AllowedBlockSubtypes = new[]
