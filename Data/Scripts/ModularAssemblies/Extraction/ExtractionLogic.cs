@@ -70,9 +70,8 @@ namespace NavalPowerSystems.Extraction
             _IsOcean = ModularApi.GetAssemblyProperty<bool>(_assemblyId, "IsOcean");
             _IsRig = ModularApi.GetAssemblyProperty<bool>(_assemblyId, "IsRig");
             _isDebug = _block.CustomData.Trim().ToUpper().Contains("DEBUG");
-            _isDebugOcean = _block.CustomData.Trim().ToUpper().Contains("DEBUGOCEAN");
 
-            if (_isDebug && _isDebugOcean)
+            if (_isDebug)
             {
                 _status = "DEBUG";
             }

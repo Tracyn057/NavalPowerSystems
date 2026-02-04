@@ -1,5 +1,4 @@
-﻿using NavalPowerSystems.Extraction;
-using Sandbox.ModAPI;
+﻿using NavalPowerSystems.Drivetrain;
 using System.Collections.Generic;
 using VRageMath;
 using static NavalPowerSystems.Communication.DefinitionDefs;
@@ -20,7 +19,7 @@ namespace NavalPowerSystems
             OnInit = () =>
             {
                 //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Extraction Initialized.");
-                //DrivetrainManager.Instance.DrivetrainDefinition = this;
+                DrivetrainManager.Instance.DrivetrainDefinition = this;
             },
 
             // Triggers whenever a new part is added to an assembly.
@@ -29,7 +28,7 @@ namespace NavalPowerSystems
                 //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartAdd called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
                 //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
 
-                //DrivetrainManager.Instance.OnPartAdd(assemblyId, block, isBasePart);
+                DrivetrainManager.Instance.OnPartAdd(assemblyId, block, isBasePart);
             },
 
             // Triggers whenever a part is removed from an assembly.
@@ -38,7 +37,7 @@ namespace NavalPowerSystems
                 //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartRemove called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
                 //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
 
-                //DrivetrainManager.Instance.OnPartRemove(assemblyId, block, isBasePart);
+                DrivetrainManager.Instance.OnPartRemove(assemblyId, block, isBasePart);
             },
 
             // Triggers whenever a part is destroyed, just after OnPartRemove.
@@ -55,19 +54,17 @@ namespace NavalPowerSystems
             },
 
             // Optional - if this is set, an assembly will not be created until a baseblock exists.
-            BaseBlockSubtype = new[]
-            {
-                 "NPSDrivetrainMRG",
-                "NPSDrivetrainDRG"
-            },
+            BaseBlockSubtype = null,
 
             // All SubtypeIds that can be part of this assembly.
             AllowedBlockSubtypes = new[]
             {
                 "NPSDrivetrainMRG",
-                "NPSDrivetrainDRG",
                 "NPSDrivetrainClutch",
-                "NPSDrivetrainDirectDrive"
+                "NPSDrivetrainDirectDrive",
+                "NPSDrivetrainScrew3b3m",
+                "NPSDrivetrainDriveshaftPassthrough",
+                "NPSDrivetrainDriveshaft"
             },
 
             // Allowed connection directions & whitelists, measured in blocks.

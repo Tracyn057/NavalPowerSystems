@@ -34,22 +34,6 @@ namespace NavalPowerSystems.Extraction
             Instance = null;
         }
 
-        public void UpdateTick()
-        {
-            if (_ticks % 100 == 0)
-                Update100();
-
-            _ticks++;
-        }
-
-        private void Update100()
-        {
-            var systems = ModularApi.GetAllAssemblies();
-            foreach (var ExtractionSystem in ExtractionSystems.Values.ToList())
-                if (!systems.Contains(ExtractionSystem.AssemblyId))
-                    ExtractionSystems.Remove(ExtractionSystem.AssemblyId);
-        }
-
         public void OnPartAdd(int assemblyId, IMyCubeBlock block, bool isBasePart)
         {
             if (!ExtractionSystems.ContainsKey(assemblyId))
@@ -76,7 +60,7 @@ namespace NavalPowerSystems.Extraction
             bool hasOutput = false;
             bool hasRod = false;
             bool isRig = false;
-            
+
 
             foreach (IMyCubeBlock part in ModularApi.GetMemberParts(assemblyId))
             {
@@ -85,24 +69,24 @@ namespace NavalPowerSystems.Extraction
                 if (subtype.Contains("NPSExtractorOilDerrick")) hasRig = true;
                 if (subtype.Contains("NPSExtractionDrillHead")) hasHead = true;
                 if (subtype.Contains("NPSExtractionDrillRod")) hasRod = true;
-            }
 
-            if (hasRig && hasRod && hasHead && hasOutput)
-            {
-                isRig = true;
-                ModularApi.SetAssemblyProperty(assemblyId, "IsRig", isRig);
-            }
-
-            if (block.BlockDefinition.SubtypeName == "NPSExtractionDrillHead")
-            {
-                Vector3D pos = block.WorldMatrix.Translation;
-                MyPlanet planet = MyGamePruningStructure.GetClosestPlanet(pos);
-                if (planet != null)
+                if (hasRig && hasRod && hasHead && hasOutput)
                 {
-                    float cacheYield = OilMap.GetOil(pos, planet);
-                    bool isOcean = GetWaterDepth(pos);
-                    ModularApi.SetAssemblyProperty(assemblyId, "OilYield", cacheYield);
-                    ModularApi.SetAssemblyProperty(assemblyId, "IsOcean", isOcean);
+                    isRig = true;
+                    ModularApi.SetAssemblyProperty(assemblyId, "IsRig", isRig);
+                }
+
+                if (block.BlockDefinition.SubtypeName == "NPSExtractionDrillHead")
+                {
+                    Vector3D pos = block.WorldMatrix.Translation;
+                    MyPlanet planet = MyGamePruningStructure.GetClosestPlanet(pos);
+                    if (planet != null)
+                    {
+                        float cacheYield = OilMap.GetOil(pos, planet);
+                        bool isOcean = GetWaterDepth(pos);
+                        ModularApi.SetAssemblyProperty(assemblyId, "OilYield", cacheYield);
+                        ModularApi.SetAssemblyProperty(assemblyId, "IsOcean", isOcean);
+                    }
                 }
             }
 

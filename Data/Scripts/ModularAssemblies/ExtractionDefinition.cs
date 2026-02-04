@@ -1,5 +1,4 @@
 ﻿using NavalPowerSystems.Extraction;
-using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRageMath;
 using static NavalPowerSystems.Communication.DefinitionDefs;

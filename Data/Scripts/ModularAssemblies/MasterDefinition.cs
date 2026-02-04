@@ -9,6 +9,7 @@
 
             LoadDefinitions
                 (
+                    DrivetrainDefinition,
                     ProductionDefinition,
                     ExtractionDefinition
                 );

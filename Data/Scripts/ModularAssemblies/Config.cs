@@ -38,10 +38,17 @@ namespace NavalPowerSystems
             "NPSDieselEngine25MW"
         };
 
-        public static readonly HashSet<string> PropellerSubtypes = new HashSet<string>()
+        public static readonly string[] PropellerSubtypes = new string[]
         {
-
+            "NPSDrivetrainScrew3b3m"
         };
+
+        public static string[] DriveshaftSubtypes = new string[]
+        {
+            "NPSDieselTurbine2MW"
+        };
+
+
 
         //Component stats definition
         public enum EngineType { Diesel, Turbine }
@@ -71,6 +78,11 @@ namespace NavalPowerSystems
             {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, FuelRate = 11.25f, SpoolLo = 0.04f, SpoolHi = 0.08f, SpoolSwitch = 0.45f } },
             {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, FuelRate = 18.75f, SpoolLo = 0.04f, SpoolHi = 0.08f, SpoolSwitch = 0.45f } },
         };
+
+        public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
+        {
+            {"NPSDrivetrainScrew3b3m", new PropellerStats { MaxMW = 0.5f, SpoolTime = 8f } },
+        };
     }
 
     public class EngineStats
@@ -86,9 +98,7 @@ namespace NavalPowerSystems
     public class PropellerStats
     {
         public float MaxMW;         //Soft cap max input power
-        public float SpoolLo;       //How fast the engine responds to power changes at low end
-        public float SpoolHi;       //How fast the engine responds to power changes at high end
-        public float SpoolSwitch;   //The point at which low end turns to high end
+        public float SpoolTime;       //Amount of time it takes to change output
     }
 
     public static class DieselEngineConfigs

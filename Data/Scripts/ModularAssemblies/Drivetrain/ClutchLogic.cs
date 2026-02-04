@@ -3,6 +3,7 @@ using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
@@ -33,19 +34,20 @@ namespace NavalPowerSystems.Drivetrain
         {
             base.Init(objectBuilder);
             _clutch = (IMyTerminalBlock)Entity;
-            _clutch.CubeGrid.OnBlockAdded += TriggerEngineSearch;
-            _clutch.CubeGrid.OnBlockRemoved += TriggerEngineSearch;
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         public override void UpdateOnceBeforeFrame()
         {
             TriggerEngineSearch(_clutch.SlimBlock);
+            _clutch.CubeGrid.OnBlockAdded += TriggerEngineSearch;
+            _clutch.CubeGrid.OnBlockRemoved += TriggerEngineSearch;
 
             if (_clutch.BlockDefinition.SubtypeName == "NPSDrivetrainDirectDrive")
             {
                 _isDirectDrive = true;
             }
+            _clutch.AppendingCustomInfo += AppendCustomInfo;
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
         }
@@ -57,6 +59,8 @@ namespace NavalPowerSystems.Drivetrain
                 UpdateEngine();
             }
             UpdatePower();
+
+            _clutch.RefreshCustomInfo();
         }
             
         private void UpdatePower()
@@ -119,6 +123,14 @@ namespace NavalPowerSystems.Drivetrain
                 _needsRefresh = true;
                 _engineLogic = null;
             }
+        }
+
+        private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
+        {
+            sb.AppendLine($"Attached Engine: {_engineId}");
+            sb.AppendLine($"Input: {_inputMW:F2} MW");
+            sb.AppendLine($"Output: {_outputMW:F2} MW");
+            sb.AppendLine($"Is Engaged: {_isEngaged}");
         }
 
     }

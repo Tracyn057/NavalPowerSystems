@@ -12,7 +12,6 @@
 			<StrictSearch>true</StrictSearch>
 			<ItemIds>
 				<!-- Engines -->
-				<string>ButtonPanel/NPSEnginesController</string>
 				<string>OxygenTank/NPSDieselEngine500KW</string>
 				<string>OxygenTank/NPSDieselEngine15MW</string>
 				<string>OxygenTank/NPSDieselEngine25MW</string>
@@ -44,10 +43,11 @@
 				 <string>OxygenTank/NPSExtractionCrudeOutput</string>
 				 <!-- Drivetrain -->
 				 <string>TerminalBlock/NPSDrivetrainClutch</string>
+				 <string>TerminalBlock/NPSDrivetrainDirectDrive</string>
 				 <string>TerminalBlock/NPSDrivetrainMRG</string>
 				 <string>CubeBlock/NPSDrivetrainDriveshaft</string>
 				 <string>CubeBlock/NPSDrivetrainDriveshaftPassthrough</string>
-				 <string>Thrust/NPSDrivetrainScrew3b3m</string>
+				 <string>TerminalBlock/NPSDrivetrainScrew3b3m</string>
 				 <!-- Fuel Tanks -->
 				 <string>OxygenTank/LargeDieselTank</string>
 				 <string>OxygenTank/LargeDieselTankSmall</string>

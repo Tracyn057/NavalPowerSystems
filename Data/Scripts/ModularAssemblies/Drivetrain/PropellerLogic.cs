@@ -1,49 +1,106 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Jakaria.API;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.ModAPI;
+using System;
 using System.Text;
-using System.Threading.Tasks;
+using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.Entity;
+using VRage.ModAPI;
+using VRage.ObjectBuilders;
+using VRageMath;
 
 namespace NavalPowerSystems.Drivetrain
 {
-    internal class PropellerLogic
+    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TerminalBlock), false,
+            "NPSDrivetrainScrew3b3m"
+    )]
+    internal class PropellerLogic : MyGameLogicComponent
     {
+        private IMyTerminalBlock _propeller;
+        private PropellerStats _propellerStats;
+        private float _inertia = 0f;
+        public float _inputMW { get; set; }
+        private float _outputMW = 0f;
 
 
-private void ApplySplitForce(float totalThrustNewtons)
-{
-    var grid = Entity.CubeGrid;
-    if (grid?.Physics == null) return;
+        public override void Init(MyObjectBuilder_EntityBase objectBuilder)
+        {
+            base.Init(objectBuilder);
+            _propeller = (IMyTerminalBlock)Entity;
+            _propellerStats = Config.PropellerSettings[_propeller.BlockDefinition.SubtypeName];
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+        }
 
-    // 1. Calculate the direction (Pushing backward to go forward)
-    Vector3D forceDirection = Entity.WorldMatrix.Backward;
-    Vector3D totalForceVector = forceDirection * totalThrustNewtons;
+        public override void UpdateOnceBeforeFrame()
+        {
+            _propeller.AppendingCustomInfo += AppendCustomInfo;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
+        }
 
-    // 2. Define your split ratio (e.g., 70% stable, 30% realistic torque)
-    float stabilityFactor = 0.7f; 
-    Vector3D stableForce = totalForceVector * stabilityFactor;
-    Vector3D torqueForce = totalForceVector * (1.0f - stabilityFactor);
+        public override void UpdateBeforeSimulation10()
+        {
+                UpdatePower();
+                SetSpool();
+                ApplyForce();
+                _propeller.RefreshCustomInfo();
+        }
 
-    // 3. Apply the 'Stable' portion to the Center of Mass
-    // This moves the ship forward without turning it at all.
-    grid.Physics.AddForce(
-        MyPhysicsForceType.APPLY_WORLD_FORCE, 
-        stableForce, 
-        grid.Physics.CenterOfMassWorld, 
-        null
-    );
+        private void UpdatePower()
+        {
+            if (Math.Abs(_inputMW) < 0.001f) 
+            { 
+                _outputMW = 0f;
+                return; 
+            }
 
-    // 4. Apply the 'Torque' portion to the Block Position
-    // This creates the yaw/pitch/roll based on where the prop is mounted.
-    grid.Physics.AddForce(
-        MyPhysicsForceType.APPLY_WORLD_FORCE, 
-        torqueForce, 
-        Entity.WorldMatrix.Translation, 
-        null
-    );
-}
+            float submergence = Jakaria.API.WaterModAPI.Entity_PercentUnderwater((MyEntity)_propeller);
 
+            _outputMW = (_inputMW * 1000000f) * Config.mnPerMW * submergence;
+        }
 
-        
+        private void SetSpool()
+        {
+            float spoolStep = 1f / (_propellerStats.SpoolTime * 6f);
+            if (Math.Abs(_inputMW) > 0.1f)
+                _inertia = Math.Min(_inertia + spoolStep, 1f);
+            else
+                _inertia = Math.Max(_inertia - spoolStep, 0f);
+
+            float cubicFactor = _inertia * _inertia * _inertia;
+
+            _outputMW *= cubicFactor;
+        }
+
+        private void ApplyForce()
+        {
+            if (_propeller?.Physics == null) return;
+
+            Vector3D forceDirection = Entity.WorldMatrix.Backward;
+            Vector3D totalForceVector = forceDirection * _outputMW;
+
+            float stabilityFactor = 0.7f; 
+            Vector3D stableForce = totalForceVector * stabilityFactor;
+            Vector3D torqueForce = totalForceVector * (1.0f - stabilityFactor);
+
+            _propeller.Physics.AddForce(
+                MyPhysicsForceType.APPLY_WORLD_FORCE, 
+                stableForce,
+                _propeller.Physics.CenterOfMassWorld, 
+                null
+            );
+
+            _propeller.Physics.AddForce(
+                MyPhysicsForceType.APPLY_WORLD_FORCE, 
+                torqueForce, 
+                Entity.WorldMatrix.Translation, 
+                null
+            );
+        }
+
+        private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
+        {
+            sb.AppendLine($"Output: {_outputMW}");
+        }
     }
 }

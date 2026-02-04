@@ -190,7 +190,14 @@ namespace NavalPowerSystems.DieselEngines
             float fuelMult = GetFuelMultiplier(_engineEfficiency, (float)_currentThrottle);
             _fuelBurn = (_engineStats.FuelRate * fuelMult) / 6;
 
-            Utilities.ChangeTankLevel(_engine, _fuelBurn);
+            if (_engine.FilledRatio <= 0.01f)
+            {
+                _currentThrottle = 0f;
+                _fuelBurn = 0f;
+                _status = "Out of Fuel";
+                return;
+            }
+            Utilities.ChangeTankLevel(_engine, -_fuelBurn);
         }
 
         private void UpdatePower()
@@ -204,7 +211,6 @@ namespace NavalPowerSystems.DieselEngines
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
         {
-            sb.AppendLine();
             sb.AppendLine($"Status: {_status}");
             sb.AppendLine($"Output: {_currentOutputMW:F2} MW");
             sb.AppendLine($"Max Output: {_engineStats.MaxMW:F2} MW");
