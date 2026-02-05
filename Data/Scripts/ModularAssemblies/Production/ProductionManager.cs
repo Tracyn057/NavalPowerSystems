@@ -25,22 +25,6 @@ namespace NavalPowerSystems.Production
             Instance = null;
         }
 
-        public void UpdateTick()
-        {
-            if (_ticks % 100 == 0)
-                Update100();
-
-            _ticks++;
-        }
-
-        private void Update100()
-        {
-            var systems = ModularApi.GetAllAssemblies();
-            foreach (var productionSystem in ProductionSystems.Values.ToList())
-                if (!systems.Contains(productionSystem.AssemblyId))
-                    ProductionSystems.Remove(productionSystem.AssemblyId);
-        }
-
         public void OnPartAdd(int assemblyId, IMyCubeBlock block, bool isBasePart)
         {
             if (!ProductionSystems.ContainsKey(assemblyId))

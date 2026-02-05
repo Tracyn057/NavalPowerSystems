@@ -10,14 +10,8 @@ namespace NavalPowerSystems.Production
         private static ModularDefinitionApi ModularApi => NavalPowerSystems.ModularDefinition.ModularApi;
 
         public IMyGasTank CrudeInput;
-        public IMyGasTank FuelOutput;
         public IMyGasTank FuelInput;
-        public IMyGasTank DieselOutput;
         public IMyCubeBlock RefineryBlock;
-
-        public bool IsCrackerFunctional => RefineryBlock?.BlockDefinition.SubtypeName == "NPSProductionOilCracker" && CrudeInput != null && FuelOutput != null;
-        public bool IsRefineryFunctional => RefineryBlock?.BlockDefinition.SubtypeName == "NPSProductionFuelRefinery" && FuelInput != null && DieselOutput != null;
-        public bool IsFunctional => IsCrackerFunctional || IsRefineryFunctional;
 
         public ProductionSystem(int id)
         {
@@ -33,9 +27,7 @@ namespace NavalPowerSystems.Production
             var tank = block as IMyGasTank;
 
             if (subtype == "NPSProductionCrudeInput") CrudeInput = tank;
-            else if (subtype == "NPSProductionFuelOutput") FuelOutput = tank;
             else if (subtype == "NPSProductionFuelInput") FuelInput = tank;
-            else if (subtype == "NPSProductionDieselOutput") DieselOutput = tank;
             else if (subtype == "NPSProductionOilCracker" || subtype == "NPSProductionFuelRefinery")
                 RefineryBlock = block;
         }
@@ -45,9 +37,7 @@ namespace NavalPowerSystems.Production
             string subtype = block.BlockDefinition.SubtypeName;
 
             if (subtype == "NPSProductionCrudeInput") CrudeInput = null;
-            else if (subtype == "NPSProductionFuelOutput") FuelOutput = null;
             else if (subtype == "NPSProductionFuelInput") FuelInput = null;
-            else if (subtype == "NPSProductionDieselOutput") DieselOutput = null;
             else if (subtype == "NPSProductionOilCracker" || subtype == "NPSProductionFuelRefinery")
                 RefineryBlock = null;
         }

@@ -1,19 +1,19 @@
-Clutch and direct drive inputs
-Clutch is bool based on currentThrottle
-Direct drive input is always on
+X Clutch and direct drive inputs
+X Clutch is bool based on currentThrottle
+X Direct drive input is always on
 Direct drive only pairs to double reduction gearbox
 Clutch only pairs to main reduction gearbox
 Direct drive -> double reduction can maintain only single engine connection and single propeller connection -- Old technology
-Clutch and main reduction gear has no real max inputs/outputs -- Arleigh Burke: 4 inputs, 2 outputs. Possibly max at 4 each?
+X Clutch and main reduction gear has no real max inputs/outputs -- Arleigh Burke: 4 inputs, 2 outputs. Possibly max at 4 each?
 
-Propeller will need RequestedOutput and CurrentOutput -> spool rate for response time.
-Main reduction gearbox will need to maintain list of attached clutches and propellers. Sum all inputs based on IsEngaged bool, maintain authority of IsEngaged.
-Gearboxes maintain list of clutches and propellers. Clutches decide if input power is 0 or current power. Gearbox sums all inputs, all the time. Divides inputs by current propellers. Opens up final output to propellers.
-Propellers look at gearbox final output variable to set requested power. Knows where to look from assembly base block?
-Any link knowledge would be updated OnPartAdd/Remove. Not at specific tick intervals.
+X Propeller will need RequestedOutput and CurrentOutput -> spool rate for response time.
+X Main reduction gearbox will need to maintain list of attached clutches and propellers. Sum all inputs based on IsEngaged bool, maintain authority of IsEngaged.
+X Gearboxes maintain list of clutches and propellers. Clutches decide if input power is 0 or current power. Gearbox sums all inputs, all the time. Divides inputs by current propellers. Opens up final output to propellers.
+X Propellers look at gearbox final output variable to set requested power. Knows where to look from assembly base block?
+X Any link knowledge would be updated OnPartAdd/Remove. Not at specific tick intervals.
 
 
 Production and Extraction output logic change to utilize O2 Generators' push to conveyor network using AddItem intermediary to start output's conversion process. Maybe remove outputs alltogether and maintain 2-block assemblies. 
 Input being tank with Stockpile=On and converter itself being the O2 generator spawning items in it's own inventory to convert to "gas".
-Items and blueprints+classes already made. Double check accuracy
+X Items and blueprints+classes already made. Double check accuracy
 

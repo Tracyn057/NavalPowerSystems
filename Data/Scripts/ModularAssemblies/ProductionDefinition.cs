@@ -61,8 +61,6 @@ namespace NavalPowerSystems
             {
                 "NPSProductionCrudeInput",
                 "NPSProductionFuelInput",
-                "NPSProductionFuelOutput",
-                "NPSProductionDieselOutput",
                 "NPSProductionOilCracker",
                 "NPSProductionFuelRefinery"
             },
