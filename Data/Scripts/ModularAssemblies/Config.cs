@@ -68,15 +68,15 @@ namespace NavalPowerSystems
         public static readonly Dictionary<string, EngineStats> EngineSettings = new Dictionary<string, EngineStats>
         {
             //Gas Turbines
-            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 2, FuelRate = 19.5f, SpoolLo = 0.02f, SpoolHi = 0.12f, SpoolSwitch = 0.65f } },
-            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 5, FuelRate = 48.75f, SpoolLo = 0.02f, SpoolHi = 0.12f, SpoolSwitch = 0.65f } },
-            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 12, FuelRate = 117.0f, SpoolLo = 0.02f, SpoolHi = 0.12f, SpoolSwitch = 0.65f } },
-            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 25, FuelRate = 243.75f, SpoolLo = 0.02f, SpoolHi = 0.12f, SpoolSwitch = 0.65f } },
-            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 40, FuelRate = 390.0f, SpoolLo = 0.02f, SpoolHi = 0.12f, SpoolSwitch = 0.65f } },
+            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 2, FuelRate = 19.5f, SpoolTime = 11 } },
+            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 5, FuelRate = 48.75f, SpoolTime = 12 } },
+            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 12, FuelRate = 117.0f, SpoolTime = 13 } },
+            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 25, FuelRate = 243.75f, SpoolTime = 14 } },
+            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 40, FuelRate = 390.0f, SpoolTime = 15 } },
             //Internal Combustion Diesel
-            {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, FuelRate = 3.75f, SpoolLo = 0.04f, SpoolHi = 0.08f, SpoolSwitch = 0.45f } },
-            {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, FuelRate = 11.25f, SpoolLo = 0.04f, SpoolHi = 0.08f, SpoolSwitch = 0.45f } },
-            {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, FuelRate = 18.75f, SpoolLo = 0.04f, SpoolHi = 0.08f, SpoolSwitch = 0.45f } },
+            {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, FuelRate = 3.75f, SpoolTime = 3.25f } },
+            {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, FuelRate = 11.25f, SpoolTime = 3.5f } },
+            {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, FuelRate = 18.75f, SpoolTime = 3.75f } },
         };
 
         public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
@@ -90,9 +90,7 @@ namespace NavalPowerSystems
         public EngineType Type;
         public float MaxMW;         //Soft cap max output power - Mechanical only
         public float FuelRate;      //Fuel consumption at max output in liters/second
-        public float SpoolLo;       //How fast the engine responds to throttle changes at low throttle
-        public float SpoolHi;       //How fast the engine responds to throttle changes at high throttle
-        public float SpoolSwitch;   //The point at which low throttle turns to high throttle
+        public float SpoolTime;       //How fast the engine responds to throttle changes at low throttle
     }
 
     public class PropellerStats

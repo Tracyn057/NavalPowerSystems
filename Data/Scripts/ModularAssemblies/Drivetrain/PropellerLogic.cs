@@ -62,6 +62,10 @@ namespace NavalPowerSystems.Drivetrain
         private void SetSpool()
         {
             float spoolStep = 1f / (_propellerStats.SpoolTime * 6f);
+
+            if (_inertia > 0.8f)
+                spoolStep *= 2f;
+
             if (Math.Abs(_inputMW) > 0.1f)
                 _inertia = Math.Min(_inertia + spoolStep, 1f);
             else
@@ -70,6 +74,10 @@ namespace NavalPowerSystems.Drivetrain
             float cubicFactor = _inertia * _inertia * _inertia;
 
             _outputMW *= cubicFactor;
+
+            float noise = 1f + MyUtils.GetRandomFloat(-Config.throttleVariance, Config.throttleVariance);
+            
+            _outputMW *= noise;
         }
 
         private void ApplyForce()

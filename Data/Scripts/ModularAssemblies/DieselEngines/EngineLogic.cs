@@ -158,22 +158,52 @@ namespace NavalPowerSystems.DieselEngines
             return 1.0f;
         }
 
-        public void Spool(float target)
+        // public void OldSpool(float target)
+        // {
+        //     float progress = _currentThrottle / _engineStats.SpoolSwitch;
+        //     float baseRate = MathHelper.Lerp((_engineStats.SpoolLo / 6), (_engineStats.SpoolHi / 6), MathHelper.Clamp(progress, 0f, 1f));
+
+        //     float noiseMult = 1f + MyUtils.GetRandomFloat(-Config.throttleVariance, Config.throttleVariance);
+        //     float finalRate = baseRate * noiseMult;
+
+        //     if (Math.Abs(_currentThrottle - target) < finalRate)
+        //     {
+        //         _currentThrottle = target + MyUtils.GetRandomFloat(-0.015f, 0.015f);
+        //     }
+        //     else
+        //     {
+        //         _currentThrottle += (_currentThrottle < target) ? finalRate : -finalRate;
+        //     }
+
+        // }
+
+        private void Spool(float target)
         {
-            float progress = _currentThrottle / _engineStats.SpoolSwitch;
-            float baseRate = MathHelper.Lerp((_engineStats.SpoolLo / 6), (_engineStats.SpoolHi / 6), MathHelper.Clamp(progress, 0f, 1f));
+            float spoolStep = 1f / (_engineStats.SpoolTime * 6f);
 
-            float noiseMult = 1f + MyUtils.GetRandomFloat(-Config.throttleVariance, Config.throttleVariance);
-            float finalRate = baseRate * noiseMult;
+            if (_engineStats.Type == EngineType.Turbine && _inertia > 0.8f)
+                spoolStep *= 3f;
+            else if (_engineStats.Type == EngineType.Diesel && _inertia > 0.65f)
+                spoolStep *= 1.25f;
 
-            if (Math.Abs(_currentThrottle - target) < finalRate)
-            {
-                _currentThrottle = target + MyUtils.GetRandomFloat(-0.015f, 0.015f);
-            }
+            if (Math.Abs(target) > 0.1f)
+                _inertia = Math.Min(_inertia + spoolStep, 1f);
             else
-            {
-                _currentThrottle += (_currentThrottle < target) ? finalRate : -finalRate;
-            }
+                _inertia = Math.Max(_inertia - spoolStep, 0f);
+
+            float cubicFactor;
+
+            if (_engineStats.Type == EngineType.Turbine)
+                cubicFactor = (float)Math.Pow(_inertia, 4.5f);
+            else
+
+                cubicFactor = _inertia * _inertia * _inertia;
+
+            _currentThrottle = target * cubicFactor;
+
+            float noise = 1f + MyUtils.GetRandomFloat(-Config.throttleVariance, Config.throttleVariance);
+            
+            _currentThrottle *= noise;
         }
 
         private void UpdateThrottle()

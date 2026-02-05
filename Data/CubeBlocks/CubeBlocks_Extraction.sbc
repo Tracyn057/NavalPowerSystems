@@ -61,8 +61,8 @@
             <BuildTimeSeconds>22</BuildTimeSeconds>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
-            <IceConsumptionPerSecond>25</IceConsumptionPerSecond>
-            <InventoryMaxVolume>4</InventoryMaxVolume>
+            <IceConsumptionPerSecond>1</IceConsumptionPerSecond>
+            <InventoryMaxVolume>1</InventoryMaxVolume>
             <InventorySize>
                 <X>2</X>
                 <Y>2</Y>
@@ -82,7 +82,7 @@
                         <TypeId>GasProperties</TypeId>
                         <SubtypeId>CrudeOil</SubtypeId>
                     </Id>
-                    <IceToGasRatio>100</IceToGasRatio>
+                    <IceToGasRatio>1</IceToGasRatio>
                 </GasInfo>
             </ProducedGases>
 			<BlueprintClasses>

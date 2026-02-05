@@ -22,9 +22,9 @@ namespace NavalPowerSystems.Extraction
         private string _location = "Void";
         private float _extractionRate = 0f;
         private string _itemSubtype = "Crude";
-        private bool __drillHead = false;
-        private bool __drillRig = false;
-        private bool __drillRod = false;
+        private bool _hasDrillHead = false;
+        private bool _hasDrillRig = false;
+        private bool _hasDrillRod = false;
         private bool _isComplete = false;
 
         public bool _needsRefresh { get; set; }
@@ -73,9 +73,9 @@ namespace NavalPowerSystems.Extraction
             _isComplete = false;
             if (_assemblyId != -1)
             {
-                __drillHead = false;
-                __drillRod = false;
-                __drillRig = false;
+                _hasDrillHead = false;
+                _hasDrillRod = false;
+                _hasDrillRig = false;
 
                 foreach (IMyCubeBlock block in ModularApi.GetMemberParts(_assemblyId))
                 {
@@ -84,13 +84,13 @@ namespace NavalPowerSystems.Extraction
                     var subtype = block.BlockDefinition.SubtypeName;
                     if (subtype == "NPSExtractionDrillHead")
                     {
-                        __drillHead = true;
+                        _hasDrillHead = true;
                         _drillHead = block as IMyFunctionalBlock;
                     }
-                    if (subtype == "NPSExtractionDrillPipe") __drillRod = true;
-                    if (subtype == "NPSExtractorOilDerrick") __drillRig = true;
+                    if (subtype == "NPSExtractionDrillPipe") _hasDrillRod = true;
+                    if (subtype == "NPSExtractorOilDerrick") _hasDrillRig = true;
                 }
-                if (__drillHead == true && __drillRod == true && __drillRig == true) _isComplete = true;
+                if (_hasDrillHead == true && _hasDrillRod == true && _hasDrillRig == true) _isComplete = true;
             }
         }
 
@@ -103,7 +103,7 @@ namespace NavalPowerSystems.Extraction
 
                 if (inventory == null || logic == null) return;
 
-                if (inventory.CurrentVolume >= inventory.MaxVolume)
+                if (inventory.CurrentVolume >= inventory.MaxVolume * 0.95f)
                 {
                     _status = "Inventory Full";
                     _extractionRate = 0;
@@ -153,11 +153,11 @@ namespace NavalPowerSystems.Extraction
             }
             else
             {
-                if (!__drillRig)
+                if (!_hasDrillRig)
                     _status = "Assembly Incomplete (Missing Rig, wtf?)";
-                else if (!__drillHead)
+                else if (!_hasDrillHead)
                     _status = "Assembly Incomplete (Missing Drill Head)";
-                else if (!__drillRod)
+                else if (!_hasDrillRod)
                     _status = "Assembly Incomplete (Missing Drill Rod)";
                 _location = "Irrelevant";
                 _extractionRate = 0;
