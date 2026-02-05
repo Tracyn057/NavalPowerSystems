@@ -299,6 +299,11 @@ namespace NavalPowerSystems.DieselEngines
             }
         }
 
+        public override void OnRemovedFromScene()
+        {
+            if (_engine != null) _engine.AppendingCustomInfo -= AppendCustomInfo;
+        }
+
         #endregion
     }
 }

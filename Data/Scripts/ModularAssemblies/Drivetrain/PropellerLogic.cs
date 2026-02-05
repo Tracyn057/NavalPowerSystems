@@ -102,5 +102,10 @@ namespace NavalPowerSystems.Drivetrain
         {
             sb.AppendLine($"Output: {_outputMW}");
         }
+
+        public override void OnRemovedFromScene()
+        {
+            if (_propeller != null) _propeller.AppendingCustomInfo -= AppendCustomInfo;
+        }
     }
 }

@@ -188,7 +188,10 @@ namespace NavalPowerSystems.Drivetrain
             }
         }
 
+        public override void OnRemovedFromScene()
+        {
+            if (_gearbox != null) _gearbox.AppendingCustomInfo -= AppendCustomInfo;
+        }
 
-        
     }
 }

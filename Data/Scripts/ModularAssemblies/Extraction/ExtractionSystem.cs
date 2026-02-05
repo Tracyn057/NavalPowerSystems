@@ -1,6 +1,5 @@
 ﻿using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
-using NavalPowerSystems.Communication;
 using System.Collections.Generic;
 
 namespace NavalPowerSystems.Extraction
@@ -12,9 +11,6 @@ namespace NavalPowerSystems.Extraction
         public IMyFunctionalBlock RigBase;
         public IMySlimBlock DrillHead;
         public List<IMySlimBlock> Pipes = new List<IMySlimBlock>();
-        public IMyGasTank OutputTank;
-
-        public bool IsAssemblyComplete => RigBase != null && DrillHead != null && RigBase.IsWorking;
 
         public ExtractionSystem(int id)
         {
@@ -32,8 +28,6 @@ namespace NavalPowerSystems.Extraction
 
             if (subtype == "NPSExtractorOilDerrick") 
                 RigBase = block as IMyFunctionalBlock;
-            else if (subtype == "NPSExtractionCrudeOutput") 
-                OutputTank = tank;
             else if (subtype == "NPSExtractionDrillHead")
                 DrillHead = slim;
             else if (subtype == "NPSExtractionDrillPipe")
@@ -46,8 +40,6 @@ namespace NavalPowerSystems.Extraction
 
             if (subtype == "NPSExtractorOilDerrick")
                 RigBase = null;
-            else if (subtype == "NPSExtractionCrudeOutput") 
-                OutputTank = null;
             else if (subtype == "NPSExtractionDrillHead") 
                 DrillHead = null;
             else if (subtype == "NPSExtractionDrillPipe")

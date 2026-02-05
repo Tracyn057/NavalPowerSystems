@@ -1,95 +1,123 @@
-﻿using Jakaria.API;
-using NavalPowerSystems.Common;
-using NavalPowerSystems.Communication;
-using NavalPowerSystems.Production;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.Entities;
-using Sandbox.Game.EntityComponents;
+﻿using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
-using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
-using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace NavalPowerSystems.Extraction
 {
-  [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TerminalBlock), false, "NPSExtractionDrillHead")]
-  public class HeadLogic : MyGameLogicComponent
-  {
-  
-    private IMyTerminalBlock _drillHead;
-    public float _oilYield { get; private set; }
-    public bool _isAtGround { get; private set; }
-    public bool _isUnderwater { get; private set; }
-    private bool _needsRefresh = true;
-    private Vector3D _headPos;
-    private string _planet;
-    
-    public override void Init(MyObjectBuilder_EntityBase objectBuilder)
-      {
-          _engine = (IMyGasTank)Entity;
-          _engineStats = Config.EngineSettings[_engine.BlockDefinition.SubtypeName];
-          NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
-      }
-
-    public override void UpdateOnceBeforeNextFrame()
+    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TerminalBlock), false, "NPSExtractionDrillHead")]
+    public class DrillHeadLogic : MyGameLogicComponent
     {
 
-    
-      NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;  
-    }
+        private IMyTerminalBlock _drillHead;
+        public float _oilYield { get; private set; }
+        public bool _isAtGround { get; private set; }
+        public bool _isUnderwater { get; private set; }
+        private bool _needsRefresh = true;
+        private Vector3D _headPos;
+        private float? _headDepth;
+        private MyPlanet _planet;
 
-    public override void UpdateBeforeSimulation100()
-    {
-
-    }
-
-    private void GetLocation()
-    {
-      _headPos = _drillHead.WorldMatrix.Translation;
-      _planet = MyGamePruningStructure.GetClosestPlanet(_headPos)
-    }
-
-    private void GetWaterDepth()
+        public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
-            var headDepth = WaterModAPI.GetDepth(_headPos)
-            if (headDepth == null)
+            _drillHead = (IMyTerminalBlock)Entity;
+
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+        }
+
+        public override void UpdateOnceBeforeFrame()
+        {
+            if (_drillHead != null)
             {
-              _isUnderwater = false;
-                return;
-              }
-            if (headDepth > Config.minWaterDepth)
+                GetLocation();
+                GetYield();
+                IsHeadAtSurface();
+                GetWaterDepth();
+
+                _drillHead.AppendingCustomInfo += AppendCustomInfo;
+            }
+
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+        }
+
+        public override void UpdateBeforeSimulation100()
+        {
+            if (_needsRefresh)
             {
-              _inUnderwater = true;
+                GetLocation();
+                GetYield();
+                IsHeadAtSurface();
+                GetWaterDepth();
+                _drillHead.RefreshCustomInfo();
+            }
+        }
+
+        private void GetLocation()
+        {
+            _headPos = _drillHead.WorldMatrix.Translation;
+            _planet = MyGamePruningStructure.GetClosestPlanet(_headPos);
+        }
+
+        private void GetWaterDepth()
+        {
+            _headDepth = Jakaria.API.WaterModAPI.GetDepth(_headPos);
+            if (_headDepth == null)
+            {
+                _isUnderwater = false;
                 return;
-                }
+            }
+            if (_headDepth > Config.minWaterDepth)
+            {
+                _isUnderwater = true;
+                return;
+            }
             _isUnderwater = false;
             return;
         }
 
-    private void IsHeadAtSurface()
+        private void IsHeadAtSurface()
         {
-          
-            if (_planet == null) return false;
-            float headDist = 10000;
-            Vector3D surfacePoint = planet.GetClosestSurfacePointGlobal(_headPos);
-            double surfaceDist = (surfacePoint - planet.WorldMatrix.Translation).Length();
-            double headDist = (_headPos - planet.WorldMatrix.Translation).Length();
 
-            if (headDist <= surfaceDist + 2.5)
+            if (_planet == null) return;
+            Vector3D surfacePoint = _planet.GetClosestSurfacePointGlobal(_headPos);
+            double surfaceDist = Vector3D.Distance(_headPos, surfacePoint);
+
+            if (surfaceDist <= 2.5)
             {
-              _isAtGround = true;
-              return;
+                _isAtGround = true;
+                return;
             }
             _isAtGround = false;
             return;
         }
 
-  }
+        private void GetYield()
+        {
+            if (_planet == null || _headPos == null) return;
+            OilMap.GetOil(_headPos, _planet);
+        }
+
+        private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
+        {
+            if (_isAtGround)
+            {
+                sb.AppendLine("Location: Land");
+            }
+            else if (_isUnderwater)
+            {
+                sb.AppendLine("Status: Underwater");
+                sb.AppendLine($"Depth: {_headDepth}:F2");
+            }
+        }
+
+        public override void OnRemovedFromScene()
+        {
+            if (_drillHead != null) _drillHead.AppendingCustomInfo -= AppendCustomInfo;
+        }
+
+    }
 }

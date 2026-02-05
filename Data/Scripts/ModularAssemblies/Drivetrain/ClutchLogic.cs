@@ -133,5 +133,10 @@ namespace NavalPowerSystems.Drivetrain
             sb.AppendLine($"Is Engaged: {_isEngaged}");
         }
 
+        public override void OnRemovedFromScene()
+        {
+            if (_clutch != null) _clutch.AppendingCustomInfo -= AppendCustomInfo;
+        }
+
     }
 }
