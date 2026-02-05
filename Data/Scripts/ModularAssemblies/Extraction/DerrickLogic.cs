@@ -112,7 +112,7 @@ namespace NavalPowerSystems.Extraction
 
                 var oilItem = new MyDefinitionId(typeof(MyObjectBuilder_Ore), _itemSubtype);
 
-                float baseRate = Config.derrickExtractRate * logic._oilYield;
+                float baseRate = (Config.derrickExtractRate * 1.6f) * logic._oilYield;
                 float oceanRate = baseRate * Config.derrickOceanMult;
                 
                 VRage.MyFixedPoint count = (VRage.MyFixedPoint)baseRate;
