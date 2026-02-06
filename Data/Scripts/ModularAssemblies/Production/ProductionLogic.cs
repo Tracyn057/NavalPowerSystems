@@ -21,7 +21,7 @@ namespace NavalPowerSystems.Production
     {
         internal static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
 
-        private IMyTerminalBlock _refineryBlock;
+        private IMyTerminalBlock _refinery;
         private int _assemblyId = -1;
         private IMyGasTank _inputTank;
         public bool _needsRefresh { get; set; }
@@ -37,31 +37,34 @@ namespace NavalPowerSystems.Production
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
-            _refineryBlock = (IMyTerminalBlock)Entity;
-            if (_refineryBlock == null) return;
-            _needsRefresh = true;
+            _refinery = Entity as IMyTerminalBlock;
+            if (_refinery == null) return;
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         public override void UpdateOnceBeforeFrame()
         {
-            if (_needsRefresh) ValidateRefinery();
-            if (_refineryBlock != null)
-                _assemblyId = ModularApi.GetContainingAssembly(_refineryBlock, "Production_Definition");
+            _needsRefresh = true;
+            if (_refinery != null)
+                _assemblyId = ModularApi.GetContainingAssembly(_refinery, "Production_Definition");
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public override void UpdateBeforeSimulation100()
         {
-            if (!MyAPIGateway.Session.IsServer) return;
-            if (_refineryBlock == null) return;
+            if (_needsRefresh)
+            {
+                ValidateRefinery();
+                _needsRefresh = false;
+            }
+            if (_refinery == null) return;
             if (_assemblyId == -1) _assemblyId = ModularApi.GetContainingAssembly(Entity as IMyCubeBlock, "Production_Definition");
             if (_assemblyId == -1) return;
-            if (_needsRefresh) ValidateRefinery();
+            
 
-            if (_refineryBlock.IsWorking && _isComplete)
+            if (_refinery.IsWorking && _isComplete)
             {
                 ProcessConversion();
             }
@@ -76,7 +79,7 @@ namespace NavalPowerSystems.Production
         {
             if (_isComplete)
             {
-                var inventory = _refineryBlock.GetInventory();
+                IMyInventory inventory = _refinery.GetInventory(0);
 
                 if (inventory == null) return;
 
@@ -86,8 +89,16 @@ namespace NavalPowerSystems.Production
                     _activeRatio = 0f;
                     return;
                 }
+                MyObjectBuilder_PhysicalObject oilItem = new MyObjectBuilder_PhysicalObject
+            {
+                TypeId = "MyObjectBuilder_Ore",
+                SubtypeName = "DummyItemCrude"
+            };
+            float baseRate = Config.derrickExtractRate * 1.6f * logic._oilYield;
+            float oceanRate = baseRate * Config.derrickOceanMult;
 
-                var refineItem = new MyDefinitionId(typeof(MyObjectBuilder_Ore), _itemSubtype);
+            VRage.MyFixedPoint count = (VRage.MyFixedPoint)baseRate;
+            VRage.MyFixedPoint countOcean = (VRage.MyFixedPoint)oceanRate;
 
 
             }
@@ -96,12 +107,12 @@ namespace NavalPowerSystems.Production
         private void ValidateRefinery()
         {
             _isComplete = false;
-            if (_assemblyId == -1 || _refineryBlock == null) return;
+            if (_assemblyId == -1 || _refinery == null) return;
 
             _hasRefinery = false;
             _hasRefineryTank = false;
 
-            bool isRefinery = (_refineryBlock.BlockDefinition.SubtypeName == "NPSProductionFuelRefinery");
+            bool isRefinery = _refinery.BlockDefinition.SubtypeName == "NPSProductionFuelRefinery";
 
             if (!isRefinery)
             {
@@ -160,7 +171,7 @@ namespace NavalPowerSystems.Production
 
         public override void OnRemovedFromScene()
         {
-            if (_refineryBlock != null) _refineryBlock.AppendingCustomInfo -= AppendCustomInfo;
+            if (_refinery != null) _refinery.AppendingCustomInfo -= AppendCustomInfo;
         }
 
     }
