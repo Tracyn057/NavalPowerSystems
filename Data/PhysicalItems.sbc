@@ -5,7 +5,7 @@
     <PhysicalItem>
       <Id>
         <TypeId>Ore</TypeId>
-        <SubtypeId>Crude</SubtypeId>
+        <SubtypeId>CrudeDummy</SubtypeId>
       </Id>
       <DisplayName>DisplayName_Item_StoneOre</DisplayName>
       <Icon>Textures\GUI\Icons\ore_rock.dds</Icon>

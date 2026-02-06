@@ -62,8 +62,6 @@
             <Blocks>
                 <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionCrudeInput" />
                 <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionFuelInput" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionFuelOutput" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionDieselOutput" />
                 <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine40MW" />
             </Blocks>
         </BlockVariantGroup>   

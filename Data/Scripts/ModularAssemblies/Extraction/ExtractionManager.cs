@@ -8,7 +8,6 @@ namespace NavalPowerSystems.Extraction
     internal class ExtractionManager : MySessionComponentBase
     {
         public static ExtractionManager Instance = new ExtractionManager();
-        private int _ticks;
         public ModularDefinition ExtractionDefinition;
         public static Dictionary<int, ExtractionSystem> ExtractionSystems = new Dictionary<int, ExtractionSystem>();
 
@@ -27,13 +26,13 @@ namespace NavalPowerSystems.Extraction
             if (!ExtractionSystems.ContainsKey(assemblyId))
                 ExtractionSystems.Add(assemblyId, new ExtractionSystem(assemblyId));
 
-            if (block.BlockDefinition.SubtypeName == "NPSExtractionDrillRig")
+            ExtractionSystems[assemblyId].AddPart(block);
+
+            if (block.BlockDefinition.SubtypeName == "NPSExtractionOilDerrick")
             {
                 var logic = block.GameLogic?.GetAs<DerrickLogic>();
                 logic._needsRefresh = true;
             }
-
-            ExtractionSystems[assemblyId].AddPart(block);
         }
 
         public void OnPartRemove(int assemblyId, IMyCubeBlock block, bool isBasePart)

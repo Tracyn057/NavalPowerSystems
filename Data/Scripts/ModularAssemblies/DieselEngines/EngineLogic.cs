@@ -36,6 +36,7 @@ namespace NavalPowerSystems.DieselEngines
         private string _status = "Idle";
 
         private float _requestedMS = 0f;
+        private float _inertia = 0f;
         public float _requestedThrottle { get; private set; }
         public float _currentThrottle { get; private set; }
         public float _currentOutputMW { get; private set; }
@@ -158,25 +159,6 @@ namespace NavalPowerSystems.DieselEngines
             return 1.0f;
         }
 
-        // public void OldSpool(float target)
-        // {
-        //     float progress = _currentThrottle / _engineStats.SpoolSwitch;
-        //     float baseRate = MathHelper.Lerp((_engineStats.SpoolLo / 6), (_engineStats.SpoolHi / 6), MathHelper.Clamp(progress, 0f, 1f));
-
-        //     float noiseMult = 1f + MyUtils.GetRandomFloat(-Config.throttleVariance, Config.throttleVariance);
-        //     float finalRate = baseRate * noiseMult;
-
-        //     if (Math.Abs(_currentThrottle - target) < finalRate)
-        //     {
-        //         _currentThrottle = target + MyUtils.GetRandomFloat(-0.015f, 0.015f);
-        //     }
-        //     else
-        //     {
-        //         _currentThrottle += (_currentThrottle < target) ? finalRate : -finalRate;
-        //     }
-
-        // }
-
         private void Spool(float target)
         {
             float spoolStep = 1f / (_engineStats.SpoolTime * 6f);
@@ -218,7 +200,7 @@ namespace NavalPowerSystems.DieselEngines
             if (!_engine.IsWorking) return;
 
             float fuelMult = GetFuelMultiplier(_engineEfficiency, (float)_currentThrottle);
-            _fuelBurn = (_engineStats.FuelRate * fuelMult) / 6;
+            _fuelBurn = ((_engineStats.FuelRate * fuelMult) / 6 ) * Config.globalFuelMult;
 
             if (_engine.FilledRatio <= 0.01f)
             {

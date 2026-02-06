@@ -3,8 +3,6 @@ using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VRage.Game.ModAPI;
 
 namespace NavalPowerSystems.Drivetrain
@@ -16,7 +14,6 @@ namespace NavalPowerSystems.Drivetrain
         public List<IMyFunctionalBlock> Inputs = new List<IMyFunctionalBlock>();
         public List<IMyFunctionalBlock> Outputs = new List<IMyFunctionalBlock>();
         public List<IMySlimBlock> Driveshafts = new List<IMySlimBlock>();
-        private static ModularDefinitionApi ModularApi => NavalPowerSystems.ModularDefinition.ModularApi;
 
 
         public DrivetrainSystem(int id)

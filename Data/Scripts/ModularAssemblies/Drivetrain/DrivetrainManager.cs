@@ -1,10 +1,5 @@
 ﻿using NavalPowerSystems.Communication;
-using NavalPowerSystems.Production;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
 
@@ -32,6 +27,14 @@ namespace NavalPowerSystems.Drivetrain
         {
             if (!DrivetrainSystems.ContainsKey(assemblyId))
                 DrivetrainSystems.Add(assemblyId, new DrivetrainSystem(assemblyId));
+
+            var subtype = block.BlockDefinition.SubtypeName;
+
+            if (subtype == "NPSDrivetrainMRG")
+            {
+                var logic = block.GameLogic?.GetAs<GearboxLogic>();
+                logic._needsRefresh = true;
+            }
 
             DrivetrainSystems[assemblyId].AddPart(block);
         }

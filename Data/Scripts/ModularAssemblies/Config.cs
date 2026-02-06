@@ -7,7 +7,7 @@ namespace NavalPowerSystems
     public static class Config
     {
         //Constant variables
-        public const float globalFuelMult = 1;          //Multiplier for fuel consumption
+        public const float globalFuelMult = 0.75f;          //Multiplier for fuel consumption
         public const float drivetrainLoss = 0.0467f;    //Percent loss of MW (MN) over the drivetrain
         public const float throttleVariance = 0.04f;    //Amount of random variance in throttle response
         public const float mnPerMW = 0.75f;             //MN produced per MW

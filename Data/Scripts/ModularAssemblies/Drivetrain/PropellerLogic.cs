@@ -1,6 +1,4 @@
-﻿using Jakaria.API;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.ModAPI;
+﻿using Sandbox.ModAPI;
 using System;
 using System.Text;
 using VRage.Game;
@@ -8,6 +6,7 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Utils;
 using VRageMath;
 
 namespace NavalPowerSystems.Drivetrain
@@ -19,7 +18,6 @@ namespace NavalPowerSystems.Drivetrain
     {
         private IMyTerminalBlock _propeller;
         private PropellerStats _propellerStats;
-        private float _inertia = 0f;
         public float _inputMW { get; set; }
         private float _outputMW = 0f;
 
@@ -62,16 +60,17 @@ namespace NavalPowerSystems.Drivetrain
         private void SetSpool()
         {
             float spoolStep = 1f / (_propellerStats.SpoolTime * 6f);
+            float inertia = 0f;
 
-            if (_inertia > 0.8f)
+            if (inertia > 0.8f)
                 spoolStep *= 2f;
 
             if (Math.Abs(_inputMW) > 0.1f)
-                _inertia = Math.Min(_inertia + spoolStep, 1f);
+                inertia = Math.Min(inertia + spoolStep, 1f);
             else
-                _inertia = Math.Max(_inertia - spoolStep, 0f);
+                inertia = Math.Max(inertia - spoolStep, 0f);
 
-            float cubicFactor = _inertia * _inertia * _inertia;
+            float cubicFactor = inertia * inertia * inertia;
 
             _outputMW *= cubicFactor;
 

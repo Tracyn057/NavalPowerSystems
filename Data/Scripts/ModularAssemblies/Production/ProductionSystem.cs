@@ -1,13 +1,11 @@
 ﻿using Sandbox.ModAPI;
 using VRage.Game.ModAPI;
-using NavalPowerSystems.Communication;
 
 namespace NavalPowerSystems.Production
 {
     public class ProductionSystem
     {
         public readonly int AssemblyId;
-        private static ModularDefinitionApi ModularApi => NavalPowerSystems.ModularDefinition.ModularApi;
 
         public IMyGasTank CrudeInput;
         public IMyGasTank FuelInput;

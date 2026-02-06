@@ -1,4 +1,10 @@
 
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.ModAPI;
+using VRage;
+using VRage.Game;
+using VRage.Game.Components;
+
 namespace NavalPowerSystems.Common
 {
     [MySessionComponentDescriptor(MyUpdateOrder.NoUpdate)]

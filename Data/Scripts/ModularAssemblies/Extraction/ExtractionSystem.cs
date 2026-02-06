@@ -9,7 +9,7 @@ namespace NavalPowerSystems.Extraction
         public readonly int AssemblyId;
 
         public IMyFunctionalBlock RigBase;
-        public IMySlimBlock DrillHead;
+        public IMyTerminalBlock DrillHead;
         public List<IMySlimBlock> Pipes = new List<IMySlimBlock>();
 
         public ExtractionSystem(int id)
@@ -24,21 +24,20 @@ namespace NavalPowerSystems.Extraction
 
             string subtype = block.BlockDefinition.SubtypeName;
             var tank = block as IMyGasTank;
-            var slim = block.SlimBlock;
 
-            if (subtype == "NPSExtractorOilDerrick") 
+            if (subtype == "NPSExtractionOilDerrick") 
                 RigBase = block as IMyFunctionalBlock;
             else if (subtype == "NPSExtractionDrillHead")
-                DrillHead = slim;
+                DrillHead = block as IMyTerminalBlock;
             else if (subtype == "NPSExtractionDrillPipe")
-                Pipes.Add(slim);
+                Pipes.Add(block.SlimBlock);
         }
 
         public void RemovePart(IMyCubeBlock block)
         {
             string subtype = block.BlockDefinition.SubtypeName;
 
-            if (subtype == "NPSExtractorOilDerrick")
+            if (subtype == "NPSExtractionOilDerrick")
                 RigBase = null;
             else if (subtype == "NPSExtractionDrillHead") 
                 DrillHead = null;

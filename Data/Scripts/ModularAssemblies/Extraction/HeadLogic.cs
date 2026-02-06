@@ -98,7 +98,7 @@ namespace NavalPowerSystems.Extraction
         private void GetYield()
         {
             if (_planet == null || _headPos == null) return;
-            OilMap.GetOil(_headPos, _planet);
+            _oilYield = OilMap.GetOil(_headPos, _planet);
         }
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)

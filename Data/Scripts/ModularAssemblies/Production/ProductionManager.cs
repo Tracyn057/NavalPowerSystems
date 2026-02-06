@@ -1,6 +1,4 @@
-﻿using NavalPowerSystems.Communication;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using VRage.Game.ModAPI;
 
 namespace NavalPowerSystems.Production
@@ -9,11 +7,8 @@ namespace NavalPowerSystems.Production
     {
         public static ProductionManager Instance = new ProductionManager();
 
-        private int _ticks;
         public ModularDefinition ProductionDefinition;
         public static Dictionary<int, ProductionSystem> ProductionSystems = new Dictionary<int, ProductionSystem>();
-
-        private static ModularDefinitionApi ModularApi => NavalPowerSystems.ModularDefinition.ModularApi;
 
         public void Load()
         {
@@ -29,6 +24,14 @@ namespace NavalPowerSystems.Production
         {
             if (!ProductionSystems.ContainsKey(assemblyId))
                 ProductionSystems.Add(assemblyId, new ProductionSystem(assemblyId));
+
+            var subtype = block.BlockDefinition.SubtypeName;
+
+            if (subtype == "NPSProductionOilCracker" || subtype == "NPSProductionFuelRefinery")
+            {
+                var logic = block.GameLogic?.GetAs<ProductionLogic>();
+                logic._needsRefresh = true;
+            }
 
             ProductionSystems[assemblyId].AddPart(block);
         }

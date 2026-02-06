@@ -18,48 +18,39 @@ namespace NavalPowerSystems
 
             OnInit = () =>
             {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Extraction Initialized.");
                 ExtractionManager.Instance.ExtractionDefinition = this;
             },
 
             // Triggers whenever a new part is added to an assembly.
             OnPartAdd = (assemblyId, block, isBasePart) =>
             {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartAdd called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
-                //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
-
                 ExtractionManager.Instance.OnPartAdd(assemblyId, block, isBasePart);
             },
 
             // Triggers whenever a part is removed from an assembly.
             OnPartRemove = (assemblyId, block, isBasePart) =>
             {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartRemove called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
-                //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
-
                 ExtractionManager.Instance.OnPartRemove(assemblyId, block, isBasePart);
             },
 
             // Triggers whenever a part is destroyed, just after OnPartRemove.
             OnPartDestroy = (assemblyId, block, isBasePart) =>
             {
-                // You can remove this function, and any others if need be.
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Production_Definition.OnPartDestroy called.\nI hope the explosion was pretty.");
-                //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
+
             },
 
             OnAssemblyClose = (assemblyId) =>
             {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Production_Definition.OnAssemblyClose called.\nAssembly: {assemblyId}");
+                
             },
 
             // Optional - if this is set, an assembly will not be created until a baseblock exists.
-            BaseBlockSubtype = "NPSExtractorOilDerrick",
+            BaseBlockSubtype = null,
 
             // All SubtypeIds that can be part of this assembly.
             AllowedBlockSubtypes = new[]
             {
-                "NPSExtractorOilDerrick",
+                "NPSExtractionOilDerrick",
                 "NPSExtractionDrillHead",
                 "NPSExtractionDrillPipe"
             },

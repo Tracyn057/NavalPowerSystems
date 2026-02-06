@@ -5,7 +5,7 @@
         <Definition xsi:type="MyObjectBuilder_OxygenGeneratorDefinition">
             <Id>
                 <TypeId>OxygenGenerator</TypeId>
-                <SubtypeId>NPSExtractorOilDerrick</SubtypeId>
+                <SubtypeId>NPSExtractionOilDerrick</SubtypeId>
             </Id>
             <DisplayName>Oil Derrick</DisplayName>
             <Icon>Textures\GUI\Icons\Cubes\AdvancedRefinery.dds</Icon>
@@ -86,7 +86,7 @@
                 </GasInfo>
             </ProducedGases>
 			<BlueprintClasses>
-                <Class>Oil</Class>
+                <Class>CrudeDummy</Class>
             </BlueprintClasses>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>

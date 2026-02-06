@@ -51,7 +51,7 @@
 				<Entry Type="Component" />
                 <Entry>
                     <TypeId>Ore</TypeId>
-                    <SubtypeId>Crude</SubtypeId>
+                    <SubtypeId>CrudeDummy</SubtypeId>
                 </Entry>
             </InputConstraint>
 			<CanSend>false</CanSend>

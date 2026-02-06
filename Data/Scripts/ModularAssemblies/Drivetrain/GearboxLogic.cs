@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
-using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 
@@ -22,7 +21,7 @@ namespace NavalPowerSystems.Drivetrain
         private IMyTerminalBlock _gearbox;
         private bool _isComplete;
         private bool _isReverse;
-        private bool _needsRefresh = true;
+        public bool _needsRefresh { get; set; }
         private bool _controlsInit = false;
         private int _outputCount;
         private float _inputMW;
@@ -42,9 +41,10 @@ namespace NavalPowerSystems.Drivetrain
 
         public override void UpdateOnceBeforeFrame()
         {
-            TriggerRefresh(_gearbox.SlimBlock);
             _gearbox.AppendingCustomInfo += AppendCustomInfo;
             _assemblyId = ModularApi.GetContainingAssembly(_gearbox, "Drivetrain_Definition");
+
+            _needsRefresh = true;
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
@@ -146,11 +146,6 @@ namespace NavalPowerSystems.Drivetrain
                     if (diff < 0.04f) logic._isEngaged = true;
                 }
             }
-        }
-        
-        private void TriggerRefresh(IMySlimBlock block)
-        {
-            _needsRefresh = true;
         }
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)

@@ -37,7 +37,7 @@
 				 <string>OxygenGenerator/NPSProductionOilCracker</string>
 				 <string>OxygenGenerator/NPSProductionFuelRefinery</string>
 				<!-- Extraction -->
-				 <string>OxygenTank/NPSExtractorOilDerrick</string>
+				 <string>OxygenTank/NPSExtractionOilDerrick</string>
 				 <string>CubeBlock/NPSExtractionDrillPipe</string>
 				 <string>TerminalBlock/NPSExtractionDrillHead</string>
 				 <string>OxygenTank/NPSExtractionCrudeOutput</string>
