@@ -21,18 +21,19 @@ namespace NavalPowerSystems.Extraction
             Instance = null;
         }
 
+
         public void OnPartAdd(int assemblyId, IMyCubeBlock block, bool isBasePart)
         {
             if (!ExtractionSystems.ContainsKey(assemblyId))
                 ExtractionSystems.Add(assemblyId, new ExtractionSystem(assemblyId));
-
-            ExtractionSystems[assemblyId].AddPart(block);
 
             if (block.BlockDefinition.SubtypeName == "NPSExtractionOilDerrick")
             {
                 var logic = block.GameLogic?.GetAs<DerrickLogic>();
                 logic._needsRefresh = true;
             }
+
+            ExtractionSystems[assemblyId].AddPart(block);
         }
 
         public void OnPartRemove(int assemblyId, IMyCubeBlock block, bool isBasePart)
@@ -41,7 +42,18 @@ namespace NavalPowerSystems.Extraction
                 return;
 
             if (!isBasePart)
+            {
+                if (!block.BlockDefinition.SubtypeName == "NPSExtractionOilDerrick")
+                {
+                    var logic = block.GameLogic?.GetAs<DerrickLogic>();
+                    logic._needsRefresh = true;
+                }
                 ExtractionSystems[assemblyId].RemovePart(block);
+            }
+            else
+            {
+                ExtractionSystems[assemblyId].RemovePart(block);
+            }
         }
     }
 }

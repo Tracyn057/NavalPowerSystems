@@ -45,11 +45,20 @@ namespace NavalPowerSystems.Common
 
             double currentGas = tank.Capacity * tank.FilledRatio;
             double newGas = currentGas + amountLiters;
-            double newRatio = Math.Round((newGas / tank.Capacity), 6, MidpointRounding.AwayFromZero);
+            double newRatio = Math.Round(newGas / tank.Capacity, 6, MidpointRounding.AwayFromZero);
 
             if (Math.Abs(tank.FilledRatio - newRatio) >= 0.000001)
             {
                 tank.ChangeFilledRatio((float)newRatio, true);
+            }
+        }
+
+        public static void AddNewItem(IMyInventory inventory, MyObjectBuilder_PhysicalObject newItem, VRage.MyFixedPoint count)
+        {
+            if (MyAPIGateway.Session.IsServer || MyAPIGateway.Session.Player != null)
+            {
+                if (inventory.CanItemsBeAdded(count, newItem.GetId()))
+                    inventory.AddItems(count, newItem);
             }
         }
 

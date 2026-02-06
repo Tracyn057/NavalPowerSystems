@@ -86,7 +86,7 @@
                 </GasInfo>
             </ProducedGases>
 			<BlueprintClasses>
-                <Class>CrudeDummy</Class>
+                <Class>DummyClassCrude</Class>
             </BlueprintClasses>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>

@@ -1,4 +1,5 @@
-﻿using NavalPowerSystems.Communication;
+﻿using NavalPowerSystems.Common;
+using NavalPowerSystems.Communication;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
@@ -23,10 +24,10 @@ namespace NavalPowerSystems.Extraction
         private string _status = "Idle";
         private string _location = "Void";
         private float _extractionRate = 0f;
-        private string _itemSubtype = "Crude";
         private bool _hasDrillHead = false;
         private bool _hasDrillRod = false;
         private bool _isComplete = false;
+        private bool _timer = false;
 
         public bool _needsRefresh { get; set; }
         public bool _isDebug { get; set; }
@@ -35,17 +36,20 @@ namespace NavalPowerSystems.Extraction
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
-            
+            _derrick = Entity as IMyFunctionalBlock;
+
+            if (_derrick == null) return;
+
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
-
         public override void UpdateOnceBeforeFrame()
         {
-            _derrick = Entity as IMyFunctionalBlock;
-            if (_derrick == null) return;
-            
+            _derrick.AppendingCustomInfo += AppendCustomInfo;
+            _assemblyId = ModularApi.GetContainingAssembly(_derrick, "Extraction_Definition");
+
             _needsRefresh = true;
+
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
@@ -54,7 +58,7 @@ namespace NavalPowerSystems.Extraction
             if (_needsRefresh)
             {
                 ValidateRig();
-                _assemblyId = ModularApi.GetContainingAssembly(_derrick, "Extraction_Definition");
+                if (_isComplete) _needsRefresh = false;
             }
             else if (_derrick.IsWorking)
             {
@@ -64,13 +68,13 @@ namespace NavalPowerSystems.Extraction
             {
                 MyAPIGateway.Utilities.SendMessage($"Derrick Incomplete. Drill:{_hasDrillHead}, Rods:{_hasDrillRod}");
                 if (!_hasDrillRod)
-                    _status = "Assembly Incomplete (Missing Drill Rod)";
+                    _status = "Missing Drill Rod";
                 else if (!_hasDrillHead)
-                    _status = "Assembly Incomplete (Missing Drill Head)";
+                    _status = "Missing Drill Head";
                 _location = "-";
                 _extractionRate = 0;
             }
-            _derrick.AppendingCustomInfo += AppendCustomInfo;
+            _timer = !_timer;
             _derrick.RefreshCustomInfo();
         }
 
@@ -88,7 +92,7 @@ namespace NavalPowerSystems.Extraction
                     if (system.DrillHead != null)
                     {
                         _hasDrillHead = true;
-                        _drillHead = system.DrillHead;
+                        _drillHead = system.DrillHead.FatBlock as IMyTerminalBlock;
                     }
 
                     if (system.Pipes.Count > 0)
@@ -99,128 +103,118 @@ namespace NavalPowerSystems.Extraction
                 }
 
                 _isComplete = _hasDrillHead && _hasDrillRod;
-                _needsRefresh = false;
             }
         }
 
         private void UpdateExtract()
         {
-                MyAPIGateway.Utilities.SendMessage("Derrick Operational");
-                var inventory = _derrick.GetInventory();
-                var logic = _drillHead.GameLogic?.GetAs<DrillHeadLogic>();
+            IMyInventory inventory = _derrick.GetInventory(0);
+            var logic = _drillHead.GameLogic?.GetAs<DrillHeadLogic>();
 
-                if (inventory == null || logic == null) return;
+            if (inventory == null || logic == null) return;
 
-                if (inventory.CurrentVolume >= inventory.MaxVolume * 0.95f)
-                {
-                    _status = "Inventory Full";
-                    _extractionRate = 0;
-                    return;
-                }
+            if (inventory.CurrentVolume >= inventory.MaxVolume * 0.95f)
+            {
+                _status = "Inventory Full";
+                _extractionRate = 0;
+                return;
+            }
 
-                var oilItem = new MyDefinitionId(typeof(MyObjectBuilder_Ore), "CrudeDummy");
-                var newItem = (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(oilItem);
+            MyObjectBuilder_PhysicalObject oilItem = new MyObjectBuilder_PhysicalObject
+            {
+                TypeId = "MyObjectBuilder_Ore",
+                SubtypeName = "DummyItemCrude"
+            };
+            float baseRate = Config.derrickExtractRate * 1.6f * logic._oilYield;
+            float oceanRate = baseRate * Config.derrickOceanMult;
 
-                float baseRate = (Config.derrickExtractRate * 1.6f) * logic._oilYield;
-                float oceanRate = baseRate * Config.derrickOceanMult;
+            VRage.MyFixedPoint count = (VRage.MyFixedPoint)baseRate;
+            VRage.MyFixedPoint countOcean = (VRage.MyFixedPoint)oceanRate;
 
-                VRage.MyFixedPoint count = (VRage.MyFixedPoint)baseRate;
-                VRage.MyFixedPoint countOcean = (VRage.MyFixedPoint)oceanRate;
+            if (_isDebug)
+            {
+                _status = "Extracting Oil (Debug)";
+                _location = "On Land";
+                _extractionRate = (float)count;
 
+                Utilities.AddNewItem(inventory, oilItem, count);
+            }
+            else if (_isDebugOcean)
+            {
+                _status = "Extracting Oil (Debug)";
+                _location = "At Sea";
+                _extractionRate = (float)countOcean;
+
+                Utilities.AddNewItem(inventory, oilItem, countOcean);
+            }
+            else if (logic._isAtGround)
+            {
                 if (logic._oilYield > 0.25)
                 {
-                    if (_isDebug)
+                    _status = "Extracting Oil";
+                    if (!logic._isUnderwater)
                     {
-                        _status = "Extracting Oil (Debug)";
                         _extractionRate = (float)count;
-                        if (MyAPIGateway.Session.IsServer || MyAPIGateway.Session.Player != null)
-                        {
-                            inventory.AddItems(count, newItem);
-                            if (newItem == null)
-                                MyAPIGateway.Utilities.ShowMessage("NPS Error", "Failed to create ObjectBuilder for item!");
-                        }
-                        else if (_isDebugOcean)
-                        {
-                            _status = "Extracting Oil (Debug Ocean)";
-                            _extractionRate = (float)countOcean;
-                            if (MyAPIGateway.Session.IsServer || MyAPIGateway.Session.Player != null)
-                                inventory.AddItems(countOcean, (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(oilItem));
-                        }
-                        else if (!logic._isAtGround)
-                        {
-                            _status = "Searching for Ground";
-                            _location = "In Air";
-                            _extractionRate = 0;
-                        }
-                        else if (logic._isAtGround && !logic._isUnderwater)
-                        {
-                            _extractionRate = (float)count;
-                            _status = "Extracting Oil";
-                            _location = "On Land";
-                            if (MyAPIGateway.Session.IsServer || MyAPIGateway.Session.Player != null)
-                                inventory.AddItems(count, (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(oilItem));
-
-                        }
-                        else if (logic._isAtGround && logic._isUnderwater)
-                        {
-                            _extractionRate = (float)countOcean;
-                            _status = "Extracting Oil";
-                            _location = "At Sea";
-                            if (MyAPIGateway.Session.IsServer || MyAPIGateway.Session.Player != null)
-                                inventory.AddItems(countOcean, (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(oilItem));
-                        }
+                        _location = "On Land";
+                        
+                        Utilities.AddNewItem(inventory, oilItem, count);
                     }
-                    else if (logic._oilYield <= 0.25)
+                    else
                     {
-                        if (_isDebug)
-                        {
-                            _status = "Extracting Oil (Debug)";
-                            _extractionRate = (float)count;
-                            if (MyAPIGateway.Session.IsServer || MyAPIGateway.Session.Player != null)
-                                inventory.AddItems(count, (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(oilItem));
-                        }
-                        else if (_isDebugOcean)
-                        {
-                            _status = "Extracting Oil (Debug Ocean)";
-                            _extractionRate = (float)countOcean;
-                            if (MyAPIGateway.Session.IsServer || MyAPIGateway.Session.Player != null)
-                                inventory.AddItems(countOcean, (MyObjectBuilder_PhysicalObject)MyObjectBuilderSerializer.CreateNewObject(oilItem));
-                        }
-                        else if (!logic._isAtGround)
-                        {
-                            _status = "Searching for Ground";
-                            _location = "In Air";
-                            _extractionRate = 0;
-                        }
-                        else if (logic._isAtGround && !logic._isUnderwater)
-                        {
-                            _extractionRate = 0;
-                            _status = "No Oil Found";
-                            _location = "On Land";
-
-                        }
-                        else if (logic._isAtGround && logic._isUnderwater)
-                        {
-                            _extractionRate = 0;
-                            _status = "No Oil Found";
-                            _location = "At Sea";
-                        }
+                        _extractionRate = (float)countOcean;
+                        _location = "At Sea";
+                        
+                        Utilities.AddNewItem(inventory, oilItem, countOcean);
                     }
-                    
+                }
+                else if (logic._oilYield <= 0.25)
+                {
+                    _status = "No Oil Found";
+                    _extractionRate = 0;
+                    if (!logic._isUnderwater)
+                    {
+                        _location = "On Land";
+                    }
+                    else
+                    {
+                        _location = "At Sea";
+                    }
+                }
             }
+            else if (!logic._isAtGround)
+            {
+                _status = "Searching for Ground";
+                _location = "In Air";
+                _extractionRate = 0;
+            }
+            else
+            {
+                _status = "Unknown";
+                _location = "-";
+                _extractionRate = 0;
+            }
+            
         }
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
         {
+            var logic = _drillHead.GameLogic?.GetAs<DrillHeadLogic>();
+
             sb.AppendLine($"Assembly ID: {_assemblyId}");
             sb.AppendLine($"Status: {_status}");
             sb.AppendLine($"Location: {_location}");
             sb.AppendLine($"Drill Rods: {_drillrods.Count}");
+            if (logic != null)
+                sb.AppendLine($"Oil Quality: {logic._oilYield:P}");
+            if (_timer)
+                sb.AppendLine("||");
+            else if (!_timer)
+                sb.AppendLine("|");
         }
 
         public override void OnRemovedFromScene()
         {
-            if (_derrick!= null) _derrick.AppendingCustomInfo -= AppendCustomInfo;
+            if (_derrick != null) _derrick.AppendingCustomInfo -= AppendCustomInfo;
         }
 
     }
