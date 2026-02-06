@@ -17,3 +17,7 @@ Production and Extraction output logic change to utilize O2 Generators' push to 
 Input being tank with Stockpile=On and converter itself being the O2 generator spawning items in it's own inventory to convert to "gas".
 X Items and blueprints+classes already made. Double check accuracy
 
+TO DO:
+
+Refactor Production System
+More Propeller definitions

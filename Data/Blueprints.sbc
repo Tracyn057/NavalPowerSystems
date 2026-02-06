@@ -19,12 +19,12 @@
         <Blueprint>
             <Id>
                 <TypeId>BlueprintDefinition</TypeId>
-                <SubtypeId>FuelDummy</SubtypeId>
+                <SubtypeId>DummyBlueprintFuel</SubtypeId>
             </Id>
-            <DisplayName>DisplayName_Item_Oxygen</DisplayName>
+            <DisplayName>Fuel Oil</DisplayName>
             <Icon>Textures\GUI\Icons\ingot\gravel_ingot.dds</Icon>
             <Prerequisites>
-                <Item Amount="1" TypeId="Ore" SubtypeId="Fuel" />
+                <Item Amount="1" TypeId="Ore" SubtypeId="DummyItemFuel" />
             </Prerequisites>
             <Result Amount="0.9" TypeId="Ore" SubtypeId="Stone" />
             <BaseProductionTimeInSeconds>0.1</BaseProductionTimeInSeconds>
@@ -33,12 +33,12 @@
         <Blueprint>
             <Id>
                 <TypeId>BlueprintDefinition</TypeId>
-                <SubtypeId>DieselDummy</SubtypeId>
+                <SubtypeId>DummyBlueprintDiesel</SubtypeId>
             </Id>
-            <DisplayName>DisplayName_Item_Oxygen</DisplayName>
+            <DisplayName>Diesel</DisplayName>
             <Icon>Textures\GUI\Icons\ingot\gravel_ingot.dds</Icon>
             <Prerequisites>
-                <Item Amount="1" TypeId="Ore" SubtypeId="Diesel" />
+                <Item Amount="1" TypeId="Ore" SubtypeId="DummyItemDiesel" />
             </Prerequisites>
             <Result Amount="0.9" TypeId="Ore" SubtypeId="Stone" />
             <BaseProductionTimeInSeconds>0.1</BaseProductionTimeInSeconds>

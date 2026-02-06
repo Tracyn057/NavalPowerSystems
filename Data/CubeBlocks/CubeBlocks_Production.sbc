@@ -365,7 +365,7 @@
                 </GasInfo>
             </ProducedGases>
 			<BlueprintClasses>
-                <Class>Oil</Class>
+                <Class>DummyClassFuel</Class>
             </BlueprintClasses>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>
@@ -454,7 +454,7 @@
                 </GasInfo>
             </ProducedGases>
 			<BlueprintClasses>
-                <Class>Oil</Class>
+                <Class>DummyClassDiesel</Class>
             </BlueprintClasses>
             <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
             <DamagedSound>ParticleWeapExpl</DamagedSound>

@@ -7,7 +7,7 @@
         <TypeId>Ore</TypeId>
         <SubtypeId>DummyItemCrude</SubtypeId>
       </Id>
-      <DisplayName>DisplayName_Item_StoneOre</DisplayName>
+      <DisplayName>Crude Oil</DisplayName>
       <Icon>Textures\GUI\Icons\ore_rock.dds</Icon>
       <Size>
         <X>0.07</X>
@@ -24,9 +24,9 @@
     <PhysicalItem>
       <Id>
         <TypeId>Ore</TypeId>
-        <SubtypeId>Fuel</SubtypeId>
+        <SubtypeId>DummyItemFuel</SubtypeId>
       </Id>
-      <DisplayName>DisplayName_Item_StoneOre</DisplayName>
+      <DisplayName>Fuel Oil</DisplayName>
       <Icon>Textures\GUI\Icons\ore_rock.dds</Icon>
       <Size>
         <X>0.07</X>
@@ -43,9 +43,9 @@
     <PhysicalItem>
       <Id>
         <TypeId>Ore</TypeId>
-        <SubtypeId>Diesel</SubtypeId>
+        <SubtypeId>DummyItemDiesel</SubtypeId>
       </Id>
-      <DisplayName>DisplayName_Item_StoneOre</DisplayName>
+      <DisplayName>Diesel</DisplayName>
       <Icon>Textures\GUI\Icons\ore_rock.dds</Icon>
       <Size>
         <X>0.07</X>
