@@ -200,7 +200,8 @@ namespace NavalPowerSystems.Extraction
             sb.AppendLine($"Status: {_status}");
             sb.AppendLine($"Location: {_location}");
             sb.AppendLine($"Drill Rods: {(_drillrods != null ? _drillrods.Count : 0)}");
-            sb.AppendLine($"Oil Quality: {(logic != null ? logic._oilYield : 0)}");
+            sb.AppendLine($"Oil Quality: {logic._oilYield:P2}");
+
             if (_timer)
                 sb.AppendLine("||");
             else if (!_timer)

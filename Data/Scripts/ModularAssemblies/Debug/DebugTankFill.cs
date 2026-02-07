@@ -28,7 +28,7 @@ namespace NavalPowerSystems.Debug
 
         private void OnMessageEntered(string messageText, ref bool sendToOthers)
         {
-            if (!messageText.StartsWith("/nps debugfill", StringComparison.OrdinalIgnoreCase))
+            if (!messageText.StartsWith("/npsdebug fill", StringComparison.OrdinalIgnoreCase))
                 return;
 
             sendToOthers = false;
@@ -36,7 +36,7 @@ namespace NavalPowerSystems.Debug
             string[] parts = messageText.Split(' ');
             if (parts.Length < 3)
             {
-                MyAPIGateway.Utilities.ShowMessage("NPS Debug Fill", "Usage: /nps debugFill [Oil|Fuel|Diesel]");
+                MyAPIGateway.Utilities.ShowMessage("NPS Debug Fill", "Usage: /npsdebug Fill [Oil|Fuel|Diesel]");
                 return;
             }
 

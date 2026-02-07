@@ -1,4 +1,5 @@
-﻿using Sandbox.ModAPI;
+﻿using Jakaria.API;
+using Sandbox.ModAPI;
 using System;
 using System.Text;
 using VRage.Game;
@@ -52,7 +53,7 @@ namespace NavalPowerSystems.Drivetrain
                 return; 
             }
 
-            float submergence = Jakaria.API.WaterModAPI.Entity_PercentUnderwater((MyEntity)_propeller);
+            float submergence = WaterModAPI.Entity_PercentUnderwater((MyEntity)_propeller);
 
             _outputMW = (_inputMW * 1000000f) * Config.mnPerMW * submergence;
         }

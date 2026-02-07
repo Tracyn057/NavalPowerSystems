@@ -8,7 +8,8 @@ namespace NavalPowerSystems.Production
         public static ProductionManager Instance = new ProductionManager();
 
         public ModularDefinition ProductionDefinition;
-        public static Dictionary<int, ProductionSystem> ProductionSystems = new Dictionary<int, ProductionSystem>();
+        
+		public static Dictionary<int, ProductionSystem> ProductionSystems = new Dictionary<int, ProductionSystem>();
 
         public void Load()
         {
@@ -25,25 +26,15 @@ namespace NavalPowerSystems.Production
             if (!ProductionSystems.ContainsKey(assemblyId))
                 ProductionSystems.Add(assemblyId, new ProductionSystem(assemblyId));
 
-            var subtype = block.BlockDefinition.SubtypeName;
-
-            if (subtype == "NPSProductionOilCracker" || subtype == "NPSProductionFuelRefinery")
-            {
-                var logic = block.GameLogic?.GetAs<ProductionLogic>();
-                logic._needsRefresh = true;
-            }
-
-            ProductionSystems[assemblyId].AddPart(block);
+			ProductionSystems[assemblyId].AddPart(block);
         }
 
         public void OnPartRemove(int assemblyId, IMyCubeBlock block, bool isBasePart)
         {
             if (!ProductionSystems.ContainsKey(assemblyId))
                 return;
-
-            if (!isBasePart)
+			if (!isBasePart)
                 ProductionSystems[assemblyId].RemovePart(block);
-
         }
         
     }

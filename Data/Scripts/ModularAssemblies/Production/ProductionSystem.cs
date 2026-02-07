@@ -7,9 +7,9 @@ namespace NavalPowerSystems.Production
     {
         public readonly int AssemblyId;
 
-        public IMyGasTank CrudeInput;
-        public IMyGasTank FuelInput;
+        public IMyGasTank InputTank;
         public IMyCubeBlock RefineryBlock;
+        public bool _needsRefresh { get; set; }
 
         public ProductionSystem(int id)
         {
@@ -24,20 +24,20 @@ namespace NavalPowerSystems.Production
             string subtype = block.BlockDefinition.SubtypeName;
             var tank = block as IMyGasTank;
 
-            if (subtype == "NPSProductionCrudeInput") CrudeInput = tank;
-            else if (subtype == "NPSProductionFuelInput") FuelInput = tank;
-            else if (subtype == "NPSProductionOilCracker" || subtype == "NPSProductionFuelRefinery")
-                RefineryBlock = block;
+            _needsRefresh = true;
+
+            if (subtype == "NPSProductionCrudeInput" || subtype == "NPSProductionFuelInput") InputTank = tank;
+            else if (subtype == "NPSProductionOilCracker" || subtype == "NPSProductionFuelRefinery") RefineryBlock = block;
         }
 
         public void RemovePart(IMyCubeBlock block)
         {
             string subtype = block.BlockDefinition.SubtypeName;
 
-            if (subtype == "NPSProductionCrudeInput") CrudeInput = null;
-            else if (subtype == "NPSProductionFuelInput") FuelInput = null;
-            else if (subtype == "NPSProductionOilCracker" || subtype == "NPSProductionFuelRefinery")
-                RefineryBlock = null;
+            _needsRefresh = true;
+
+            if (subtype == "NPSProductionCrudeInput" || subtype == "NPSProductionFuelInput") InputTank = null;
+            else if (subtype == "NPSProductionOilCracker" || subtype == "NPSProductionFuelRefinery") RefineryBlock = null;
         }
     }
 }

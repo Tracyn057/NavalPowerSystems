@@ -9,6 +9,7 @@ using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using SpaceEngineers.Game.EntityComponents.Blocks;
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
@@ -26,6 +27,13 @@ namespace NavalPowerSystems.Production
         private IMyGasTank _inputTank;
         private MyObjectBuilder_Ore _dummyItem;
         private float _ratio = 0f;
+        private int _assemblyId = -1;
+        private ProductionSystem _system;
+        private string _status = "Idle";
+        internal static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
+        private bool _isComplete = false;
+        private bool _isRefinery = false;
+        private bool _timer = false;
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -38,12 +46,11 @@ namespace NavalPowerSystems.Production
 
         public override void UpdateOnceBeforeFrame()
         {
-            _inputTank = _refinery as IMyGasTank;
-            if (_inputTank == null)
-            {
-                MyAPIGateway.Utilities.ShowNotification("Error: Production block is missing required components!", 2000, MyFontEnum.Red);
-                return;
-            }
+            _assemblyId = ModularApi.GetContainingAssembly((IMyCubeBlock)Entity, "Production_Definition");
+            if (_assemblyId != -1)
+                ProductionManager.ProductionSystems.TryGetValue(_assemblyId, out _system);
+
+            _refinery.AppendingCustomInfo += AppendCustomInfo;
 
             if (_refinery != null)
             {
@@ -51,11 +58,13 @@ namespace NavalPowerSystems.Production
                 {
                     _dummyItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("DummyItemFuel");
                     _ratio = Config.crudeFuelOilRatio;
+                    _isRefinery = false;
                 }
                 else if (_refinery.BlockDefinition.SubtypeName.Contains("FuelRefinery"))
                 {
                     _dummyItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("DummyItemDiesel");
                     _ratio = Config.fuelOilDieselRatio;
+                    _isRefinery = true;
                 }
             }
 
@@ -64,16 +73,64 @@ namespace NavalPowerSystems.Production
 
         public override void UpdateBeforeSimulation100()
         {
-            ProcessConversion();
+            if (_system == null)
+            {
+                _status = "Searching for System...";
+                _assemblyId = ModularApi.GetContainingAssembly((IMyCubeBlock)Entity, "Production_Definition");
+                if (_assemblyId != -1)
+                    ProductionManager.ProductionSystems.TryGetValue(_assemblyId, out _system);
+
+                return;
+            }
+
+            if (_system._needsRefresh)
+            {
+                _status = "Refreshing System...";
+                if (_assemblyId != -1)
+                    ValidateRefinery();
+            }
+            else if (_isComplete)
+                ProcessConversion();
+
+            _timer = !_timer;
+        }
+
+        private void ValidateRefinery()
+        {
+            _isComplete = false;
+            if (_assemblyId != -1 && _system != null)
+            {
+                _inputTank = _system.InputTank;
+                if (_inputTank != null)
+                {
+                    if (_inputTank.BlockDefinition.SubtypeName == "NPSProductionCrudeInput" && !_isRefinery)
+                    {
+                        _isComplete = true;
+                        _system._needsRefresh = false;
+                    }
+                    else if (_inputTank.BlockDefinition.SubtypeName == "NPSProductionFuelInput" && _isRefinery)
+                    {
+                        _isComplete = true;
+                        _system._needsRefresh = false;
+                    }
+                    else
+                    {
+                        _status = "Invalid Input Tank";
+                    }
+                }
+                else
+                {
+                    _status = "System Not Found";
+                }
+            }
         }
 
         private void ProcessConversion()
         {
             var inventory = _refinery.GetInventory(0);
-            if (_inputTank == null || inventory == null)
+            if (inventory == null)
             {
-                MyAPIGateway.Utilities.ShowNotification("Error: Production block is missing required components!", 2000, MyFontEnum.Red);
-                return;
+                _status = "No Inventory Found"; return;
             }
 
             float gasToRemove = Config.baseRefineRate * 1.6f;
@@ -81,11 +138,29 @@ namespace NavalPowerSystems.Production
 
             if (_inputTank.FilledRatio < gasToRemove / _inputTank.Capacity)
             {
-                MyAPIGateway.Utilities.ShowNotification("Not enough input resource to refine!", 2000, MyFontEnum.Red);
+                //MyAPIGateway.Utilities.ShowNotification("Not enough input resource to operate!", 2000, MyFontEnum.Red);
+                _status = "Not enough input resource.";
                 return;
             }
+            _status = "Operating";
             Utilities.ChangeTankLevel(_inputTank, -gasToRemove);
             Utilities.AddNewItem(inventory, _dummyItem, itemsToAdd);
+        }
+
+        private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
+        {
+            sb.AppendLine($"Status: {_status}");
+
+            if (_timer)
+                sb.AppendLine("||");
+            else if (!_timer)
+                sb.AppendLine("|");
+        }
+
+        public override void OnRemovedFromScene()
+        {
+            _system = null;
+            _refinery.AppendingCustomInfo -= AppendCustomInfo;
         }
 
     }

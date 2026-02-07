@@ -30,7 +30,7 @@ namespace NavalPowerSystems.Debug
 
         private void OnMessageEntered(string messageText, ref bool sendToOthers)
         {
-            if (!messageText.StartsWith("/nps debugextract", StringComparison.OrdinalIgnoreCase))
+            if (!messageText.StartsWith("/npsdebug extract", StringComparison.OrdinalIgnoreCase))
                 return;
 
             sendToOthers = false;
@@ -38,7 +38,7 @@ namespace NavalPowerSystems.Debug
             string[] parts = messageText.Split(' ');
             if (parts.Length < 3)
             {
-                MyAPIGateway.Utilities.ShowMessage("NPS Debug Extraction", "Usage: /nps debugExtract [Land|Sea]");
+                MyAPIGateway.Utilities.ShowMessage("NPS Debug Extraction", "Usage: /npsdebug Extract [Land|Sea]");
                 return;
             }
 
@@ -49,7 +49,7 @@ namespace NavalPowerSystems.Debug
             }
             else
             {
-                MyAPIGateway.Utilities.ShowMessage("NPS Debug Extraction", "Usage: /nps debugExtract [Land|Sea]");
+                MyAPIGateway.Utilities.ShowMessage("NPS Debug Extraction", "Usage: /npsdebug Extract [Land|Sea]");
             };
         }
 
