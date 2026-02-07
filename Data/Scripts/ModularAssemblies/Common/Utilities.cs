@@ -1,5 +1,6 @@
 ﻿using NavalPowerSystems;
 using Sandbox.Definitions;
+using Sandbox.Game;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces.Terminal;
@@ -46,6 +47,7 @@ namespace NavalPowerSystems.Common
             double currentGas = tank.Capacity * tank.FilledRatio;
             double newGas = currentGas + amountLiters;
             double newRatio = Math.Round(newGas / tank.Capacity, 6, MidpointRounding.AwayFromZero);
+            newRatio = Math.Max(0.0, Math.Min(1.0, newRatio));
 
             if (Math.Abs(tank.FilledRatio - newRatio) >= 0.000001)
             {
@@ -55,10 +57,19 @@ namespace NavalPowerSystems.Common
 
         public static void AddNewItem(IMyInventory inventory, MyObjectBuilder_PhysicalObject newItem, VRage.MyFixedPoint count)
         {
-            if (MyAPIGateway.Session.IsServer || MyAPIGateway.Session.Player != null)
+            if (!MyAPIGateway.Session.IsServer) return;
+
+            var newInv = (MyInventory)inventory;
+            MyDefinitionId defId = newItem.GetId();
+            VRage.MyFixedPoint fittingAmount = newInv.ComputeAmountThatFits(defId);
+
+            if (fittingAmount >= count)
             {
-                if (inventory.CanItemsBeAdded(count, newItem.GetId()))
-                    inventory.AddItems(count, newItem);
+                inventory.AddItems(count, newItem);
+            }
+            else if (fittingAmount > 0)
+            {
+                inventory.AddItems(fittingAmount, newItem);
             }
         }
 

@@ -10,14 +10,14 @@
       <DisplayName>Crude Oil</DisplayName>
       <Icon>Textures\GUI\Icons\ore_rock.dds</Icon>
       <Size>
-        <X>0.07</X>
-        <Y>0.07</Y>
-        <Z>0.07</Z>
+        <X>0.1</X>
+        <Y>0.1</Y>
+        <Z>0.1</Z>
       </Size>
       <Mass>1</Mass>
       <Volume>1</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
-      <PhysicalMaterial>Stone</PhysicalMaterial>
+      <PhysicalMaterial>Crude</PhysicalMaterial>
       <IconSymbol>IconSymbol_Stone</IconSymbol>
     </PhysicalItem>
 
@@ -36,7 +36,7 @@
       <Mass>1</Mass>
       <Volume>1</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
-      <PhysicalMaterial>Stone</PhysicalMaterial>
+      <PhysicalMaterial>Fuel</PhysicalMaterial>
       <IconSymbol>IconSymbol_Stone</IconSymbol>
     </PhysicalItem>
 
@@ -55,7 +55,7 @@
       <Mass>1</Mass>
       <Volume>1</Volume>
       <Model>Models\Components\Sphere.mwm</Model>
-      <PhysicalMaterial>Stone</PhysicalMaterial>
+      <PhysicalMaterial>Diesel</PhysicalMaterial>
       <IconSymbol>IconSymbol_Stone</IconSymbol>
     </PhysicalItem>
     

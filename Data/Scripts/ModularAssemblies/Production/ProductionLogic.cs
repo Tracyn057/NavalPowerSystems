@@ -1,10 +1,13 @@
 using Microsoft.CodeAnalysis;
 using NavalPowerSystems.Common;
 using NavalPowerSystems.Communication;
+using NavalPowerSystems.Extraction;
 using Sandbox.Common.ObjectBuilders;
 using Sandbox.Definitions;
+using Sandbox.Game;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
+using SpaceEngineers.Game.EntityComponents.Blocks;
 using System;
 using System.Text;
 using VRage.Game;
@@ -19,20 +22,10 @@ namespace NavalPowerSystems.Production
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_OxygenGenerator), false, "NPSProductionOilCracker", "NPSProductionFuelRefinery")]
     public class ProductionLogic : MyGameLogicComponent
     {
-        internal static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
-
         private IMyTerminalBlock _refinery;
-        private int _assemblyId = -1;
         private IMyGasTank _inputTank;
-        public bool _needsRefresh { get; set; }
-        private bool _isComplete = false;
-        private bool _hasRefinery = false;
-        private bool _hasRefineryTank = false;
-        private string _itemSubtype = null;
-        private float _activeRatio = 1.0f;
-        private float _conversionRate = 0f;
-
-        private string _status = "Idle";
+        private MyObjectBuilder_Ore _dummyItem;
+        private float _ratio = 0f;
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -45,133 +38,54 @@ namespace NavalPowerSystems.Production
 
         public override void UpdateOnceBeforeFrame()
         {
-            _needsRefresh = true;
+            _inputTank = _refinery as IMyGasTank;
+            if (_inputTank == null)
+            {
+                MyAPIGateway.Utilities.ShowNotification("Error: Production block is missing required components!", 2000, MyFontEnum.Red);
+                return;
+            }
+
             if (_refinery != null)
-                _assemblyId = ModularApi.GetContainingAssembly(_refinery, "Production_Definition");
+            {
+                if (_refinery.BlockDefinition.SubtypeName.Contains("OilCracker"))
+                {
+                    _dummyItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("DummyItemFuel");
+                    _ratio = Config.crudeFuelOilRatio;
+                }
+                else if (_refinery.BlockDefinition.SubtypeName.Contains("FuelRefinery"))
+                {
+                    _dummyItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("DummyItemDiesel");
+                    _ratio = Config.fuelOilDieselRatio;
+                }
+            }
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public override void UpdateBeforeSimulation100()
         {
-            if (_needsRefresh)
-            {
-                ValidateRefinery();
-                _needsRefresh = false;
-            }
-            if (_refinery == null) return;
-            if (_assemblyId == -1) _assemblyId = ModularApi.GetContainingAssembly(Entity as IMyCubeBlock, "Production_Definition");
-            if (_assemblyId == -1) return;
-            
-
-            if (_refinery.IsWorking && _isComplete)
-            {
-                ProcessConversion();
-            }
-            else
-            {
-                _activeRatio = 0f;
-            }
-
+            ProcessConversion();
         }
 
         private void ProcessConversion()
         {
-            if (_isComplete)
+            var inventory = _refinery.GetInventory(0);
+            if (_inputTank == null || inventory == null)
             {
-                IMyInventory inventory = _refinery.GetInventory(0);
-
-                if (inventory == null) return;
-
-                if (inventory.CurrentVolume >= inventory.MaxVolume * 0.95f)
-                {
-                    _status = "Inventory Full";
-                    _activeRatio = 0f;
-                    return;
-                }
-                MyObjectBuilder_PhysicalObject oilItem = new MyObjectBuilder_PhysicalObject
-            {
-                TypeId = "MyObjectBuilder_Ore",
-                SubtypeName = "DummyItemCrude"
-            };
-            float baseRate = Config.derrickExtractRate * 1.6f * logic._oilYield;
-            float oceanRate = baseRate * Config.derrickOceanMult;
-
-            VRage.MyFixedPoint count = (VRage.MyFixedPoint)baseRate;
-            VRage.MyFixedPoint countOcean = (VRage.MyFixedPoint)oceanRate;
-
-
-            }
-        }
-
-        private void ValidateRefinery()
-        {
-            _isComplete = false;
-            if (_assemblyId == -1 || _refinery == null) return;
-
-            _hasRefinery = false;
-            _hasRefineryTank = false;
-
-            bool isRefinery = _refinery.BlockDefinition.SubtypeName == "NPSProductionFuelRefinery";
-
-            if (!isRefinery)
-            {
-                _itemSubtype = "Fuel";
-                _activeRatio = Config.crudeFuelOilRatio;
-            }
-            else
-            {
-                _itemSubtype = "Diesel";
-                _activeRatio = Config.fuelOilDieselRatio;
+                MyAPIGateway.Utilities.ShowNotification("Error: Production block is missing required components!", 2000, MyFontEnum.Red);
+                return;
             }
 
+            float gasToRemove = Config.baseRefineRate * 1.6f;
+            VRage.MyFixedPoint itemsToAdd = (VRage.MyFixedPoint)Config.baseRefineRate * 1.6f * _ratio;
 
-            foreach (IMyCubeBlock block in ModularApi.GetMemberParts(_assemblyId))
+            if (_inputTank.FilledRatio < gasToRemove / _inputTank.Capacity)
             {
-                if (block == null) return;
-                var subtype = block.BlockDefinition.SubtypeName;
-                if (subtype == "NPSProductionCrudeInput")
-                {
-                    if (!isRefinery)
-                    {
-                        _hasRefineryTank = true;
-                        _inputTank = (IMyGasTank)block;
-                    }
-                    else
-                    {
-                        _status = "Invalid Input Tank";
-                        _hasRefineryTank = false;
-                        return;
-                    }
-                }
-                else if (subtype == "NPSProductionFuelInput")
-                {
-                    if (!isRefinery)
-                    {
-                        _status = "Invalid Input Tank";
-                        _hasRefineryTank = false;
-                        return;
-                    }
-                    else
-                    {
-                        _hasRefineryTank = true;
-                        _inputTank = (IMyGasTank)block;
-
-                    }
-                }
+                MyAPIGateway.Utilities.ShowNotification("Not enough input resource to refine!", 2000, MyFontEnum.Red);
+                return;
             }
-            if (_hasRefineryTank == true) _isComplete = true;
-        }
-
-        private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
-        {
-            sb.AppendLine($"Status: {_status}");
-            sb.AppendLine($"Production Rate: {(_conversionRate + " l/s")}");
-        }
-
-        public override void OnRemovedFromScene()
-        {
-            if (_refinery != null) _refinery.AppendingCustomInfo -= AppendCustomInfo;
+            Utilities.ChangeTankLevel(_inputTank, -gasToRemove);
+            Utilities.AddNewItem(inventory, _dummyItem, itemsToAdd);
         }
 
     }

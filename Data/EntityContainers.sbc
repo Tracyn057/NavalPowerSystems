@@ -52,10 +52,20 @@
 		<Container>
 			<Id>
 				<TypeId>OxygenGenerator</TypeId>
-				<SubtypeId>NPSExtractionOilDerrick</SubtypeId>
+				<SubtypeId>NPSProductionOilCracker</SubtypeId>
 			</Id>
 			<DefaultComponents>
-				<Component BuilderType="MyObjectBuilder_Inventory"/>
+				<Component BuilderType="MyObjectBuilder_ResourceStorageComponentDefinition" ForceCreate="true"/>
+			</DefaultComponents>
+		</Container>
+		
+		<Container>
+			<Id>
+				<TypeId>OxygenGenerator</TypeId>
+				<SubtypeId>NPSProductionFuelRefinery</SubtypeId>
+			</Id>
+			<DefaultComponents>
+				<Component BuilderType="MyObjectBuilder_ResourceStorageComponentDefinition" ForceCreate="true"/>
 			</DefaultComponents>
 		</Container>
 

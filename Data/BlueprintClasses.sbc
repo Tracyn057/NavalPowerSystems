@@ -27,7 +27,7 @@
 			<HighlightIcon>Textures\GUI\Icons\ore_H2O_ice.dds</HighlightIcon>
 			<FocusIcon>Textures\GUI\Icons\ore_H2O_ice.dds</FocusIcon>
 			<InputConstraintIcon>Textures\GUI\Icons\filter_ore.dds</InputConstraintIcon>
-			<InputConstraintDescription>ToolTipItemFilter_IceInput</InputConstraintDescription>
+			<InputConstraintDescription>Fuel Oil</InputConstraintDescription>
 		</Class>
 
 		<Class>
@@ -41,7 +41,7 @@
 			<HighlightIcon>Textures\GUI\Icons\ore_H2O_ice.dds</HighlightIcon>
 			<FocusIcon>Textures\GUI\Icons\ore_H2O_ice.dds</FocusIcon>
 			<InputConstraintIcon>Textures\GUI\Icons\filter_ore.dds</InputConstraintIcon>
-			<InputConstraintDescription>ToolTipItemFilter_IceInput</InputConstraintDescription>
+			<InputConstraintDescription>Diesel</InputConstraintDescription>
 		</Class>
 
 	</BlueprintClasses>	

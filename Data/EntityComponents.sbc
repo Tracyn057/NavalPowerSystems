@@ -41,53 +41,32 @@
   -->
     <EntityComponents>
 
-        <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
-            <Id>
-                <TypeId>Inventory</TypeId>
-                <SubtypeId>NPSExtractorOilDerrick</SubtypeId>
-            </Id>
-            <Size x="5" y="5" z="0.625" />
-            <InputConstraint Whitelist="true" Description="DisplayName_InventoryConstraint_Components" Icon="Textures\GUI\Icons\FilterComponent.dds">
-				<Entry Type="Component" />
-                <Entry>
-                    <TypeId>Ore</TypeId>
-                    <SubtypeId>CrudeDummy</SubtypeId>
-                </Entry>
-            </InputConstraint>
-			<CanSend>false</CanSend>
-        </EntityComponent>
 
-        <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
-            <Id>
-                <TypeId>Inventory</TypeId>
-                <SubtypeId>NPSProductionOilCracker</SubtypeId>
-            </Id>
-            <Size x="5" y="5" z="0.625" />
-            <InputConstraint Whitelist="true" Description="DisplayName_InventoryConstraint_Components" Icon="Textures\GUI\Icons\FilterComponent.dds">
-				<Entry Type="Component" />
-                <Entry>
-                    <TypeId>Ore</TypeId>
-                    <SubtypeId>Fuel</SubtypeId>
-                </Entry>
-            </InputConstraint>
-			<CanSend>false</CanSend>
-        </EntityComponent>
+		<EntityComponent xsi:type="MyObjectBuilder_ResourceStorageComponentDefinition">
+			<Id>
+				<TypeId>ResourceStorageComponent</TypeId>
+				<SubtypeId>NPSProductionOilCracker</SubtypeId>
+			</Id>
+			<Capacity>4000</Capacity>
+			<StoredResourceId>
+				<TypeId>GasProperties</TypeId>
+				<SubtypeId>CrudeOil</SubtypeId>
+			</StoredResourceId>
+		</EntityComponent>
 
-        <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
-            <Id>
-                <TypeId>Inventory</TypeId>
-                <SubtypeId>NPSProductionFuelRefinery</SubtypeId>
-            </Id>
-            <Size x="5" y="5" z="0.625" />
-            <InputConstraint Whitelist="true" Description="DisplayName_InventoryConstraint_Components" Icon="Textures\GUI\Icons\FilterComponent.dds">
-				<Entry Type="Component" />
-                <Entry>
-                    <TypeId>Ore</TypeId>
-                    <SubtypeId>Diesel</SubtypeId>
-                </Entry>
-            </InputConstraint>
-			<CanSend>false</CanSend>
-        </EntityComponent>
+		<EntityComponent xsi:type="MyObjectBuilder_ResourceStorageComponentDefinition">
+			<Id>
+				<TypeId>ResourceStorageComponent</TypeId>
+				<SubtypeId>NPSProductionFuelRefinery</SubtypeId>
+			</Id>
+			<Capacity>4000</Capacity>
+			<StoredResourceId>
+				<TypeId>GasProperties</TypeId>
+				<SubtypeId>FuelOil</SubtypeId>
+			</StoredResourceId>
+		</EntityComponent>
+		
+		
 
     </EntityComponents>
 </Definitions>

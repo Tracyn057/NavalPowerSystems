@@ -61,8 +61,8 @@
             <BuildTimeSeconds>22</BuildTimeSeconds>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
-            <IceConsumptionPerSecond>1</IceConsumptionPerSecond>
-            <InventoryMaxVolume>1</InventoryMaxVolume>
+            <IceConsumptionPerSecond>560</IceConsumptionPerSecond>
+            <InventoryMaxVolume>4</InventoryMaxVolume>
             <InventorySize>
                 <X>2</X>
                 <Y>2</Y>

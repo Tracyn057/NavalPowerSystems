@@ -1,6 +1,7 @@
 ﻿using NavalPowerSystems.Common;
 using NavalPowerSystems.Communication;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Game.GameSystems;
 using Sandbox.ModAPI;
 using System.Collections.Generic;
 using System.Text;
@@ -57,8 +58,16 @@ namespace NavalPowerSystems.Extraction
         {
             if (_needsRefresh)
             {
-                ValidateRig();
-                if (_isComplete) _needsRefresh = false;
+                _assemblyId = ModularApi.GetContainingAssembly((IMyCubeBlock)Entity, "Extraction_Definition");
+                if (_assemblyId != -1)
+                {
+                    ValidateRig();
+                    if (_isComplete) _needsRefresh = false;
+                }
+                else
+                {
+                    _needsRefresh = true;
+                }
             }
             else if (_derrick.IsWorking)
             {
@@ -92,7 +101,7 @@ namespace NavalPowerSystems.Extraction
                     if (system.DrillHead != null)
                     {
                         _hasDrillHead = true;
-                        _drillHead = system.DrillHead.FatBlock as IMyTerminalBlock;
+                        _drillHead = system.DrillHead;
                     }
 
                     if (system.Pipes.Count > 0)
@@ -108,23 +117,12 @@ namespace NavalPowerSystems.Extraction
 
         private void UpdateExtract()
         {
-            IMyInventory inventory = _derrick.GetInventory(0);
+            var inventory = _derrick.GetInventory(0);
             var logic = _drillHead.GameLogic?.GetAs<DrillHeadLogic>();
 
             if (inventory == null || logic == null) return;
 
-            if (inventory.CurrentVolume >= inventory.MaxVolume * 0.95f)
-            {
-                _status = "Inventory Full";
-                _extractionRate = 0;
-                return;
-            }
-
-            MyObjectBuilder_PhysicalObject oilItem = new MyObjectBuilder_PhysicalObject
-            {
-                TypeId = "MyObjectBuilder_Ore",
-                SubtypeName = "DummyItemCrude"
-            };
+            var oilItem = MyObjectBuilderSerializer.CreateNewObject<MyObjectBuilder_Ore>("DummyItemCrude");
             float baseRate = Config.derrickExtractRate * 1.6f * logic._oilYield;
             float oceanRate = baseRate * Config.derrickOceanMult;
 
@@ -133,19 +131,17 @@ namespace NavalPowerSystems.Extraction
 
             if (_isDebug)
             {
-                _status = "Extracting Oil (Debug)";
+                _status = "{Extracting Oil (Debug)}";
                 _location = "On Land";
-                _extractionRate = (float)count;
-
-                Utilities.AddNewItem(inventory, oilItem, count);
+                _extractionRate = 160;
+                Utilities.AddNewItem(inventory, oilItem, 160);
             }
             else if (_isDebugOcean)
             {
                 _status = "Extracting Oil (Debug)";
                 _location = "At Sea";
-                _extractionRate = (float)countOcean;
-
-                Utilities.AddNewItem(inventory, oilItem, countOcean);
+                _extractionRate = 560;
+                Utilities.AddNewItem(inventory, oilItem, 560);
             }
             else if (logic._isAtGround)
             {
@@ -198,14 +194,13 @@ namespace NavalPowerSystems.Extraction
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
         {
-            var logic = _drillHead.GameLogic?.GetAs<DrillHeadLogic>();
+            var logic = _drillHead?.GameLogic?.GetAs<DrillHeadLogic>();
 
             sb.AppendLine($"Assembly ID: {_assemblyId}");
             sb.AppendLine($"Status: {_status}");
             sb.AppendLine($"Location: {_location}");
-            sb.AppendLine($"Drill Rods: {_drillrods.Count}");
-            if (logic != null)
-                sb.AppendLine($"Oil Quality: {logic._oilYield:P}");
+            sb.AppendLine($"Drill Rods: {(_drillrods != null ? _drillrods.Count : 0)}");
+            sb.AppendLine($"Oil Quality: {(logic != null ? logic._oilYield : 0)}");
             if (_timer)
                 sb.AppendLine("||");
             else if (!_timer)

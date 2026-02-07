@@ -20,7 +20,7 @@ namespace NavalPowerSystems
         public const double rarityThreshold = 0.8;      //How much of the available oil spawn locations are empty. 1.0 = No oil ever 
         public const double gridSize = 1000;            //Size of grid to determine oil deposits
         public const double baseRadius = 150;           //Radius from center of grid for deposit size
-        public const int derrickExtractRate = 15;       //Base liters per second extraction rate
+        public const int derrickExtractRate = 160;       //Base liters per second extraction rate
         public const float derrickOceanMult = 3.5f;     //Multiplier for extraction rate for deep sea drill platforms
         public const int minWaterDepth = 25;            //Depth in m to utilize OceanMult
         public const int scanSize = 500;                //Grid size for the LCD scan component

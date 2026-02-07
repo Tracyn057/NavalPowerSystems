@@ -340,7 +340,7 @@
             <BuildTimeSeconds>22</BuildTimeSeconds>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
-            <IceConsumptionPerSecond>0</IceConsumptionPerSecond>
+            <IceConsumptionPerSecond>100</IceConsumptionPerSecond>
             <InventoryMaxVolume>4</InventoryMaxVolume>
             <InventorySize>
                 <X>2</X>
@@ -361,7 +361,7 @@
                         <TypeId>GasProperties</TypeId>
                         <SubtypeId>FuelOil</SubtypeId>
                     </Id>
-                    <IceToGasRatio>100</IceToGasRatio>
+                    <IceToGasRatio>1</IceToGasRatio>
                 </GasInfo>
             </ProducedGases>
 			<BlueprintClasses>
@@ -429,7 +429,7 @@
             <BuildTimeSeconds>22</BuildTimeSeconds>
             <ResourceSourceGroup>Reactors</ResourceSourceGroup>
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
-            <IceConsumptionPerSecond>0</IceConsumptionPerSecond>
+            <IceConsumptionPerSecond>100</IceConsumptionPerSecond>
             <InventoryMaxVolume>4</InventoryMaxVolume>
             <InventorySize>
                 <X>2</X>
@@ -450,7 +450,7 @@
                         <TypeId>GasProperties</TypeId>
                         <SubtypeId>DieselFuel</SubtypeId>
                     </Id>
-                    <IceToGasRatio>100</IceToGasRatio>
+                    <IceToGasRatio>1</IceToGasRatio>
                 </GasInfo>
             </ProducedGases>
 			<BlueprintClasses>

@@ -11,6 +11,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Data\Scripts\ModularAssemblies\ProductionDefinition.cs.disabled" />
+    <Compile Include="Data\Scripts\ModularAssemblies\Production\ProductionManager.cs.disabled" />
+    <Compile Include="Data\Scripts\ModularAssemblies\Production\ProductionSystem.cs.disabled" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Mal.Mdk2.ModAnalyzers" Version="*" />
     <PackageReference Include="Mal.Mdk2.References" Version="*" />
   </ItemGroup>
