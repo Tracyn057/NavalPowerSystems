@@ -81,7 +81,7 @@ namespace NavalPowerSystems
 
         public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
         {
-            {"NPSDrivetrainScrew3b3m", new PropellerStats { MaxMW = 0.5f, SpoolTime = 18f } },
+            {"NPSDrivetrainScrew3b3m", new PropellerStats { MaxMW = 3.5f, SpoolTime = 18f } },
         };
     }
 
