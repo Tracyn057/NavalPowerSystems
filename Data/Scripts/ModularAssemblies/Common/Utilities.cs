@@ -63,7 +63,9 @@ namespace NavalPowerSystems.Common
 
             return Config.EngineSubtypes.Contains(subtype) || 
                 Config.PropellerSubtypes.Contains(subtype) ||
-                subtype.Contains("NPSExtractionCrudeOutput");
+                subtype.Contains("NPSExtractionCrudeOutput") ||
+                subtype.Contains("NPSProductionCrudeInput") ||
+                subtype.Contains("NPSProductionFuelInput");
         }
         //Utility method to remove or hide terminal controls for gas tanks based on block subtype, used to prevent player interaction with certain tanks
         public static void RemoveControls()

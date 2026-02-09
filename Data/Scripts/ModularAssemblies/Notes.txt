@@ -13,11 +13,20 @@ X Propellers look at gearbox final output variable to set requested power. Knows
 X Any link knowledge would be updated OnPartAdd/Remove. Not at specific tick intervals.
 
 
-Production and Extraction output logic change to utilize O2 Generators' push to conveyor network using AddItem intermediary to start output's conversion process. Maybe remove outputs alltogether and maintain 2-block assemblies. 
+X Production and Extraction output logic change to utilize O2 Generators' push to conveyor network using AddItem intermediary to start output's conversion process. Maybe remove outputs alltogether and maintain 2-block assemblies. 
 Input being tank with Stockpile=On and converter itself being the O2 generator spawning items in it's own inventory to convert to "gas".
 X Items and blueprints+classes already made. Double check accuracy
 
 TO DO:
 
-Refactor Production System
 More Propeller definitions
+
+Driveshaft Segments:
+
+Thrust bearing
+Shaft bearing
+Shaft tube
+
+46cm driveshaft
+62cm driveshaft
+78cm driveshaft

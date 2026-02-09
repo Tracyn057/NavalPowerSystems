@@ -108,6 +108,7 @@ namespace NavalPowerSystems.Production
                 _inputTank = _system.InputTank;
                 if (_inputTank != null)
                 {
+                    _system.InputTank.Stockpile = true; //Set input tank to stockpile
                     if (_inputTank.BlockDefinition.SubtypeName == "NPSProductionCrudeInput" && !_isRefinery)
                     {
                         _isComplete = true;
