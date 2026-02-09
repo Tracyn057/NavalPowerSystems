@@ -1,10 +1,13 @@
 ﻿using Jakaria.API;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Blocks;
 using Sandbox.ModAPI;
 using System;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
+using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Utils;
@@ -18,15 +21,18 @@ namespace NavalPowerSystems.Drivetrain
     internal class PropellerLogic : MyGameLogicComponent
     {
         private IMyTerminalBlock _propeller;
+        private IMyCubeBlock _myPropeller;
         private PropellerStats _propellerStats;
         public float _inputMW { get; set; }
         private float _outputMW = 0f;
+        private float _inertia = 0f;
 
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
             _propeller = (IMyTerminalBlock)Entity;
+            _myPropeller = (MyCubeBlock)Entity;
             _propellerStats = Config.PropellerSettings[_propeller.BlockDefinition.SubtypeName];
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
@@ -35,14 +41,20 @@ namespace NavalPowerSystems.Drivetrain
         {
             _propeller.AppendingCustomInfo += AppendCustomInfo;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override void UpdateBeforeSimulation10()
         {
-                UpdatePower();
-                SetSpool();
-                ApplyForce();
-                _propeller.RefreshCustomInfo();
+            UpdatePower();
+
+            _propeller.RefreshCustomInfo();
+        }
+
+        public override void UpdateBeforeSimulation()
+        {
+            SetSpool();
+            ApplyForce();
         }
 
         private void UpdatePower()
@@ -53,62 +65,49 @@ namespace NavalPowerSystems.Drivetrain
                 return; 
             }
 
-            float submergence = WaterModAPI.Entity_PercentUnderwater((MyEntity)_propeller);
-
-            _outputMW = (_inputMW * 1000000f) * Config.mnPerMW * submergence;
+            _outputMW = (_inputMW * 1000000f) * Config.mnPerMW;
         }
 
         private void SetSpool()
         {
-            float spoolStep = 1f / (_propellerStats.SpoolTime * 6f);
-            float inertia = 0f;
+            float spoolStep = 1f / (_propellerStats.SpoolTime * 60f);
 
-            if (inertia > 0.8f)
-                spoolStep *= 2f;
-
-            if (Math.Abs(_inputMW) > 0.1f)
-                inertia = Math.Min(inertia + spoolStep, 1f);
+            if (Math.Abs(_inputMW) > 0.01f)
+                _inertia = Math.Min(_inertia + spoolStep, 1f);
             else
-                inertia = Math.Max(inertia - spoolStep, 0f);
-
-            float cubicFactor = inertia * inertia * inertia;
-
-            _outputMW *= cubicFactor;
-
-            float noise = 1f + MyUtils.GetRandomFloat(-Config.throttleVariance, Config.throttleVariance);
-            
-            _outputMW *= noise;
+                _inertia = Math.Max(_inertia - spoolStep, 0f);
         }
 
         private void ApplyForce()
         {
-            if (_propeller?.Physics == null) return;
+            
+            var grid = _myPropeller.CubeGrid as MyCubeGrid;
 
-            Vector3D forceDirection = Entity.WorldMatrix.Backward;
-            Vector3D totalForceVector = forceDirection * _outputMW;
+            if (grid.IsPreview || grid.Physics == null || !grid.Physics.Enabled || grid.Physics.IsStatic)
+                return;
 
-            float stabilityFactor = 0.7f; 
-            Vector3D stableForce = totalForceVector * stabilityFactor;
-            Vector3D torqueForce = totalForceVector * (1.0f - stabilityFactor);
+            float cubicFactor = _inertia * _inertia * _inertia;
+            Vector3D velocity = grid.Physics.LinearVelocity;
+            double speed = velocity.Length();
+            double efficiency = Math.Max(0.5, 1.0 - (speed / 40.0));
+            float adjustedThrust = _outputMW * cubicFactor * (float)efficiency;
 
-            _propeller.Physics.AddForce(
-                MyPhysicsForceType.APPLY_WORLD_FORCE, 
-                stableForce,
-                _propeller.Physics.CenterOfMassWorld, 
+            if (adjustedThrust >100)
+            {
+                Vector3D thrustVector = _myPropeller.WorldMatrix.Backward * adjustedThrust;
+                var BlockPos = _myPropeller.PositionComp.GetPosition();
+                grid.Physics.AddForce(
+                MyPhysicsForceType.APPLY_WORLD_FORCE,
+                thrustVector,
+                BlockPos,
                 null
-            );
-
-            _propeller.Physics.AddForce(
-                MyPhysicsForceType.APPLY_WORLD_FORCE, 
-                torqueForce, 
-                Entity.WorldMatrix.Translation, 
-                null
-            );
+                );
+            }
         }
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
         {
-            sb.AppendLine($"Output: {_outputMW}");
+            sb.AppendLine($"Output: {(_outputMW / 1000000):F4} MN");
         }
 
         public override void OnRemovedFromScene()

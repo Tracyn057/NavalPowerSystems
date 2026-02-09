@@ -42,16 +42,7 @@ namespace NavalPowerSystems.DieselEngines
         public float _currentOutputMW { get; private set; }
         private float _fuelBurn = 0f;
         private static bool _controlsInit = false;
-
-        private long _selectedThrottleIndex = 0;
-        private static Dictionary<long, float> _SpeedSettings = new Dictionary<long, float>
-        {
-            {0, 0f },
-            {1, 0.15f },
-            {2, 0.5f },
-            {3, 0.8f },
-            {4, 1 }
-        };
+        private static bool _actionsInit = false;
 
         public MySync<float, SyncDirection.BothWays> RequestedThrottleSync;
         public MySync<int, SyncDirection.BothWays> SelectedThrottleIndexSync;
@@ -76,6 +67,8 @@ namespace NavalPowerSystems.DieselEngines
             {
                 CreateControls();
                 _controlsInit = true;
+                CreateActions();
+                _actionsInit = true;
             }
 
             _engine.AppendingCustomInfo += AppendCustomInfo;
@@ -94,7 +87,7 @@ namespace NavalPowerSystems.DieselEngines
                 switch (obj.Value)
                 {
                     case 0: newTarget = 0f; break;
-                    case 1: newTarget = 0.2f; break;
+                    case 1: newTarget = 0.15f; break;
                     case 2: newTarget = 0.5f; break;
                     case 3: newTarget = 0.8f; break;
                     case 4: newTarget = 1.0f; break;
@@ -164,9 +157,9 @@ namespace NavalPowerSystems.DieselEngines
             float spoolStep = 1f / (_engineStats.SpoolTime * 6f);
 
             if (_engineStats.Type == EngineType.Turbine && _inertia > 0.8f)
-                spoolStep *= 3f;
+                spoolStep *= 1f;
             else if (_engineStats.Type == EngineType.Diesel && _inertia > 0.65f)
-                spoolStep *= 1.25f;
+                spoolStep *= 1f;
 
             if (Math.Abs(target) > 0.1f)
                 _inertia = Math.Min(_inertia + spoolStep, 1f);
@@ -308,6 +301,77 @@ namespace NavalPowerSystems.DieselEngines
                 throttleSlider.Enabled = (block) => true;
 
                 MyAPIGateway.TerminalControls.AddControl<IMyGasTank>(throttleSlider);
+            }
+        }
+
+        private static void CreateActions()
+        {
+            if (_actionsInit) return;
+            _actionsInit = true;
+            string[] throttleNames = { "Stop", "Slow", "Std", "Full", "Flank" };
+
+            {
+                var throttleActions = MyAPIGateway.TerminalControls.CreateAction<IMyGasTank>("NPSSetThrottle");
+                throttleActions.Name = new StringBuilder("Cycle Throttle Settings");
+                throttleActions.Icon = @"Textures\GUI\Icons\Actions\Cycle.dds";
+                throttleActions.Action = (block) =>
+                {
+                    var logic = block.GameLogic.GetAs<NavalEngineLogic>();
+                    if (logic != null)
+                    {
+                        int current = logic.SelectedThrottleIndexSync.Value;
+                        logic.SelectedThrottleIndexSync.Value = (current + 1) % 5;
+                    }
+                };
+                throttleActions.Writer = (block, sb) =>
+                {
+                    var logic = block.GameLogic.GetAs<NavalEngineLogic>();
+                    if (logic != null)
+                    {
+                        int val = logic.SelectedThrottleIndexSync.Value;
+                        if (val >= 0 && val < throttleNames.Length)
+                            sb.Append(throttleNames[val]);
+                    }
+                };
+                throttleActions.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeName);
+
+                MyAPIGateway.TerminalControls.AddAction<IMyGasTank>(throttleActions);
+            }
+            {
+                var increaseThrottle = MyAPIGateway.TerminalControls.CreateAction<IMyGasTank>("NPSIncreaseThrottle");
+                increaseThrottle.Name = new StringBuilder("Increase Throttle");
+                increaseThrottle.Icon = @"Textures\GUI\Icons\Actions\Increase.dds";
+                increaseThrottle.Action = block =>
+                {
+                    var logic = block.GameLogic.GetAs<NavalEngineLogic>();
+                    if (logic != null)
+                    {
+                        logic.SelectedThrottleIndexSync.Value = -1;
+                        logic.RequestedThrottleSync.Value = Math.Min(logic.RequestedThrottleSync.Value + 0.05f, 1.25f);
+                    }
+                };
+                increaseThrottle.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeName);
+                increaseThrottle.Writer = (b, sb) => sb.Append($"{(b?.GameLogic?.GetAs<NavalEngineLogic>()?.RequestedThrottleSync.Value ?? 0) * 100:F0}%");
+
+                MyAPIGateway.TerminalControls.AddAction<IMyGasTank>(increaseThrottle);
+            }
+            {
+                var decreaseThrottle = MyAPIGateway.TerminalControls.CreateAction<IMyGasTank>("NPSDecreaseThrottle");
+                decreaseThrottle.Name = new StringBuilder("Decrease Throttle");
+                decreaseThrottle.Icon = @"Textures\GUI\Icons\Actions\Decrease.dds";
+                decreaseThrottle.Action = block =>
+                {
+                    var logic = block.GameLogic.GetAs<NavalEngineLogic>();
+                    if (logic != null)
+                    {
+                        logic.SelectedThrottleIndexSync.Value = -1;
+                        logic.RequestedThrottleSync.Value = Math.Max(logic.RequestedThrottleSync.Value - 0.05f, 0f);
+                    }
+                };
+                decreaseThrottle.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeName);
+                decreaseThrottle.Writer = (b, sb) => sb.Append($"{(b?.GameLogic?.GetAs<NavalEngineLogic>()?.RequestedThrottleSync.Value ?? 0) * 100:F0}%");
+
+                MyAPIGateway.TerminalControls.AddAction<IMyGasTank>(decreaseThrottle);
             }
         }
 

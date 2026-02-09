@@ -2,53 +2,6 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <CubeBlocks>
 
-        <Definition>
-            <Id>
-                <TypeId>TerminalBlock</TypeId>
-                <SubtypeId>NPSEnginesController</SubtypeId>
-            </Id>
-            <DisplayName>Engine Control Panel</DisplayName>
-            <Icon>Textures\GUI\Icons\Cubes\VanillaVerticalTerminalPanel.dds</Icon>
-            <Description>Description_ControlPanel</Description>
-            <CubeSize>Large</CubeSize>
-            <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="1" y="1" z="1" />
-            <ModelOffset x="0" y="0" z="0" />
-            <Model>Models\Cubes\Large\VanillaVerticalTerminalPanel.mwm</Model>
-            <Components>
-                <Component Subtype="InteriorPlate" Count="5" />
-                <Component Subtype="Construction" Count="5" />
-                <Component Subtype="Computer" Count="1" />
-                <Component Subtype="Display" Count="1" />
-                <Component Subtype="Construction" Count="5" />
-            </Components>
-            <CriticalComponent Subtype="Construction" Index="0" />
-            <MountPoints>
-                <MountPoint Side="Front" StartX="0.45" StartY="0.35" EndX="0.55" EndY="0.5" />
-                <MountPoint Side="Front" StartX="0.45" StartY="0" EndX="0.55" EndY="0.20" />
-                <MountPoint Side="Bottom" StartX="0.45" StartY="0" EndX="0.55" EndY="0.15" Default="true" />
-            </MountPoints>
-            <BuildProgressModels>
-                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\VanillaVerticalTerminalPanel_Construction_1.mwm" />
-                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\VanillaVerticalTerminalPanel_Construction_2.mwm" />
-                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\VanillaVerticalTerminalPanel_Construction_3.mwm" />
-            </BuildProgressModels>
-            <BlockPairName>EngineControl</BlockPairName>
-            <MirroringY>Z</MirroringY>
-            <MirroringZ>Y</MirroringZ>
-            <EdgeType>Light</EdgeType>
-            <BuildTimeSeconds>8</BuildTimeSeconds>
-            <DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
-            <DamagedSound>ParticleElectrical</DamagedSound>
-            <DestroyEffect>BlockDestroyedExplosion_Small</DestroyEffect>
-            <DestroySound>WepSmallWarheadExpl</DestroySound>
-            <PCU>5</PCU>
-            <IsAirTight>false</IsAirTight>
-            <TargetingGroups>
-                <string>Propulsion</string>
-            </TargetingGroups>
-        </Definition>
-
         <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
             <Id>
                 <TypeId>OxygenTank</TypeId>
@@ -92,7 +45,7 @@
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
             <OperationalPowerConsumption>0</OperationalPowerConsumption>
             <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>1000</Capacity>
+            <Capacity>2500</Capacity>
             <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
@@ -167,7 +120,7 @@
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
             <OperationalPowerConsumption>0</OperationalPowerConsumption>
             <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>1000</Capacity>
+            <Capacity>2500</Capacity>
             <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
@@ -242,7 +195,7 @@
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
             <OperationalPowerConsumption>0</OperationalPowerConsumption>
             <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>1000</Capacity>
+            <Capacity>2500</Capacity>
             <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
@@ -333,7 +286,7 @@
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
             <OperationalPowerConsumption>0</OperationalPowerConsumption>
             <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>1000</Capacity>
+            <Capacity>2500</Capacity>
             <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
@@ -422,7 +375,7 @@
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
             <OperationalPowerConsumption>0</OperationalPowerConsumption>
             <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>1000</Capacity>
+            <Capacity>2500</Capacity>
             <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
@@ -511,7 +464,7 @@
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
             <OperationalPowerConsumption>0</OperationalPowerConsumption>
             <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>1000</Capacity>
+            <Capacity>2500</Capacity>
             <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
@@ -600,7 +553,7 @@
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
             <OperationalPowerConsumption>0</OperationalPowerConsumption>
             <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>1000</Capacity>
+            <Capacity>2500</Capacity>
             <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
@@ -689,7 +642,7 @@
             <ResourceSinkGroup>Factory</ResourceSinkGroup>
             <OperationalPowerConsumption>0</OperationalPowerConsumption>
             <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>1000</Capacity>
+            <Capacity>2500</Capacity>
             <InventoryMaxVolume>0.75</InventoryMaxVolume>
             <InventorySize>
                 <X>1</X>
