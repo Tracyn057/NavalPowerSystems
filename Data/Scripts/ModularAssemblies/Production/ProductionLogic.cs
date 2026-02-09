@@ -52,6 +52,7 @@ namespace NavalPowerSystems.Production
 
             _refinery.AppendingCustomInfo += AppendCustomInfo;
 
+            //Decide which type of refinery this is
             if (_refinery != null)
             {
                 if (_refinery.BlockDefinition.SubtypeName.Contains("OilCracker"))
@@ -73,6 +74,7 @@ namespace NavalPowerSystems.Production
 
         public override void UpdateBeforeSimulation100()
         {
+            //Initialization and system search
             if (_system == null)
             {
                 _status = "Searching for System...";
@@ -83,6 +85,8 @@ namespace NavalPowerSystems.Production
                 return;
             }
 
+
+            //Am I good? Cool, let's operate.
             if (_system._needsRefresh)
             {
                 _status = "Refreshing System...";
@@ -97,6 +101,7 @@ namespace NavalPowerSystems.Production
 
         private void ValidateRefinery()
         {
+            //Check for input tank and validate it
             _isComplete = false;
             if (_assemblyId != -1 && _system != null)
             {
@@ -133,16 +138,17 @@ namespace NavalPowerSystems.Production
                 _status = "No Inventory Found"; return;
             }
 
+            //Calculate how much gas to remove and how many items to add based on the refinery type and config values
             float gasToRemove = Config.baseRefineRate * 1.6f;
             VRage.MyFixedPoint itemsToAdd = (VRage.MyFixedPoint)Config.baseRefineRate * 1.6f * _ratio;
 
             if (_inputTank.FilledRatio < gasToRemove / _inputTank.Capacity)
             {
-                //MyAPIGateway.Utilities.ShowNotification("Not enough input resource to operate!", 2000, MyFontEnum.Red);
                 _status = "Not enough input resource.";
                 return;
             }
             _status = "Operating";
+            //Remove gas and add items
             Utilities.ChangeTankLevel(_inputTank, -gasToRemove);
             Utilities.AddNewItem(inventory, _dummyItem, itemsToAdd);
         }
@@ -151,6 +157,7 @@ namespace NavalPowerSystems.Production
         {
             sb.AppendLine($"Status: {_status}");
 
+            //Simple indicator of activity
             if (_timer)
                 sb.AppendLine("||");
             else if (!_timer)

@@ -65,7 +65,7 @@ namespace NavalPowerSystems.Drivetrain
                 return; 
             }
 
-            _outputMW = (_inputMW * 1000000f) * Config.mnPerMW;
+            _outputMW = _inputMW;
         }
 
         private void SetSpool()
@@ -80,8 +80,9 @@ namespace NavalPowerSystems.Drivetrain
 
         private void ApplyForce()
         {
-            
+            float outputMN = _outputMW * Config.mnPerMW;
             var grid = _myPropeller.CubeGrid as MyCubeGrid;
+            float limit = _propellerStats.MaxMW;
 
             if (grid.IsPreview || grid.Physics == null || !grid.Physics.Enabled || grid.Physics.IsStatic)
                 return;
@@ -90,11 +91,28 @@ namespace NavalPowerSystems.Drivetrain
             Vector3D velocity = grid.Physics.LinearVelocity;
             double speed = velocity.Length();
             double efficiency = Math.Max(0.5, 1.0 - (speed / 40.0));
-            float adjustedThrust = _outputMW * cubicFactor * (float)efficiency;
+            float adjustedThrust = outputMN * cubicFactor * (float)efficiency;
+            double finalThrust = limit * Math.Tanh(adjustedThrust / limit);
 
-            if (adjustedThrust >100)
+            double waste = adjustedThrust - finalThrust;
+            if (waste > (limit * 0.2)) // If wasting more than 20% of max capacity
             {
-                Vector3D thrustVector = _myPropeller.WorldMatrix.Backward * adjustedThrust;
+                // Apply pitting damage to the propeller block
+                // Trigger cavitation sound effects/particles
+
+                float cavitationDmg = waste * Config.CavitationDmgMult / 60f;
+
+                if (cavitationDmg > 0)
+                {
+                    _propeller.SlimBlock.DoDamage(cavitationDmg, MyDamageType.Deformation, true);
+                }
+            }
+
+            finalThrust *= 1000000f; // Convert MN to N for physics application
+
+            if (finalThrust >100)
+            {
+                Vector3D thrustVector = _myPropeller.WorldMatrix.Backward * (float)finalThrust;
                 var BlockPos = _myPropeller.PositionComp.GetPosition();
                 grid.Physics.AddForce(
                 MyPhysicsForceType.APPLY_WORLD_FORCE,
@@ -107,7 +125,7 @@ namespace NavalPowerSystems.Drivetrain
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
         {
-            sb.AppendLine($"Output: {(_outputMW / 1000000):F4} MN");
+            sb.AppendLine($"Output: {_outputMW:F4} MN");
         }
 
         public override void OnRemovedFromScene()

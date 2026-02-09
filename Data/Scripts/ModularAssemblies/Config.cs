@@ -9,6 +9,7 @@ namespace NavalPowerSystems
         //Constant variables
         public const float globalFuelMult = 0.75f;          //Multiplier for fuel consumption
         public const float drivetrainLoss = 0.0467f;    //Percent loss of MW (MN) over the drivetrain
+        public const float cavitationDmgMult = 0.1f;      //Multiplier for damage caused by cavitation, applied to propeller blocks
         public const float throttleVariance = 0.04f;    //Amount of random variance in throttle response
         public const float mnPerMW = 0.2f;             //MN produced per MW
         public const float hpPerMW = 1341.02f;          //Horsepower made per MW, for display only

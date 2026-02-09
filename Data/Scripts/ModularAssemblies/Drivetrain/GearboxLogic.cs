@@ -85,6 +85,7 @@ namespace NavalPowerSystems.Drivetrain
             UpdateIsEngaged();
         }
 
+        //Validates the state of the drivetrain
         private void GetChildren()
         {
             _assemblyId = ModularApi.GetContainingAssembly(_gearbox, "Drivetrain_Definition");
@@ -119,9 +120,10 @@ namespace NavalPowerSystems.Drivetrain
                 _outputCount = _propellers.Count;
             }
             _needsRefresh = false;
-            _isComplete = (_clutches.Count > 0 && _propellers.Count > 0);
+            _isComplete = _clutches.Count > 0 && _propellers.Count > 0;
         }
 
+        //Checks clutch state and determines if the gearbox should be engaged based on clutch throttle and other clutches in the system, with some hysteresis to prevent rapid toggling
         private void UpdateIsEngaged()
         {
             if (_clutches.Count == 0) return;
@@ -173,6 +175,7 @@ namespace NavalPowerSystems.Drivetrain
             //sb.AppendLine($"Debug Drag Output: {_outputMWDebug:F2}");
         }
 
+        //Retrieve power information from the clutches
         private void GetPower()
         {
             if (_clutches == null) return;
@@ -186,6 +189,7 @@ namespace NavalPowerSystems.Drivetrain
             }
         }
 
+        //Send equal power to each propeller, with a reduction if in reverse
         private void SetPower()
         {
             if (_outputCount <= 0 || _propellers == null) return;
@@ -231,6 +235,7 @@ namespace NavalPowerSystems.Drivetrain
             }
         }
 
+        //Secret drag application to simulate water resistance on the vessel
         private void ApplyDrag()
         {
             var block = Entity as MyCubeBlock;
@@ -251,16 +256,16 @@ namespace NavalPowerSystems.Drivetrain
 
             float dragQuadCoeff = 0.00045f;
             float dragLinearCoeff = 0.0003f;
-            float gridMass = (float)(grid.Physics.Mass);
+            float gridMass = (float)grid.Physics.Mass;
 
             //Quadratic drag formula
-            double quadDrag = 0.5 * dragQuadCoeff * (speed * speed) * gridMass;
+            double quadDrag = 0.5 * dragQuadCoeff * speed * speed * gridMass;
             //Add a linear drag component
             double linearDrag = speed * dragLinearCoeff * gridMass;
             //Total drag force
             double forceMagnitude = quadDrag + linearDrag;
             //Cap the drag force to prevent excessive deceleration
-            double maxDrag = (speed * grid.Physics.Mass) / (1f / 60f);
+            double maxDrag = speed * grid.Physics.Mass / (1f / 60f);
             //If the calculated drag exceeds the max, limit it
             Vector3D finalForce = dragDirection * forceMagnitude;
             if (forceMagnitude > maxDrag) finalForce = dragDirection * maxDrag;

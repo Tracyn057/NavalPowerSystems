@@ -14,24 +14,7 @@ namespace NavalPowerSystems.Common
 {
     public class Utilities
     {
-        public static void UpdatePowerConsumption(IMyFunctionalBlock block, bool isActive)
-        {
-            if (block == null) return;
-
-            var sink = block.Components.Get<MyResourceSinkComponent>();
-            if (sink == null) return;
-
-            var definition = block.SlimBlock.BlockDefinition as IMyFunctionalBlock;
-            if (definition == null) return;
-
-            float maxPower = definition.ResourceSink.MaxRequiredInputByType(MyResourceDistributorComponent.ElectricityId);
-
-            float requiredInput = isActive ? maxPower : 0.0f;
-
-            sink.SetRequiredInputByType(MyResourceDistributorComponent.ElectricityId, requiredInput);
-            sink.Update();
-        }
-
+        //Utility method to change gas level in a tank by a certain amount of liters, with checks for validity and capacity
         public static void ChangeTankLevel(IMyGasTank tank, double amountLiters)
         {
             if (tank == null || !tank.Enabled)
@@ -54,7 +37,7 @@ namespace NavalPowerSystems.Common
                 tank.ChangeFilledRatio((float)newRatio, true);
             }
         }
-
+        //Utility method to add items to an inventory, with checks for fitting and server authority
         public static void AddNewItem(IMyInventory inventory, MyObjectBuilder_PhysicalObject newItem, VRage.MyFixedPoint count)
         {
             if (!MyAPIGateway.Session.IsServer) return;
@@ -72,7 +55,7 @@ namespace NavalPowerSystems.Common
                 inventory.AddItems(fittingAmount, newItem);
             }
         }
-
+        //Utility method to determine if tank controls should be removed based on block subtype, used for hiding stockpile/refill options on certain tanks
         public static bool ShouldRemoveTankControls(IMyTerminalBlock block)
         {
             if (block == null) return false;
@@ -82,7 +65,7 @@ namespace NavalPowerSystems.Common
                 Config.PropellerSubtypes.Contains(subtype) ||
                 subtype.Contains("NPSExtractionCrudeOutput");
         }
-
+        //Utility method to remove or hide terminal controls for gas tanks based on block subtype, used to prevent player interaction with certain tanks
         public static void RemoveControls()
         {
             List<IMyTerminalControl> controls;
@@ -101,7 +84,7 @@ namespace NavalPowerSystems.Common
                 }
             }
         }
-
+        //Utility method to remove or hide terminal actions for gas tanks based on block subtype, used to prevent player interaction with certain tanks
         public static void RemoveActions()
         {
             List<IMyTerminalAction> actions;
