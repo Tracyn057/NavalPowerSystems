@@ -18,6 +18,10 @@ Input being tank with Stockpile=On and converter itself being the O2 generator s
 X Items and blueprints+classes already made. Double check accuracy
 
 TO DO:
+Engine Oil Item
+Gear Lube Item
+High Pressure Grease Item
+>>Oil Change/Maintenance Option
 
 More Propeller definitions
 

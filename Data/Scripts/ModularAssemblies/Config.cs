@@ -8,14 +8,14 @@ namespace NavalPowerSystems
     {
         //Constant variables
         public const float globalFuelMult = 0.75f;          //Multiplier for fuel consumption
-        public const float drivetrainLoss = 0.0467f;    //Percent loss of MW (MN) over the drivetrain
+        public const bool requiresMaintenance = true;    //Whether or not to apply wear and tear to engines and propellers, causing them to lose efficiency and eventually fail without repairs
         public const float cavitationDmgMult = 0.1f;      //Multiplier for damage caused by cavitation, applied to propeller blocks
-        public const float throttleVariance = 0.04f;    //Amount of random variance in throttle response
+        public const float throttleVariance = 0.015f;    //Amount of random variance in throttle response
         public const float mnPerMW = 0.2f;             //MN produced per MW
         public const float hpPerMW = 1341.02f;          //Horsepower made per MW, for display only
         public const float crudeFuelOilRatio = 0.75f;   //Ratio of conversion from crude oil to fuel oil
         public const float fuelOilDieselRatio = 0.66f;  //Ratio of conversion from fuel oil to diesel fuel
-        public const float baseRefineRate = 50;         //Base rate in liters for oil cracker and refinery
+        public const float baseRefineRate = 100;         //Base rate in liters for oil cracker and refinery
 
         //Oil extraction variables
         public const double rarityThreshold = 0.8;      //How much of the available oil spawn locations are empty. 1.0 = No oil ever 
