@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ModularAssemblies.Data.Scripts.ModularAssemblies.Drivetrain
+namespace NavalPowerSystems.Drivetrain
 {
-    internal class FileName
+    internal class RudderLogic
     {
     }
 }

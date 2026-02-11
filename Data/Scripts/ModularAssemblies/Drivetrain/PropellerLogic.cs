@@ -100,7 +100,7 @@ namespace NavalPowerSystems.Drivetrain
                 // Apply pitting damage to the propeller block
                 // Trigger cavitation sound effects/particles
 
-                float cavitationDmg = waste * Config.CavitationDmgMult / 60f;
+                float cavitationDmg = (float)waste * Config.cavitationDmgMult / 60f;
 
                 if (cavitationDmg > 0)
                 {

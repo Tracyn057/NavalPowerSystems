@@ -271,7 +271,6 @@ namespace NavalPowerSystems.Drivetrain
             if (forceMagnitude > maxDrag) finalForce = dragDirection * maxDrag;
 
             double totalForceNewtons = finalForce.Length();
-            //_outputMWDebug = (float)totalForceNewtons / 1000;
 
             grid.Physics.AddForce(
                 MyPhysicsForceType.APPLY_WORLD_FORCE,
