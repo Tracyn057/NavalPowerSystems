@@ -51,18 +51,8 @@
 
 		<Container>
 			<Id>
-				<TypeId>OxygenGenerator</TypeId>
-				<SubtypeId>NPSProductionOilCracker</SubtypeId>
-			</Id>
-			<DefaultComponents>
-				<Component BuilderType="MyObjectBuilder_ResourceStorageComponentDefinition" ForceCreate="true"/>
-			</DefaultComponents>
-		</Container>
-		
-		<Container>
-			<Id>
-				<TypeId>OxygenGenerator</TypeId>
-				<SubtypeId>NPSProductionFuelRefinery</SubtypeId>
+				<TypeId>OxygenTank</TypeId>
+				<SubtypeId>NPSDieselEngine500KW</SubtypeId>
 			</Id>
 			<DefaultComponents>
 				<Component BuilderType="MyObjectBuilder_ResourceStorageComponentDefinition" ForceCreate="true"/>

@@ -41,32 +41,47 @@
   -->
     <EntityComponents>
 
+    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+            <Id>
+                <TypeId>Inventory</TypeId>
+                <SubtypeId>NPSDieselEngine500KW</SubtypeId>
+            </Id>
+            <Volume>0.2</Volume>
+            <InputConstraint Whitelist="true" Description="Engine Oil" Icon="Textures\GUI\Icons\FilterAmmo5.54mm.dds">
+                <Entry>
+                    <TypeId>Component</TypeId>
+                    <SubtypeId>EngineOil</SubtypeId>
+                </Entry>
+            </InputConstraint>
+        </EntityComponent>
 
-		<EntityComponent xsi:type="MyObjectBuilder_ResourceStorageComponentDefinition">
-			<Id>
-				<TypeId>ResourceStorageComponent</TypeId>
-				<SubtypeId>NPSProductionOilCracker</SubtypeId>
-			</Id>
-			<Capacity>4000</Capacity>
-			<StoredResourceId>
-				<TypeId>GasProperties</TypeId>
-				<SubtypeId>CrudeOil</SubtypeId>
-			</StoredResourceId>
-		</EntityComponent>
+    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+            <Id>
+                <TypeId>Inventory</TypeId>
+                <SubtypeId>NPSDieselEngine15MW</SubtypeId>
+            </Id>
+            <Volume>0.2</Volume>
+            <InputConstraint Whitelist="true" Description="Engine Oil" Icon="Textures\GUI\Icons\FilterAmmo5.54mm.dds">
+                <Entry>
+                    <TypeId>Component</TypeId>
+                    <SubtypeId>EngineOil</SubtypeId>
+                </Entry>
+            </InputConstraint>
+        </EntityComponent>
 
-		<EntityComponent xsi:type="MyObjectBuilder_ResourceStorageComponentDefinition">
-			<Id>
-				<TypeId>ResourceStorageComponent</TypeId>
-				<SubtypeId>NPSProductionFuelRefinery</SubtypeId>
-			</Id>
-			<Capacity>4000</Capacity>
-			<StoredResourceId>
-				<TypeId>GasProperties</TypeId>
-				<SubtypeId>FuelOil</SubtypeId>
-			</StoredResourceId>
-		</EntityComponent>
-		
-		
+    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+            <Id>
+                <TypeId>Inventory</TypeId>
+                <SubtypeId>NPSDieselEngine25MW</SubtypeId>
+            </Id>
+            <Volume>0.2</Volume>
+            <InputConstraint Whitelist="true" Description="Engine Oil" Icon="Textures\GUI\Icons\FilterAmmo5.54mm.dds">
+                <Entry>
+                    <TypeId>Component</TypeId>
+                    <SubtypeId>EngineOil</SubtypeId>
+                </Entry>
+            </InputConstraint>
+        </EntityComponent>
 
     </EntityComponents>
 </Definitions>
