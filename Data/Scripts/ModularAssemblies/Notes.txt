@@ -31,9 +31,12 @@ Thrust bearing
 Shaft bearing
 Shaft tube
 
-Turbines 2, 5MW - 2x1x1
-Turbines 12, 25MW - 3x1x1
-Turbine 40MW - 4x1x1?
+Turbines 2, 5MW - 2x1x1     -LM500
+Turbines 12, 25MW - 3x1x1   -LM2500
+Turbine 40MW - 4x1x1?       -LM2500G4?
+
+Generators
+AG9160?
 
 Diesel Engines
 500KW - 1x1x1
