@@ -31,6 +31,18 @@ Thrust bearing
 Shaft bearing
 Shaft tube
 
-46cm driveshaft
-62cm driveshaft
-78cm driveshaft
+Turbines 2, 5MW - 2x1x1
+Turbines 12, 25MW - 3x1x1
+Turbine 40MW - 4x1x1?
+
+Diesel Engines
+500KW - 1x1x1
+1.5MW - 2x1x1
+2.5MW - 3x1x1
+
+
+
+https://www.rolls-royce.com/products-and-services/defence/naval/gas-turbines.aspx
+https://www.geaerospace.com/sites/default/files/ge-aerospace-brochure.pdf
+https://www.geaerospace.com/military-defense/engines/lm2500
+https://www.linquip.com/industrial-directories/21/marine-gas-turbine

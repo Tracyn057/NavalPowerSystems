@@ -77,11 +77,11 @@ namespace NavalPowerSystems
         public static readonly Dictionary<string, EngineStats> EngineSettings = new Dictionary<string, EngineStats>
         {
             //Gas Turbines
-            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 2, FuelRate = 19.5f, SpoolTime = 18 } },
-            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 5, FuelRate = 48.75f, SpoolTime = 20 } },
-            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 12, FuelRate = 117.0f, SpoolTime = 22 } },
-            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 25, FuelRate = 243.75f, SpoolTime = 24 } },
-            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 40, FuelRate = 390.0f, SpoolTime = 26 } },
+            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 2, FuelRate = 19.5f, SpoolTime = 28 } },
+            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 5, FuelRate = 48.75f, SpoolTime = 32 } },
+            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 12, FuelRate = 117.0f, SpoolTime = 36 } },
+            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 25, FuelRate = 243.75f, SpoolTime = 40 } },
+            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 40, FuelRate = 390.0f, SpoolTime = 44 } },
             //Internal Combustion Diesel
             {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, FuelRate = 3.75f, SpoolTime = 4f } },
             {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, FuelRate = 11.25f, SpoolTime = 6f } },
