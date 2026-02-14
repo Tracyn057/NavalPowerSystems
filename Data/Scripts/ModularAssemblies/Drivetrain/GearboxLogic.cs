@@ -256,7 +256,7 @@ namespace NavalPowerSystems.Drivetrain
 
             float dragQuadCoeff = 0.00045f;
             float dragLinearCoeff = 0.0003f;
-            float gridMass = (float)grid.Physics.Mass;
+            float gridMass = (float)grid.Physics.Mass * 1.15f;
 
             //Quadratic drag formula
             double quadDrag = 0.5 * dragQuadCoeff * speed * speed * gridMass;
