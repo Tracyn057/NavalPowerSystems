@@ -62,11 +62,11 @@
 			<ModelOffset x="0" y="0" z="0"/>
 			<Model>Models\Cubes\large\NPSDrivetrainPylonVerticalLong.mwm</Model>
 			<Components>
-				<Component Subtype="SteelPlate" Count="100"/>
-				<Component Subtype="LargeTube" Count="35" />
+				<Component Subtype="SteelPlate" Count="150"/>
+				<Component Subtype="LargeTube" Count="45" />
 				<Component Subtype="Construction" Count="25" />
 				<Component Subtype="MetalGrid" Count="25" />
-				<Component Subtype="SteelPlate" Count="25" />
+				<Component Subtype="SteelPlate" Count="50" />
 			</Components>
 			<CriticalComponent Subtype="Construction" Index="0"/>
 			<MountPoints>
@@ -82,10 +82,6 @@
 			<MirroringZ>Y</MirroringZ>
 			<EdgeType>Light</EdgeType>
 			<BuildTimeSeconds>7</BuildTimeSeconds>
-			<MountPoints>
-				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
-				<MountPoint Side="Back" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
-			</MountPoints>
 			<EmissiveColorPreset>Default</EmissiveColorPreset>
 			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
 			<DamagedSound>ParticleHeavyMech</DamagedSound>
