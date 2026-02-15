@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<CubeBlocks>
+
+		<Definition>
+			<Id>
+				<TypeId>CubeBlock</TypeId>
+				<SubtypeId>NPSDrivetrainDriveshaft</SubtypeId>
+			</Id>
+			<DisplayName>Driveshaft</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainDriveshaft.dds</Icon>
+			<Description></Description>
+			<GuiVisible>false</GuiVisible>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="1" />
+			<ModelOffset x="0" y="0" z="0" />
+			<Model>Models\Cubes\Large\NPSDrivetrainDriveshaft.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="75" />
+				<Component Subtype="LargeTube" Count="20" />
+				<Component Subtype="SteelPlate" Count="25" />
+			</Components>
+			<CriticalComponent Subtype="LargeTube" Index="0" />
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainDriveshaft_BS1.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>driveshaft</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>7</BuildTimeSeconds>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
+				<MountPoint Side="Back" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
+			</MountPoints>
+			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<DestroyEffect>BlockDestroyed_Large</DestroyEffect>
+			<DestroySound>PoofExplosionCat3</DestroySound>
+			<PCU>10</PCU>
+			<DLC>HeavyIndustry</DLC>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition>
+			<Id>
+				<TypeId>CubeBlock</TypeId>
+				<SubtypeId>NPSDrivetrainPylonVerticalLong</SubtypeId>
+			</Id>
+			<DisplayName>Driveshaft Pylon, Long Vertical</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainPylonVerticalLong.dds</Icon>
+			<Description></Description>
+			<GuiVisible>false</GuiVisible>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="2"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\NPSDrivetrainPylonVerticalLong.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="100"/>
+				<Component Subtype="LargeTube" Count="35" />
+				<Component Subtype="Construction" Count="25" />
+				<Component Subtype="MetalGrid" Count="25" />
+				<Component Subtype="SteelPlate" Count="25" />
+			</Components>
+			<CriticalComponent Subtype="Construction" Index="0"/>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
+				<MountPoint Side="Back" StartX="0.35" StartY="0.35" EndX="0.65" EndY="0.65"/>
+				<MountPoint Side="Top" StartX="0.40" StartY="0.35" EndX="0.60" EndY="1.20"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainPylonVerticalLong_BS1.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainPylonVerticalLong</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>7</BuildTimeSeconds>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
+				<MountPoint Side="Back" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
+			</MountPoints>
+			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<DestroyEffect>BlockDestroyed_Large</DestroyEffect>
+			<DestroySound>PoofExplosionCat3</DestroySound>
+			<PCU>10</PCU>
+			<DLC>HeavyIndustry</DLC>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+	</CubeBlocks>
+</Definitions>

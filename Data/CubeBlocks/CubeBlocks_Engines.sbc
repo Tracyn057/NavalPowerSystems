@@ -418,9 +418,9 @@
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="2" y="2" z="4" />
+            <Size x="1" y="3" z="1" />
             <ModelOffset x="0" y="0" z="0" />
-            <Model>Models\Cubes\Large\Prototech_Refinery.mwm</Model>
+            <Model>Models\Cubes\Large\LM2500.mwm</Model>
             <Components>
                 <Component Subtype="SteelPlate" Count="1100" />
                 <Component Subtype="Construction" Count="40" />
@@ -431,7 +431,7 @@
                 <Component Subtype="SteelPlate" Count="100" />
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
-            <MountPoints>
+            <!--<MountPoints>
                 <MountPoint Side="Back" StartX="0" StartY="0.1" EndX="0.1" EndY="1" />
                 <MountPoint Side="Back" StartX="0.1" StartY="0" EndX="1" EndY="0.1" />
                 <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" />
@@ -455,7 +455,7 @@
                 <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\Prototech_Refinery_Construction_1.mwm" />
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
-            </BuildProgressModels>
+            </BuildProgressModels>-->
             <BlockPairName>DieselTurbine12mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>

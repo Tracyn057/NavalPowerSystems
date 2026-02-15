@@ -69,6 +69,7 @@ namespace NavalPowerSystems.Drivetrain
 
             Vector3D velocity = grid.Physics.LinearVelocity;
             double speed = velocity.Length();
+            float finalThrust = 0f;
 
             finalThrust *= 1000000f; // Convert MN to N for physics application
 

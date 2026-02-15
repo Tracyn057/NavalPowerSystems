@@ -63,8 +63,8 @@ namespace NavalPowerSystems
                 "NPSDrivetrainClutch",
                 "NPSDrivetrainDirectDrive",
                 "NPSDrivetrainScrew3b3m",
-                "NPSDrivetrainDriveshaftPassthrough",
-                "NPSDrivetrainDriveshaft"
+                "NPSDrivetrainDriveshaft",
+                "NPSDrivetrainPylonVerticalLong",
             },
 
             // Allowed connection directions & whitelists, measured in blocks.
@@ -72,8 +72,28 @@ namespace NavalPowerSystems
             // If the connection type whitelist is empty, all allowed subtypes may connect on that side.
             AllowedConnections = new Dictionary<string, Dictionary<Vector3I, string[]>>
             {
-
+                {
+                    "NPSDrivetrainDriveshaft", new Dictionary<Vector3I, string[]>
+                    {
+                        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
+                {
+                    "NPSDrivetrainPylonVerticalLong", new Dictionary<Vector3I, string[]>
+                    {
+                        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
             },
+        };
+
+        private static readonly string[] AllowedDriveshaftConnections =
+        {
+            "NPSDrivetrainDriveshaft",
+
+            "NPSDrivetrainPylonVerticalLong",
         };
     }
 }
