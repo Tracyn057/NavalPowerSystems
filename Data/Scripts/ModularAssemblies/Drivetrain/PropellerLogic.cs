@@ -23,11 +23,14 @@ namespace NavalPowerSystems.Drivetrain
         private IMyTerminalBlock _propeller;
         private IMyCubeBlock _myPropeller;
         private PropellerStats _propellerStats;
+        private MyEntitySubpart _propellerSubpart;
         public float _inputMW { get; set; }
         private float _outputMW = 0f;
+        private float _rpmRatio = 0f;
         private float _inertia = 0f;
-        private float _currentAngle = 0f;
-        private const float MaxRpm = 200;
+        private volatile float _currentAngle = 0f;
+        private Matrix _initialMatrix;
+        private const float _maxRpm = 200;
 
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -36,12 +39,25 @@ namespace NavalPowerSystems.Drivetrain
             _propeller = (IMyTerminalBlock)Entity;
             _myPropeller = (MyCubeBlock)Entity;
             _propellerStats = Config.PropellerSettings[_propeller.BlockDefinition.SubtypeName];
+            Entity.TryGetSubpart("Propeller", out _propellerSubpart);
+
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         public override void UpdateOnceBeforeFrame()
         {
             _propeller.AppendingCustomInfo += AppendCustomInfo;
+
+            if (_propellerSubpart != null)
+            {
+                _initialMatrix = _propellerSubpart.PositionComp.LocalMatrix;
+        
+                _propellerSubpart.Render.AddRuntimeUpdate(MyRenderProxy.ObjectType.Entity, (renderEntity) => 
+                {
+                    renderEntity.LocalMatrix = Matrix.CreateRotationY(_currentAngle) * _initialMatrix;
+                });
+            }
+            
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
@@ -86,9 +102,6 @@ namespace NavalPowerSystems.Drivetrain
             var grid = _myPropeller.CubeGrid as MyCubeGrid;
             float limit = _propellerStats.MaxMW;
 
-            MyEntitySubpart propellerSubpart;
-            Entity.TryGetSubpart(Entity.Name + "_Propeller", out propellerSubpart);
-
             if (grid.IsPreview || grid.Physics == null || !grid.Physics.Enabled || grid.Physics.IsStatic)
                 return;
 
@@ -111,6 +124,14 @@ namespace NavalPowerSystems.Drivetrain
                 {
                     _propeller.SlimBlock.DoDamage(cavitationDmg, MyDamageType.Deformation, true);
                 }
+            }
+
+            _rpmRatio = MathHelper.Clamp(finalThrust / (_maxRpm * Config.mnPerMW), 0f, 1.5f);
+
+            if (_propellerSubpart != null)
+            {
+                _currentAngle += _maxRpm * _rpmRatio / 60 * 6f; // 6f is 360 degrees per second at max RPM
+                _currentAngle %= 360f; // Keep angle within 0-360 degrees
             }
 
             finalThrust *= 1000000f; // Convert MN to N for physics application
@@ -136,13 +157,6 @@ namespace NavalPowerSystems.Drivetrain
         public override void OnRemovedFromScene()
         {
             if (_propeller != null) _propeller.AppendingCustomInfo -= AppendCustomInfo;
-        }
-
-        private void GetPropSpeed()
-        {
-            float rpm = 0f;
-
-            rpm = (float)Math.Max(0.0, Math.Min(1.0, _propellerStats.MaxMW / _inputMW));
         }
     }
 }
