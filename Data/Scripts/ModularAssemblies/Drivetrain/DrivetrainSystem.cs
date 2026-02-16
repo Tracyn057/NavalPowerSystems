@@ -11,6 +11,7 @@ namespace NavalPowerSystems.Drivetrain
     {
         public readonly int AssemblyId;
         public IMyFunctionalBlock Gearbox;
+        public PropellerLogic _masterProp;
         public List<IMyFunctionalBlock> Inputs = new List<IMyFunctionalBlock>();
         public List<IMyFunctionalBlock> Outputs = new List<IMyFunctionalBlock>();
         public List<IMySlimBlock> Driveshafts = new List<IMySlimBlock>();
@@ -32,11 +33,39 @@ namespace NavalPowerSystems.Drivetrain
             if (subtype == "NPSDrivetrainMRG")
                 Gearbox = part;
             else if (Config.PropellerSubtypes.Contains(subtype))
-                Outputs.Add((part));
+            {
+                var prop = block.GameLogic.GetAs<PropellerLogic>();
+                if (prop != null && _masterProp == null)
+                    _masterProp = prop;
+
+                Outputs.Add(part);
+            }
+                
             else if (subtype == "NPSDrivetrainClutch" || subtype == "NPSDrivetrainDirectDrive")
-                Inputs.Add((part));
+                Inputs.Add(part);
             else if (Config.DriveshaftSubtypes.Contains(subtype))
-                Driveshafts.Add((block.SlimBlock));
+            {
+                MyEntitySubpart shaftSubpart;
+                var entity = block as MyEntity;
+                
+                if (entity != null && entity.TryGetSubpart("Shaft", out shaftSubpart))
+                {
+                    Matrix initialMatrix = shaftSubpart.PositionComp.LocalMatrix;
+
+                    shaftSubpart.Render.AddRuntimeUpdate(MyRenderProxy.ObjectType.Entity, (renderEntity) =>
+                    {
+                        if (_masterProp == null || _masterProp.Entity.Closed)
+                        {
+                            _masterProp = Outputs.FirstOrDefault()?.GameLogic.GetAs<PropellerLogic>();
+                            return;
+                        }
+                        // float masterAngle = GetMasterAngle(); 
+                        renderEntity.LocalMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(GetMasterAngle())) * initialMatrix;
+                    });
+                }
+                Driveshafts.Add(block.SlimBlock);
+            }
+                
         }
 
         public void RemovePart(IMyCubeBlock block)
@@ -53,6 +82,12 @@ namespace NavalPowerSystems.Drivetrain
                 Driveshafts.Clear();
         }
 
-
+        private float GetMasterAngle()
+        {
+            if (Outputs == null || Outputs.Count == 0) return 0f;
+            
+            var logic = _masterProp?.GameLogic.GetAs<PropellerLogic>();
+            return logic != null ? logic._currentAngle : 0f;
+        }
     }
 }

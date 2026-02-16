@@ -28,7 +28,7 @@ namespace NavalPowerSystems.Drivetrain
         private float _outputMW = 0f;
         private float _rpmRatio = 0f;
         private float _inertia = 0f;
-        private volatile float _currentAngle = 0f;
+        public volatile float _currentAngle { get; private set; } = 0f;
         private Matrix _initialMatrix;
         private const float _maxRpm = 200;
 
@@ -57,7 +57,7 @@ namespace NavalPowerSystems.Drivetrain
                     renderEntity.LocalMatrix = Matrix.CreateRotationY(_currentAngle) * _initialMatrix;
                 });
             }
-            
+
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
