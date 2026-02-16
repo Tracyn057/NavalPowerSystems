@@ -46,8 +46,9 @@
 				 <string>TerminalBlock/NPSDrivetrainDirectDrive</string>
 				 <string>TerminalBlock/NPSDrivetrainMRG</string>
 				 <string>CubeBlock/NPSDrivetrainDriveshaft</string>
-				 <string>CubeBlock/NPSDrivetrainDriveshaftPassthrough</string>
-				 <string>TerminalBlock/NPSDrivetrainScrew3b3m</string>
+				 <string>CubeBlock/NPSDrivetrainPylonVerticalLong</string>
+				 <string>CubeBlock/NPSDriveshaftTube</string>
+				 <string>TerminalBlock/NPSDrivetrainProp33</string>
 				 <!-- Fuel Tanks -->
 				 <string>OxygenTank/LargeDieselTank</string>
 				 <string>OxygenTank/LargeDieselTankSmall</string>

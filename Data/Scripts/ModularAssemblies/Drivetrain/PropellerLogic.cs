@@ -26,6 +26,8 @@ namespace NavalPowerSystems.Drivetrain
         public float _inputMW { get; set; }
         private float _outputMW = 0f;
         private float _inertia = 0f;
+        private float _currentAngle = 0f;
+        private const float MaxRpm = 200;
 
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -84,6 +86,9 @@ namespace NavalPowerSystems.Drivetrain
             var grid = _myPropeller.CubeGrid as MyCubeGrid;
             float limit = _propellerStats.MaxMW;
 
+            MyEntitySubpart propellerSubpart;
+            Entity.TryGetSubpart(Entity.Name + "_Propeller", out propellerSubpart);
+
             if (grid.IsPreview || grid.Physics == null || !grid.Physics.Enabled || grid.Physics.IsStatic)
                 return;
 
@@ -131,6 +136,13 @@ namespace NavalPowerSystems.Drivetrain
         public override void OnRemovedFromScene()
         {
             if (_propeller != null) _propeller.AppendingCustomInfo -= AppendCustomInfo;
+        }
+
+        private void GetPropSpeed()
+        {
+            float rpm = 0f;
+
+            rpm = (float)Math.Max(0.0, Math.Min(1.0, _propellerStats.MaxMW / _inputMW));
         }
     }
 }

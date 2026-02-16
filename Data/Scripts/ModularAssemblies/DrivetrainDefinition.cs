@@ -65,6 +65,7 @@ namespace NavalPowerSystems
                 "NPSDrivetrainScrew3b3m",
                 "NPSDrivetrainDriveshaft",
                 "NPSDrivetrainPylonVerticalLong",
+                "NPSDriveshaftTube",
             },
 
             // Allowed connection directions & whitelists, measured in blocks.
@@ -86,6 +87,13 @@ namespace NavalPowerSystems
                         [Vector3I.Backward] = AllowedDriveshaftConnections,
                     }
                 },
+                {
+                    "NPSDriveshaftTube", new Dictionary<Vector3I, string[]>
+                    {
+                        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
             },
         };
 
@@ -94,6 +102,7 @@ namespace NavalPowerSystems
             "NPSDrivetrainDriveshaft",
 
             "NPSDrivetrainPylonVerticalLong",
+            "NPSDriveshaftTube",
         };
     }
 }
