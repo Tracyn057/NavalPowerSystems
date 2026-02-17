@@ -45,24 +45,7 @@ namespace NavalPowerSystems.Drivetrain
                 Inputs.Add(part);
             else if (Config.DriveshaftSubtypes.Contains(subtype))
             {
-                MyEntitySubpart shaftSubpart;
-                var entity = block as MyEntity;
-                
-                if (entity != null && entity.TryGetSubpart("Shaft", out shaftSubpart))
-                {
-                    Matrix initialMatrix = shaftSubpart.PositionComp.LocalMatrix;
-
-                    shaftSubpart.Render.AddRuntimeUpdate(MyRenderProxy.ObjectType.Entity, (renderEntity) =>
-                    {
-                        if (_masterProp == null || _masterProp.Entity.Closed)
-                        {
-                            _masterProp = Outputs.FirstOrDefault()?.GameLogic.GetAs<PropellerLogic>();
-                            return;
-                        }
-                        // float masterAngle = GetMasterAngle(); 
-                        renderEntity.LocalMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(GetMasterAngle())) * initialMatrix;
-                    });
-                }
+                //Potential to add driveshaft rotation.
                 Driveshafts.Add(block.SlimBlock);
             }
                 
@@ -80,14 +63,6 @@ namespace NavalPowerSystems.Drivetrain
                 Inputs.Clear();
             else if (Config.DriveshaftSubtypes.Contains(subtype))
                 Driveshafts.Clear();
-        }
-
-        private float GetMasterAngle()
-        {
-            if (Outputs == null || Outputs.Count == 0) return 0f;
-            
-            var logic = _masterProp?.GameLogic.GetAs<PropellerLogic>();
-            return logic != null ? logic._currentAngle : 0f;
         }
     }
 }

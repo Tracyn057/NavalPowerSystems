@@ -31,7 +31,6 @@ namespace NavalPowerSystems.Drivetrain
         private int _outputCount;
         private float _inputMW;
         private float _outputMW;
-        //private float _outputMWDebug;
         private List<IMyTerminalBlock> _clutches = new List<IMyTerminalBlock>();
         private List<IMyTerminalBlock> _propellers = new List<IMyTerminalBlock>();
         private static readonly List<GearboxLogic> _activeGearboxes = new List<GearboxLogic>();

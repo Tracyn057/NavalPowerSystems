@@ -74,9 +74,7 @@
 				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
 			</MountPoints>
 			<BuildProgressModels>
-				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDriveshaftTube_BS1.mwm"/>
-				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDriveshaftTube_BS2.mwm"/>
-				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDriveshaftTube_BS3.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDriveshaftTube_BS1.mwm"/>
 			</BuildProgressModels>
 			<BlockPairName>NPSDriveshaftTube</BlockPairName>
 			<MirroringY>Z</MirroringY>

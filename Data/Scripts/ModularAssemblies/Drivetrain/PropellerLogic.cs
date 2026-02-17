@@ -1,4 +1,5 @@
 ﻿using Jakaria.API;
+using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.ModAPI;
@@ -28,8 +29,8 @@ namespace NavalPowerSystems.Drivetrain
         private float _outputMW = 0f;
         private float _rpmRatio = 0f;
         private float _inertia = 0f;
-        public volatile float _currentAngle { get; private set; } = 0f;
-        private Matrix _initialMatrix;
+        private float _distToCamera = 0f;
+        public float _currentAngle { get; private set; } = 0f;
         private const float _maxRpm = 200;
 
 
@@ -48,16 +49,6 @@ namespace NavalPowerSystems.Drivetrain
         {
             _propeller.AppendingCustomInfo += AppendCustomInfo;
 
-            if (_propellerSubpart != null)
-            {
-                _initialMatrix = _propellerSubpart.PositionComp.LocalMatrix;
-        
-                _propellerSubpart.Render.AddRuntimeUpdate(MyRenderProxy.ObjectType.Entity, (renderEntity) => 
-                {
-                    renderEntity.LocalMatrix = Matrix.CreateRotationY(_currentAngle) * _initialMatrix;
-                });
-            }
-
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
@@ -65,6 +56,7 @@ namespace NavalPowerSystems.Drivetrain
         public override void UpdateBeforeSimulation10()
         {
             UpdatePower();
+            UpdateDistanceToCamera();
 
             _propeller.RefreshCustomInfo();
         }
@@ -126,7 +118,7 @@ namespace NavalPowerSystems.Drivetrain
                 }
             }
 
-            _rpmRatio = MathHelper.Clamp(finalThrust / (_maxRpm * Config.mnPerMW), 0f, 1.5f);
+            _rpmRatio = (float)MathHelper.Clamp(finalThrust / (_maxRpm * Config.mnPerMW), 0f, 1.5f);
 
             if (_propellerSubpart != null)
             {
@@ -146,6 +138,41 @@ namespace NavalPowerSystems.Drivetrain
                 BlockPos,
                 null
                 );
+            }
+        }
+
+        private void UpdateDistanceToCamera()
+        {
+            if (MyAPIGateway.Utilities.IsDedicated)
+                return;
+
+            var dist = Vector3D.Distance(_myPropeller.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
+            _distToCamera = (float)dist;
+        }
+
+        private void UpdateAnimation()
+        {
+            // 1. Exit early if dedicated server or too far away
+            if (MyAPIGateway.Utilities.IsDedicated || _propellerSubpart == null || _distToCamera >= 1000f)
+                return;
+
+            // 2. Increment your angle based on the logic we built
+            float frameRotation = _maxRpm * _rpmRatio / 60 * 6f;
+
+            // 3. Only update if we are actually moving
+            if (frameRotation != 0)
+            {
+                _currentAngle += frameRotation;
+                _currentAngle %= 360f;
+
+                // Use the 'Ref' method to avoid memory overhead
+                Matrix subpartMatrix = _propellerSubpart.PositionComp.LocalMatrixRef;
+
+                // Multiply: New Rotation * Existing Position
+                subpartMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(frameRotation)) * subpartMatrix;
+
+                // Push back to the entity
+                _propellerSubpart.PositionComp.SetLocalMatrix(ref subpartMatrix);
             }
         }
 
