@@ -1,4 +1,5 @@
 ﻿using Jakaria.API;
+using NavalPowerSystems.Common;
 using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Blocks;
@@ -49,14 +50,20 @@ namespace NavalPowerSystems.Drivetrain
         {
             _propeller.AppendingCustomInfo += AppendCustomInfo;
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
+            
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+        }
+
+        public override void UpdateAfterSimulation100()
+        {
+            UpdateDistanceToCamera();
         }
 
         public override void UpdateBeforeSimulation10()
         {
             UpdatePower();
-            UpdateDistanceToCamera();
 
             _propeller.RefreshCustomInfo();
         }
@@ -141,15 +148,6 @@ namespace NavalPowerSystems.Drivetrain
             }
         }
 
-        private void UpdateDistanceToCamera()
-        {
-            if (MyAPIGateway.Utilities.IsDedicated)
-                return;
-
-            var dist = Vector3D.Distance(_myPropeller.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
-            _distToCamera = (float)dist;
-        }
-
         private void UpdateAnimation()
         {
             // 1. Exit early if dedicated server or too far away
@@ -174,6 +172,15 @@ namespace NavalPowerSystems.Drivetrain
                 // Push back to the entity
                 _propellerSubpart.PositionComp.SetLocalMatrix(ref subpartMatrix);
             }
+        }
+
+        public void UpdateDistanceToCamera()
+        {
+            if (MyAPIGateway.Utilities.IsDedicated)
+                return;
+
+            var dist = Vector3D.Distance(_myPropeller.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
+            _distToCamera = (float)dist;
         }
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)

@@ -21,11 +21,13 @@ namespace NavalPowerSystems.Drivetrain
     {
         private IMyTerminalBlock _rudder;
         private IMyCubeBlock _myRudder;
+        private MyEntitySubpart _rudderSubpart;
         private GearboxLogic _gearboxLogic;
 
         private bool _isAutoCenter = true;
 
         private float _currentAngle = 0f;
+        private float _distToCamera = 0f;
         private float _targetAngle = 0f;
         private float _currentThrottle = 0f;
 
@@ -57,7 +59,7 @@ namespace NavalPowerSystems.Drivetrain
 
         private void GetAngle()
         {
-            
+
         }
 
         private void ApplyForce()
@@ -73,7 +75,7 @@ namespace NavalPowerSystems.Drivetrain
 
             finalThrust *= 1000000f; // Convert MN to N for physics application
 
-            if (finalThrust >100)
+            if (finalThrust > 100)
             {
                 Vector3D thrustVector = _myRudder.WorldMatrix.Right * (float)finalThrust;
                 var BlockPos = _myRudder.PositionComp.GetPosition();
@@ -84,6 +86,35 @@ namespace NavalPowerSystems.Drivetrain
                     null
                 );
             }
+        }
+
+        private void RudderAnimation()
+        {
+            if (_rudderSubpart == null || MyAPIGateway.Utilities.IsDedicated)
+                return;
+
+            Vector2 gimbal = new Vector2(ThrustUD, ThrustLR);
+
+            if (_distToCamera >= 1000f)
+                gimbal = Vector2.Zero;
+
+            float YAngle = gimbal.Y - OldSubpartYAngle;
+            if (YAngle != 0)
+            {
+                Matrix SubpartYMatrix = _rudderSubpart.PositionComp.LocalMatrixRef;
+                SubpartYMatrix = Matrix.CreateRotationY(-YAngle * (float)JETGimbalAngle) * SubpartYMatrix;
+                SubpartY.PositionComp.SetLocalMatrix(ref SubpartYMatrix);
+                OldSubpartYAngle = gimbal.Y;
+            }
+        }
+
+        public void UpdateDistanceToCamera()
+        {
+            if (MyAPIGateway.Utilities.IsDedicated)
+                return;
+
+            var dist = Vector3D.Distance(_myRudder.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
+            _distToCamera = (float)dist;
         }
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
