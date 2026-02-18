@@ -62,7 +62,7 @@ namespace NavalPowerSystems
                 "NPSDrivetrainMRG",
                 "NPSDrivetrainClutch",
                 "NPSDrivetrainDirectDrive",
-                "NPSDrivetrainScrew3b3m",
+                "NPSDrivetrainProp33",
                 "NPSDrivetrainDriveshaft",
                 "NPSDrivetrainShaftTubeEndVertical",
                 "NPSDriveshaftTube",
@@ -100,6 +100,7 @@ namespace NavalPowerSystems
         private static readonly string[] AllowedDriveshaftConnections =
         {
             "NPSDrivetrainDriveshaft",
+            "NPSDrivetrainProp33",
 
             "NPSDrivetrainShaftTubeEndVertical",
             "NPSDriveshaftTube",
