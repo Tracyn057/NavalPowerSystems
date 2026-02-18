@@ -73,27 +73,27 @@ namespace NavalPowerSystems
             // If the connection type whitelist is empty, all allowed subtypes may connect on that side.
             AllowedConnections = new Dictionary<string, Dictionary<Vector3I, string[]>>
             {
-                {
-                    "NPSDrivetrainDriveshaft", new Dictionary<Vector3I, string[]>
-                    {
-                        [Vector3I.Forward] = AllowedDriveshaftConnections,
-                        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                    }
-                },
-                {
-                    "NPSDrivetrainShaftTubeEndVertical", new Dictionary<Vector3I, string[]>
-                    {
-                        [Vector3I.Forward] = AllowedDriveshaftConnections,
-                        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                    }
-                },
-                {
-                    "NPSDriveshaftTube", new Dictionary<Vector3I, string[]>
-                    {
-                        [Vector3I.Forward] = AllowedDriveshaftConnections,
-                        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                    }
-                },
+                //{
+                //    "NPSDrivetrainDriveshaft", new Dictionary<Vector3I, string[]>
+                //    {
+                //        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                //    }
+                //},
+                //{
+                //    "NPSDrivetrainShaftTubeEndVertical", new Dictionary<Vector3I, string[]>
+                //    {
+                //        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                //    }
+                //},
+                //{
+                //    "NPSDriveshaftTube", new Dictionary<Vector3I, string[]>
+                //    {
+                //        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                //    }
+                //},
             },
         };
 

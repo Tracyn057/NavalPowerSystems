@@ -46,6 +46,7 @@ namespace NavalPowerSystems
 
         public static string[] DriveshaftSubtypes = new string[]
         {
+            "NPSDrivetrainDriveshaft",
             "NPSDrivetrainShaftTubeEndVertical"
         };
 
