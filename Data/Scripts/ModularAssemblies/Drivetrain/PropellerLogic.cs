@@ -26,6 +26,7 @@ namespace NavalPowerSystems.Drivetrain
         private IMyCubeBlock _myPropeller;
         private PropellerStats _propellerStats;
         private MyEntitySubpart _propellerSubpart;
+        private Matrix _initialLocalMatrix;
         public float _inputMW { get; set; }
         private float _outputMW = 0f;
         private float _rpmRatio = 0f;
@@ -49,6 +50,10 @@ namespace NavalPowerSystems.Drivetrain
         {
             _propeller.AppendingCustomInfo += AppendCustomInfo;
             Entity.TryGetSubpart("Propeller", out _propellerSubpart);
+            if (_propellerSubpart != null)
+            {
+                _initialLocalMatrix = _propellerSubpart.PositionComp.LocalMatrix;
+            }
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
@@ -58,6 +63,7 @@ namespace NavalPowerSystems.Drivetrain
         public override void UpdateAfterSimulation100()
         {
             UpdateDistanceToCamera();
+            
         }
 
         public override void UpdateBeforeSimulation10()
@@ -150,27 +156,21 @@ namespace NavalPowerSystems.Drivetrain
 
         private void UpdateAnimation()
         {
-            // 1. Exit early if dedicated server or too far away
             if (MyAPIGateway.Utilities.IsDedicated || _propellerSubpart == null || _distToCamera >= 1000f)
                 return;
 
-            // 2. Increment your angle based on the logic we built
             float frameRotation = _maxRpm * _rpmRatio / 60 * 6f;
 
-            // 3. Only update if we are actually moving
             if (frameRotation != 0)
             {
                 _currentAngle += frameRotation;
                 _currentAngle %= 360f;
 
-                // Use the 'Ref' method to avoid memory overhead
-                Matrix subpartMatrix = _propellerSubpart.PositionComp.LocalMatrixRef;
+                Matrix rotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(_currentAngle));
 
-                // Multiply: New Rotation * Existing Position
-                subpartMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(frameRotation)) * subpartMatrix;
+                Matrix finalMatrix = rotationMatrix * _initialLocalMatrix;
 
-                // Push back to the entity
-                _propellerSubpart.PositionComp.SetLocalMatrix(ref subpartMatrix);
+                _propellerSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
             }
         }
 

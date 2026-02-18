@@ -24,6 +24,7 @@ namespace NavalPowerSystems.Drivetrain
         private IMyCubeBlock _myRudder;
         private MyEntitySubpart _rudderSubpart;
         private GearboxLogic _gearboxLogic;
+        private Matrix _initialLocalMatrix;
 
         private bool _isAutoCenter = true;
 
@@ -44,6 +45,13 @@ namespace NavalPowerSystems.Drivetrain
         public override void UpdateOnceBeforeFrame()
         {
             _rudder.AppendingCustomInfo += AppendCustomInfo;
+
+            Entity.TryGetSubpart("Rudder", out _rudderSubpart);
+            if (_rudderSubpart != null)
+            {
+                _initialLocalMatrix = _rudderSubpart.PositionComp.LocalMatrix;
+            }
+
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
