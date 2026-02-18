@@ -92,6 +92,11 @@ namespace NavalPowerSystems
         {
             {"NPSDrivetrainProp33", new PropellerStats { MaxMW = 3.5f, SpoolTime = 18f } },
         };
+
+        public static readonly Dictionary<string, GearboxStats> GearboxSettings = new Dictionary<string, GearboxStats>
+        {
+            {"NPSDrivetrainGearbox", new GearboxStats { ReductionLevel = 2, IsClutched = true } },
+        };
     }
 
     public class EngineStats
