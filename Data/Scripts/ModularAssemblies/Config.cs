@@ -6,13 +6,15 @@ namespace NavalPowerSystems
 {
     public static class Config
     {
-        //Constant variables
+        //Global variables
         public const float globalFuelMult = 0.75f;          //Multiplier for fuel consumption
         public const bool requiresMaintenance = true;    //Whether or not to apply wear and tear to engines and propellers, causing them to lose efficiency and eventually fail without repairs
         public const float cavitationDmgMult = 0.1f;      //Multiplier for damage caused by cavitation, applied to propeller blocks
         public const float throttleVariance = 0.015f;    //Amount of random variance in throttle response
         public const float mnPerMW = 0.2f;             //MN produced per MW
         public const float hpPerMW = 1341.02f;          //Horsepower made per MW, for display only
+
+        //Fuel refining variables
         public const float crudeFuelOilRatio = 0.75f;   //Ratio of conversion from crude oil to fuel oil
         public const float fuelOilDieselRatio = 0.66f;  //Ratio of conversion from fuel oil to diesel fuel
         public const float baseRefineRate = 100;         //Base rate in liters for oil cracker and refinery
@@ -50,10 +52,15 @@ namespace NavalPowerSystems
             "NPSDrivetrainShaftTubeEndVertical"
         };
 
+        public static string[] GearboxSubtypes = new string[]
+        {
+            "NPSDrivetrainGearbox"
+        };
+
 
 
         //Component stats definition
-        public enum EngineType { Diesel, Turbine }
+        public enum EngineType { Diesel, GasTurbine, SteamTurbine, Electric }
         public struct EfficiencyPoint
         {
             public float Throttle;
@@ -70,15 +77,15 @@ namespace NavalPowerSystems
         public static readonly Dictionary<string, EngineStats> EngineSettings = new Dictionary<string, EngineStats>
         {
             //Gas Turbines
-            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 2, FuelRate = 19.5f, SpoolTime = 28 } },
-            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 5, FuelRate = 48.75f, SpoolTime = 32 } },
-            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 12, FuelRate = 117.0f, SpoolTime = 36 } },
-            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 25, FuelRate = 243.75f, SpoolTime = 40 } },
-            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.Turbine, MaxMW = 40, FuelRate = 390.0f, SpoolTime = 44 } },
+            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 2, RequiredReduction = 2.0, FuelRate = 19.5f, SpoolTime = 28 } },
+            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 5, RequiredReduction = 2.0, FuelRate = 48.75f, SpoolTime = 32 } },
+            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 12, RequiredReduction = 2.0, FuelRate = 117.0f, SpoolTime = 36 } },
+            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 25, RequiredReduction = 2.0, FuelRate = 243.75f, SpoolTime = 40 } },
+            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 40, RequiredReduction = 2.0, FuelRate = 390.0f, SpoolTime = 44 } },
             //Internal Combustion Diesel
-            {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, FuelRate = 3.75f, SpoolTime = 4f } },
-            {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, FuelRate = 11.25f, SpoolTime = 6f } },
-            {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, FuelRate = 18.75f, SpoolTime = 8f } },
+            {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, RequiredReduction = 1.0, FuelRate = 3.75f, SpoolTime = 4f } },
+            {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, RequiredReduction = 1.0, FuelRate = 11.25f, SpoolTime = 6f } },
+            {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, RequiredReduction = 1.0, FuelRate = 18.75f, SpoolTime = 8f } },
         };
 
         public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
@@ -91,7 +98,8 @@ namespace NavalPowerSystems
     {
         public EngineType Type;
         public float MaxMW;         //Soft cap max output power - Mechanical only
-        public float FuelRate;      //Fuel consumption at max output in liters/second
+        public int RequiredReduction; //Required level of reduction to not damage propeller
+        public float FuelRate;      //Fuel consumption at max output in liters/second - Multiplied by globalFuelMult for actual consumption
         public float SpoolTime;       //How fast the engine responds to throttle changes at low throttle
     }
 
@@ -99,6 +107,12 @@ namespace NavalPowerSystems
     {
         public float MaxMW;         //Soft cap max input power
         public float SpoolTime;       //Amount of time it takes to change output
+    }
+
+    public class GearboxStats
+    {
+        public int ReductionLevel;       //Number of reduction steps
+        public bool IsClutched;           //Whether or not the gearbox has a clutch, allowing it to disconnect the engine from the drivetrain
     }
 
     public static class DieselEngineConfigs

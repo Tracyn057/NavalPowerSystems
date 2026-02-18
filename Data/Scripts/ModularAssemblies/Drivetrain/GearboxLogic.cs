@@ -31,7 +31,7 @@ namespace NavalPowerSystems.Drivetrain
         private int _outputCount;
         private float _inputMW;
         private float _outputMW;
-        private List<IMyTerminalBlock> _clutches = new List<IMyTerminalBlock>();
+        private List<IMyGasTank> _engines = new List<IMyGasTank>();
         private List<IMyTerminalBlock> _propellers = new List<IMyTerminalBlock>();
         private static readonly List<GearboxLogic> _activeGearboxes = new List<GearboxLogic>();
 
@@ -90,17 +90,15 @@ namespace NavalPowerSystems.Drivetrain
             _assemblyId = ModularApi.GetContainingAssembly(_gearbox, "Drivetrain_Definition");
             if (_assemblyId == -1)
             {
-                _clutches.Clear();
+                _engines.Clear();
                 _propellers.Clear();
                 _isComplete = false;
                 return;
             }
-            _clutches.Clear();
+            _engines.Clear();
             _propellers.Clear();
-            _outputCount = 0;
 
             var assemblyParts = ModularApi.GetMemberParts(_assemblyId);
-
 
             foreach (var part in assemblyParts)
             {
@@ -108,9 +106,9 @@ namespace NavalPowerSystems.Drivetrain
                 if (terminalBlock == null) continue;
                 var subtype = part.BlockDefinition.SubtypeName;
 
-                if (subtype == "NPSDrivetrainClutch" || subtype == "NPSDrivetrainDirectDrive")
+                if (Config.EngineSubtypes.Contains(subtype))
                 {
-                    _clutches.Add(part as IMyTerminalBlock);
+                    _engines.Add(part as IMyGasTank);
                 }
                 else if (Config.PropellerSubtypes.Contains(subtype))
                 {
@@ -119,18 +117,18 @@ namespace NavalPowerSystems.Drivetrain
                 _outputCount = _propellers.Count;
             }
             _needsRefresh = false;
-            _isComplete = _clutches.Count > 0 && _propellers.Count > 0;
+            _isComplete = _engines.Count > 0 && _propellers.Count > 0;
         }
 
         //Checks clutch state and determines if the gearbox should be engaged based on clutch throttle and other clutches in the system, with some hysteresis to prevent rapid toggling
         private void UpdateIsEngaged()
         {
-            if (_clutches.Count == 0) return;
+            if (_engines.Count == 0) return;
 
             float shaftSpeed = 0f;
-            foreach (var clutch in _clutches)
+            foreach (var engine in _engines)
             {
-                var logic = clutch.GameLogic?.GetAs<ClutchLogic>();
+                var logic = engine.GameLogic?.GetAs<NavalEngineLogic>();
                 if (logic != null && logic._isEngaged)
                 {
                     if (logic._currentThrottle > shaftSpeed)
@@ -138,9 +136,9 @@ namespace NavalPowerSystems.Drivetrain
                 }
             }
 
-            foreach (var clutch in _clutches)
+            foreach (var engine in _engines)
             {
-                var logic = clutch.GameLogic?.GetAs<ClutchLogic>();
+                var logic = engine.GameLogic?.GetAs<NavalEngineLogic>();
                 if (logic == null) continue;
 
                 if (logic._currentThrottle < 0.01f)
@@ -168,7 +166,7 @@ namespace NavalPowerSystems.Drivetrain
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
         {
-            sb.AppendLine($"Clutches: {_clutches.Count}");
+            sb.AppendLine($"Engines: {_engines.Count}");
             sb.AppendLine($"Propellers: {_propellers.Count}");
             sb.AppendLine($"Input: {_inputMW:F2} MW");
             //sb.AppendLine($"Debug Drag Output: {_outputMWDebug:F2}");
@@ -177,22 +175,56 @@ namespace NavalPowerSystems.Drivetrain
         //Retrieve power information from the clutches
         private void GetPower()
         {
-            if (_clutches == null) return;
+            if (_engines == null || _engines.Count == 0) return;
             _inputMW = 0f;
+            float highestThrottle = 0f;
 
-            foreach (var clutch in _clutches)
+            foreach (var engine in _engines)
             {
-                var logic = clutch.GameLogic?.GetAs<ClutchLogic>();
+                var logic = engine.GameLogic?.GetAs<NavalEngineLogic>();
                 if (logic == null) continue;
-                _inputMW += logic._outputMW;
+                _inputMW += logic._currentOutputMW;
+
+                if (logic._currentThrottle > highestThrottle)
+                    highestThrottle = logic._currentThrottle;
+            }
+
+            _currentThrottle = highestThrottle;
+        }
+
+        private void UpdatePower()
+        {
+            if (_engines == null || _engines.Count == 0)
+            {
+                _outputMW = 0;
+                _currentThrottle = 0;
+                _requestedThrottle = 0;
+                TriggerRefresh();
+                return;
+            }
+
+            foreach (var engine in _engines)
+            {
+                var logic = engine.GameLogic?.GetAs<NavalEngineLogic>();
+                if (logic == null) continue;
+                _inputMW += logic._currentOutputMW;
+            }
+
+            if (_inputMW > 0)
+            {
+                _outputMW = _inputMW;
+            }
+            else
+            {
+                _outputMW = 0;
             }
         }
 
         //Send equal power to each propeller, with a reduction if in reverse
         private void SetPower()
         {
-            if (_outputCount <= 0 || _propellers == null) return;
-            _outputMW = _inputMW / _outputCount;
+            if (_propellers == null || _propellers.Count <= 0) return;
+            _outputMW = _inputMW / _propellers.Count;
             if (_isReverse)
                 _outputMW *= -0.4f;
 

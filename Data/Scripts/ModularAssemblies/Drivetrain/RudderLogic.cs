@@ -28,6 +28,8 @@ namespace NavalPowerSystems.Drivetrain
 
         private bool _isAutoCenter = true;
 
+        private float _maxAngle = 35f;
+        private float _degreeSpeed = 0.15f;
         private float _currentAngle = 0f;
         private float _lastAngle = 0f;
         private float _distToCamera = 0f;
@@ -63,13 +65,36 @@ namespace NavalPowerSystems.Drivetrain
 
         public override void UpdateBeforeSimulation()
         {
-            GetAngle();
-            ApplyForce();
+            if (_targetAngle > 0f)
+            {
+                GetAngle();
+                ApplyForce();
+            }
+            
         }
 
         private void GetAngle()
         {
+            var controller = MyAPIGateway.CubeGrid.ControlSystem.RelativeControl as IMyShipController;
+            if (controller == null) return 0f;
 
+            return controller.MoveIndicator.X;
+        }
+
+        private void GetThrottle()
+        {
+            if (_gearboxLogic != null)
+            {
+                _currentThrottle = _gearboxLogic.urrentThrottle;
+            }
+            else
+            {
+                var controller = MyAPIGateway.CubeGrid.ControlSystem.RelativeControl as IMyShipController;
+                if (controller != null)
+                {
+                    _currentThrottle = controller.MoveIndicator.Z;
+                }
+            }
         }
 
         private void ApplyForce()
