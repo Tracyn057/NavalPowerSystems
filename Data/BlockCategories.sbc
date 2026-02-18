@@ -46,7 +46,7 @@
 				 <string>TerminalBlock/NPSDrivetrainDirectDrive</string>
 				 <string>TerminalBlock/NPSDrivetrainMRG</string>
 				 <string>CubeBlock/NPSDrivetrainDriveshaft</string>
-				 <string>CubeBlock/NPSDrivetrainPylonVerticalLong</string>
+				 <string>CubeBlock/NPSDrivetrainShaftTubeEndVertical</string>
 				 <string>CubeBlock/NPSDriveshaftTube</string>
 				 <string>TerminalBlock/NPSDrivetrainProp33</string>
 				 <!-- Fuel Tanks -->

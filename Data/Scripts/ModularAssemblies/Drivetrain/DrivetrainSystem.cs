@@ -34,9 +34,9 @@ namespace NavalPowerSystems.Drivetrain
                 Gearbox = part;
             else if (Config.PropellerSubtypes.Contains(subtype))
             {
-                var prop = block.GameLogic.GetAs<PropellerLogic>();
-                if (prop != null && _masterProp == null)
-                    _masterProp = prop;
+                //var prop = block.GameLogic.GetAs<PropellerLogic>();
+                //if (prop != null && _masterProp == null)
+                //    _masterProp = prop;
 
                 Outputs.Add(part);
             }

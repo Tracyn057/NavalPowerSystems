@@ -41,20 +41,12 @@ namespace NavalPowerSystems
 
         public static readonly string[] PropellerSubtypes = new string[]
         {
-            "NPSDrivetrainScrew3b3m",
-            "NPSDrivetrainScrew3b4m",
-            "NPSDrivetrainScrew3b6m",
-            "NPSDrivetrainScrew4b3m", 
-            "NPSDrivetrainScrew4b4m",
-            "NPSDrivetrainScrew4b6m",
-            "NPSDrivetrainScrew5b3m",
-            "NPSDrivetrainScrew5b4m",            
-            "NPSDrivetrainScrew5b6m",
+            "NPSDrivetrainProp33",
         };
 
         public static string[] DriveshaftSubtypes = new string[]
         {
-            
+            "NPSDrivetrainShaftTubeEndVertical"
         };
 
 
@@ -90,15 +82,7 @@ namespace NavalPowerSystems
 
         public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
         {
-            {"NPSDrivetrainScrew3b3m", new PropellerStats { MaxMW = 3.5f, SpoolTime = 18f } },
-            {"NPSDrivetrainScrew3b4m", new PropellerStats { MaxMW = 5f, SpoolTime = 26f } },
-            {"NPSDrivetrainScrew3b6m", new PropellerStats { MaxMW = 7.5f, SpoolTime = 34f } },
-            {"NPSDrivetrainScrew4b3m", new PropellerStats { MaxMW = 12f, SpoolTime = 20f } },
-            {"NPSDrivetrainScrew4b4m", new PropellerStats { MaxMW = 18f, SpoolTime = 28f } },
-            {"NPSDrivetrainScrew4b6m", new PropellerStats { MaxMW = 25f, SpoolTime = 36f } },
-            {"NPSDrivetrainScrew5b3m", new PropellerStats { MaxMW = 50f, SpoolTime = 22f } },
-            {"NPSDrivetrainScrew5b4m", new PropellerStats { MaxMW = 68f, SpoolTime = 30f } },
-            {"NPSDrivetrainScrew5b6m", new PropellerStats { MaxMW = 90f, SpoolTime = 38f } },
+            {"NPSDrivetrainProp33", new PropellerStats { MaxMW = 3.5f, SpoolTime = 18f } },
         };
     }
 

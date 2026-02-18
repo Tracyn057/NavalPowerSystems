@@ -397,3 +397,20 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 *.sbmi
+/Data/Scripts/Examples/AirIntake.cs
+/Data/Scripts/Examples/GimbalJetThrusterLogic.cs
+/Data/Scripts/Examples/GimbalJetThrusterMod.cs
+/Data/Scripts/Examples/GimbalJetThrusterSettings.cs
+/Data/Scripts/Examples/Log.cs
+/Data/Scripts/Examples/O2Link/Config.cs
+/Data/Scripts/Examples/O2Link/ConveyorManager.cs
+/Data/Scripts/Examples/O2Link/GridManager.cs
+/Data/Scripts/Examples/O2Link/Guid.sbc
+/Data/Scripts/Examples/O2Link/ManagedBlocks.cs
+/Data/Scripts/Examples/O2Link/ManagedConsumer.cs
+/Data/Scripts/Examples/O2Link/ManagedCustom.cs
+/Data/Scripts/Examples/O2Link/ManagedProducer.cs
+/Data/Scripts/Examples/O2Link/ManagedStorage.cs
+/Data/Scripts/Examples/O2Link/O2Link.csproj
+/Data/Scripts/Examples/O2Link/Session.cs
+/Data/Scripts/Examples/O2Link/Storage.cs

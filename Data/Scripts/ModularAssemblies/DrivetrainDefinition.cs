@@ -64,7 +64,7 @@ namespace NavalPowerSystems
                 "NPSDrivetrainDirectDrive",
                 "NPSDrivetrainScrew3b3m",
                 "NPSDrivetrainDriveshaft",
-                "NPSDrivetrainPylonVerticalLong",
+                "NPSDrivetrainShaftTubeEndVertical",
                 "NPSDriveshaftTube",
             },
 
@@ -81,7 +81,7 @@ namespace NavalPowerSystems
                     }
                 },
                 {
-                    "NPSDrivetrainPylonVerticalLong", new Dictionary<Vector3I, string[]>
+                    "NPSDrivetrainShaftTubeEndVertical", new Dictionary<Vector3I, string[]>
                     {
                         [Vector3I.Forward] = AllowedDriveshaftConnections,
                         [Vector3I.Backward] = AllowedDriveshaftConnections,
@@ -101,7 +101,7 @@ namespace NavalPowerSystems
         {
             "NPSDrivetrainDriveshaft",
 
-            "NPSDrivetrainPylonVerticalLong",
+            "NPSDrivetrainShaftTubeEndVertical",
             "NPSDriveshaftTube",
         };
     }

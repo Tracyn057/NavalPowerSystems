@@ -96,17 +96,17 @@
 		<Definition>
 			<Id>
 				<TypeId>CubeBlock</TypeId>
-				<SubtypeId>NPSDrivetrainPylonVerticalLong</SubtypeId>
+				<SubtypeId>NPSDrivetrainShaftTubeEndVertical</SubtypeId>
 			</Id>
-			<DisplayName>Driveshaft Pylon, Long Vertical</DisplayName>
-			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainPylonVerticalLong.dds</Icon>
+			<DisplayName>Driveshaft Tube with Pylon, Long Vertical</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainShaftTubeEndVertical.dds</Icon>
 			<Description></Description>
 			<GuiVisible>false</GuiVisible>
 			<CubeSize>Large</CubeSize>
 			<BlockTopology>TriangleMesh</BlockTopology>
 			<Size x="1" y="1" z="2"/>
 			<ModelOffset x="0" y="0" z="0"/>
-			<Model>Models\Cubes\large\NPSDrivetrainPylonVerticalLong.mwm</Model>
+			<Model>Models\Cubes\large\NPSDrivetrainShaftTubeEndVertical.mwm</Model>
 			<Components>
 				<Component Subtype="SteelPlate" Count="150"/>
 				<Component Subtype="LargeTube" Count="45" />
@@ -121,9 +121,9 @@
 				<MountPoint Side="Top" StartX="0.40" StartY="0.35" EndX="0.60" EndY="1.20"/>
 			</MountPoints>
 			<BuildProgressModels>
-				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainPylonVerticalLong_BS1.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainShaftTubeEndVertical_BS1.mwm"/>
 			</BuildProgressModels>
-			<BlockPairName>NPSDrivetrainPylonVerticalLong</BlockPairName>
+			<BlockPairName>NPSDrivetrainShaftTubeEndVertical</BlockPairName>
 			<MirroringY>Z</MirroringY>
 			<MirroringZ>Y</MirroringZ>
 			<EdgeType>Light</EdgeType>

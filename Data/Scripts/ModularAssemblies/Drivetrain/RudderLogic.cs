@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
@@ -27,6 +28,7 @@ namespace NavalPowerSystems.Drivetrain
         private bool _isAutoCenter = true;
 
         private float _currentAngle = 0f;
+        private float _lastAngle = 0f;
         private float _distToCamera = 0f;
         private float _targetAngle = 0f;
         private float _currentThrottle = 0f;
@@ -90,22 +92,22 @@ namespace NavalPowerSystems.Drivetrain
 
         private void RudderAnimation()
         {
-            if (_rudderSubpart == null || MyAPIGateway.Utilities.IsDedicated)
-                return;
+            //if (_rudderSubpart == null || MyAPIGateway.Utilities.IsDedicated)
+            //    return;
 
-            Vector2 gimbal = new Vector2(ThrustUD, ThrustLR);
+            //Vector2 gimbal = new Vector2(ThrustLR);
 
-            if (_distToCamera >= 1000f)
-                gimbal = Vector2.Zero;
+            //if (_distToCamera >= 1000f)
+            //    gimbal = Vector2.Zero;
 
-            float YAngle = gimbal.Y - OldSubpartYAngle;
-            if (YAngle != 0)
-            {
-                Matrix SubpartYMatrix = _rudderSubpart.PositionComp.LocalMatrixRef;
-                SubpartYMatrix = Matrix.CreateRotationY(-YAngle * (float)JETGimbalAngle) * SubpartYMatrix;
-                SubpartY.PositionComp.SetLocalMatrix(ref SubpartYMatrix);
-                OldSubpartYAngle = gimbal.Y;
-            }
+            //float YAngle = gimbal.Y - _lastAngle;
+            //if (YAngle != 0)
+            //{
+            //    Matrix rudderMatrix = _rudderSubpart.PositionComp.LocalMatrixRef;
+            //    rudderMatrix = Matrix.CreateRotationY(-YAngle * (float)JETGimbalAngle) * rudderMatrix;
+            //    _rudderSubpart.PositionComp.SetLocalMatrix(ref rudderMatrix);
+            //    _lastAngle = gimbal.Y;
+            //}
         }
 
         public void UpdateDistanceToCamera()

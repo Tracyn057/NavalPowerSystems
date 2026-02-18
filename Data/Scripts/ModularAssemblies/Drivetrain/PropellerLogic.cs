@@ -18,7 +18,7 @@ using VRageMath;
 namespace NavalPowerSystems.Drivetrain
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TerminalBlock), false,
-            "NPSDrivetrainScrew3b3m"
+            "NPSDrivetrainProp33"
     )]
     internal class PropellerLogic : MyGameLogicComponent
     {
@@ -41,7 +41,6 @@ namespace NavalPowerSystems.Drivetrain
             _propeller = (IMyTerminalBlock)Entity;
             _myPropeller = (MyCubeBlock)Entity;
             _propellerStats = Config.PropellerSettings[_propeller.BlockDefinition.SubtypeName];
-            Entity.TryGetSubpart("Propeller", out _propellerSubpart);
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
@@ -49,8 +48,8 @@ namespace NavalPowerSystems.Drivetrain
         public override void UpdateOnceBeforeFrame()
         {
             _propeller.AppendingCustomInfo += AppendCustomInfo;
+            Entity.TryGetSubpart("Propeller", out _propellerSubpart);
 
-            
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
@@ -72,6 +71,7 @@ namespace NavalPowerSystems.Drivetrain
         {
             SetSpool();
             ApplyForce();
+            UpdateAnimation();
         }
 
         private void UpdatePower()
