@@ -15,7 +15,7 @@ using VRage.Utils;
 using VRageMath;
 using static NavalPowerSystems.Config;
 
-namespace NavalPowerSystems.DieselEngines
+namespace NavalPowerSystems.Drivetrain
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_OxygenTank), false,
             "NPSDieselTurbine2MW",
