@@ -100,10 +100,14 @@ namespace NavalPowerSystems
         private static readonly string[] AllowedDriveshaftConnections =
         {
             "NPSDrivetrainDriveshaft",
-            "NPSDrivetrainProp33",
 
             "NPSDrivetrainShaftTubeEndVertical",
             "NPSDriveshaftTube",
+        };
+
+        private static readonly string[] AllowedPropellerConnections =
+        {
+            "NPSDrivetrainProp33",
         };
     }
 }
