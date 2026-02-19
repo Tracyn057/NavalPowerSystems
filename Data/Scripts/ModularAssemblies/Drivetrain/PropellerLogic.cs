@@ -1,8 +1,4 @@
-﻿using Jakaria.API;
-using NavalPowerSystems.Common;
-using Sandbox.Game;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Blocks;
+﻿using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
 using System.Text;
@@ -20,7 +16,7 @@ namespace NavalPowerSystems.Drivetrain
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TerminalBlock), false,
             "NPSDrivetrainProp33"
     )]
-    internal class PropellerLogic : MyGameLogicComponent
+    public class PropellerLogic : MyGameLogicComponent
     {
         private IMyTerminalBlock _propeller;
         private IMyCubeBlock _myPropeller;
@@ -52,7 +48,7 @@ namespace NavalPowerSystems.Drivetrain
             Entity.TryGetSubpart("Propeller", out _propellerSubpart);
             if (_propellerSubpart != null)
             {
-                _initialLocalMatrix = _propellerSubpart.PositionComp.LocalMatrix;
+                _initialLocalMatrix = _propellerSubpart.PositionComp.LocalMatrixRef;
             }
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;

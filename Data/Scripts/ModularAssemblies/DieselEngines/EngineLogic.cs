@@ -34,7 +34,7 @@ namespace NavalPowerSystems.DieselEngines
         private EngineStats _engineStats;
         private EfficiencyPoint[] _engineEfficiency;
         private string _status = "Idle";
-
+        public bool _isEngaged { get; set; } = true;
         private float _requestedMS = 0f;
         private float _inertia = 0f;
         public float _requestedThrottle { get; private set; }
@@ -115,7 +115,7 @@ namespace NavalPowerSystems.DieselEngines
         {
             _engine.Stockpile = true;
 
-            if (_engineStats.Type == EngineType.Turbine)
+            if (_engineStats.Type == EngineType.GasTurbine)
             {
                 _engineEfficiency = TurbineEngineConfigs.TurbineFuelTable;
             }
@@ -156,7 +156,7 @@ namespace NavalPowerSystems.DieselEngines
         {
             float spoolStep = 1f / (_engineStats.SpoolTime * 6f);
 
-            if (_engineStats.Type == EngineType.Turbine && _inertia > 0.8f)
+            if (_engineStats.Type == EngineType.GasTurbine && _inertia > 0.8f)
                 spoolStep *= 1f;
             else if (_engineStats.Type == EngineType.Diesel && _inertia > 0.65f)
                 spoolStep *= 1f;
@@ -168,7 +168,7 @@ namespace NavalPowerSystems.DieselEngines
 
             float cubicFactor;
 
-            if (_engineStats.Type == EngineType.Turbine)
+            if (_engineStats.Type == EngineType.GasTurbine)
                 cubicFactor = (float)Math.Pow(_inertia, 4.5f);
             else
 
@@ -207,7 +207,10 @@ namespace NavalPowerSystems.DieselEngines
 
         private void UpdatePower()
         {
-            _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
+            if (_isEngaged)
+                _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
+            else
+                _currentOutputMW = 0f;
         }
 
         #endregion
