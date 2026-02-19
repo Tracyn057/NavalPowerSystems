@@ -21,6 +21,7 @@ namespace NavalPowerSystems.Drivetrain
         public readonly int AssemblyId;
         public readonly IMyCubeGrid Grid;
         private bool TraceComplete = false;
+        private bool IsLeader = false;
         public List<IMyFunctionalBlock> Gearboxes = new List<IMyFunctionalBlock>();
         public List<IMyFunctionalBlock> Inputs = new List<IMyFunctionalBlock>();
         public List<IMyFunctionalBlock> Outputs = new List<IMyFunctionalBlock>();
@@ -82,10 +83,25 @@ namespace NavalPowerSystems.Drivetrain
             if (!TraceComplete)
             {
                 RebuildDrivetrain();
+                UpdateGridLeader();
                 TraceComplete = true;
             }
 
-            UpdateDrag();
+            if (IsLeader)
+            {
+                ApplyDrag();
+            }
+            else
+             {
+                UpdateGridLeader();
+             }
+        }
+
+        public void UpdateTick10()
+        {
+            UpdateClutches();
+            UpdateInput();
+            UpdateOutput();
         }
 
         private void RebuildDrivetrain()
@@ -221,27 +237,39 @@ namespace NavalPowerSystems.Drivetrain
             }
         }
 
-        private void UpdateDrag()
+        private void UpdateGridLeader()
         {
             if (Grid == null || Grid.Physics == null) return;
 
             long gridId = Grid.EntityId;
 
+            //Claim leadership if the slot is empty
             if (!GridDragLeaders.ContainsKey(gridId))
             {
                 GridDragLeaders[gridId] = this.AssemblyId;
             }
 
-            if (GridDragLeaders[gridId] != this.AssemblyId)
+            //Check if we are the designated leader
+            if (GridDragLeaders[gridId] == this.AssemblyId)
             {
-                GridDragLeaders[gridId] = this.AssemblyId;
+                IsLeader = true;
             }
             else
             {
-                return;
-            }
+                // Check if the current leader is still valid. 
+                var leaderGrid = ModularApi.GetAssemblyGrid(GridDragLeaders[gridId]);
 
-            ApplyDrag();
+                if (leaderGrid == null || leaderGrid.Closed)
+                {
+                    // The old leader is gone
+                    GridDragLeaders[gridId] = this.AssemblyId;
+                    IsLeader = true;
+                }
+                else
+                {
+                    IsLeader = false;
+                }
+            }
         }
 
         private void ApplyDrag()

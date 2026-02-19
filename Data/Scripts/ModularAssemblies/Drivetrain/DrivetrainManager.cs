@@ -35,9 +35,7 @@ namespace NavalPowerSystems.Drivetrain
             {
                 foreach (var driveSystem in DrivetrainSystems.Values)
                 {
-                    driveSystem.UpdateClutches();
-                    driveSystem.UpdateInput();
-                    driveSystem.UpdateOutput();
+                    driveSystem.UpdateTick10();
                 }
             }
 

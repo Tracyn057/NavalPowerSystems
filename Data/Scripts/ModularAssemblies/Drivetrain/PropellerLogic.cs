@@ -78,7 +78,7 @@ namespace NavalPowerSystems.Drivetrain
 
         private void UpdatePower()
         {
-            if (Math.Abs(_inputMW) < 0.001f) 
+            if (Math.Abs(_inputMW) < 0.01f) 
             { 
                 _outputMW = 0f;
                 return; 
