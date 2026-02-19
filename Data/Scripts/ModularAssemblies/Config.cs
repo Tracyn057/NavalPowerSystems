@@ -54,7 +54,7 @@ namespace NavalPowerSystems
 
         public static string[] GearboxSubtypes = new string[]
         {
-            "NPSDrivetrainGearbox"
+            "NPSDrivetrainMRG"
         };
 
 
@@ -77,15 +77,15 @@ namespace NavalPowerSystems
         public static readonly Dictionary<string, EngineStats> EngineSettings = new Dictionary<string, EngineStats>
         {
             //Gas Turbines
-            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 2, RequiredReduction = 2.0, FuelRate = 19.5f, SpoolTime = 28 } },
-            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 5, RequiredReduction = 2.0, FuelRate = 48.75f, SpoolTime = 32 } },
-            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 12, RequiredReduction = 2.0, FuelRate = 117.0f, SpoolTime = 36 } },
-            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 25, RequiredReduction = 2.0, FuelRate = 243.75f, SpoolTime = 40 } },
-            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 40, RequiredReduction = 2.0, FuelRate = 390.0f, SpoolTime = 44 } },
+            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 2, RequiredReduction = 2, FuelRate = 19.5f, SpoolTime = 28 } },
+            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 5, RequiredReduction = 2, FuelRate = 48.75f, SpoolTime = 32 } },
+            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 12, RequiredReduction = 2, FuelRate = 117.0f, SpoolTime = 36 } },
+            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 25, RequiredReduction = 2, FuelRate = 243.75f, SpoolTime = 40 } },
+            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 40, RequiredReduction = 2, FuelRate = 390.0f, SpoolTime = 44 } },
             //Internal Combustion Diesel
-            {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, RequiredReduction = 1.0, FuelRate = 3.75f, SpoolTime = 4f } },
-            {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, RequiredReduction = 1.0, FuelRate = 11.25f, SpoolTime = 6f } },
-            {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, RequiredReduction = 1.0, FuelRate = 18.75f, SpoolTime = 8f } },
+            {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, RequiredReduction = 1, FuelRate = 3.75f, SpoolTime = 4f } },
+            {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, RequiredReduction = 1, FuelRate = 11.25f, SpoolTime = 6f } },
+            {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, RequiredReduction = 1, FuelRate = 18.75f, SpoolTime = 8f } },
         };
 
         public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
@@ -95,7 +95,7 @@ namespace NavalPowerSystems
 
         public static readonly Dictionary<string, GearboxStats> GearboxSettings = new Dictionary<string, GearboxStats>
         {
-            {"NPSDrivetrainGearbox", new GearboxStats { ReductionLevel = 2, IsClutched = true } },
+            {"NPSDrivetrainMRG", new GearboxStats { ReductionLevel = 2, IsClutched = true } },
         };
     }
 
