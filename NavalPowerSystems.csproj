@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Data\Scripts\ModularAssemblies\Drivetrain\EngineLogic.cs.obsolete" />
     <Compile Include="Data\Scripts\ModularAssemblies\Drivetrain\GearboxLogic.cs.obsolete" />
   </ItemGroup>
 

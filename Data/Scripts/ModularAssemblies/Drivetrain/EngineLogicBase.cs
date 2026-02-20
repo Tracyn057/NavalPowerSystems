@@ -17,7 +17,7 @@ using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems.Drivetrain
 {
-    public class NavalEngineLogicBase : MyGameLogicComponent, IMyEventProxy
+    public abstract class NavalEngineLogicBase : MyGameLogicComponent, IMyEventProxy
     {
         protected IMyTerminalBlock _engineBlock;
         protected EngineStats _engineStats;
@@ -32,8 +32,8 @@ namespace NavalPowerSystems.Drivetrain
             base.Init(objectBuilder);
             _engineBlock = (IMyTerminalBlock)Entity;
             _engineStats = Config.EngineSettings[_engineBlock.BlockDefinition.SubtypeName];
-            RequestedThrottleSync = new MySync<float, SyncDirection.BothWays>(OnRequestedThrottleChanged);
-            SelectedThrottleIndexSync = new MySync<int, SyncDirection.BothWays>(OnSelectedThrottleIndexChanged);
+            RequestedThrottleSync.ValueChanged += obj => OnRequestedThrottleChanged(obj.Value);
+            SelectedThrottleIndexSync.ValueChanged += obj => OnSelectedThrottleIndexChanged(obj.Value);
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;

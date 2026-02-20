@@ -41,7 +41,7 @@ namespace NavalPowerSystems.Drivetrain
 
         #endregion
 
-        public override void SetupEngineReferences()
+        protected override void SetupEngineReferences()
         {
             _engine = (IMyGasTank)_engineBlock;
             if (_engine == null) return;
@@ -50,7 +50,7 @@ namespace NavalPowerSystems.Drivetrain
 
         #region Updates
 
-        public override void EngineInit()
+        protected override void EngineInit()
         {
 
             _engine.Stockpile = true;
@@ -96,7 +96,7 @@ namespace NavalPowerSystems.Drivetrain
             base.OnRequestedThrottleChanged(value);
         }
 
-        public override void EngineUpdate10()
+        protected override void EngineUpdate10()
         {
             UpdateThrottle();
             UpdateFuel();
@@ -275,7 +275,7 @@ namespace NavalPowerSystems.Drivetrain
                     var logic = block.GameLogic.GetAs<CombustionEngineLogic>();
                     if(logic != null)
                     {
-                        sb.Append(Math.Round(logic._requestedThrottle * 100)).Append("%");
+                        sb.Append(Math.Round(logic.RequestedThrottleSync.Value * 100)).Append("%");
                     }
                 };
                 throttleSlider.Visible = (block) =>

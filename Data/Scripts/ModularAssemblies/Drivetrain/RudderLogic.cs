@@ -1,4 +1,5 @@
 ﻿using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Utils;
 using VRageMath;
 
 namespace NavalPowerSystems.Drivetrain
@@ -22,12 +24,13 @@ namespace NavalPowerSystems.Drivetrain
     {
         private IMyTerminalBlock _rudder;
         private IMyCubeBlock _myRudder;
+        private MyCubeGrid _rudderGrid;
         private MyEntitySubpart _rudderSubpart;
-        private GearboxLogic _gearboxLogic;
         private Matrix _initialLocalMatrix;
 
         private bool _isAutoCenter = true;
 
+        private float _gridMass = 1.0f;
         private float _maxAngle = 35f;
         private float _degreeSpeed = 0.15f;
         private float _currentAngle = 0f;
@@ -35,12 +38,15 @@ namespace NavalPowerSystems.Drivetrain
         private float _distToCamera = 0f;
         private float _targetAngle = 0f;
         private float _currentThrottle = 0f;
+        private bool _enginesCached = false;
+        private List<NavalEngineLogicBase> _cachedEngines = new List<NavalEngineLogicBase>();
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
             _rudder = (IMyTerminalBlock)Entity;
             _myRudder = (MyCubeBlock)Entity;
+            _rudderGrid = (MyCubeGrid)Entity.Parent;
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
@@ -48,73 +54,135 @@ namespace NavalPowerSystems.Drivetrain
         {
             _rudder.AppendingCustomInfo += AppendCustomInfo;
 
+            _enginesCached = false;
+            _rudderGrid.OnBlockAdded += MarkForEngineSearch;
+            _rudderGrid.OnBlockRemoved += MarkForEngineSearch;
+
             Entity.TryGetSubpart("Rudder", out _rudderSubpart);
             if (_rudderSubpart != null)
             {
-                _initialLocalMatrix = _rudderSubpart.PositionComp.LocalMatrix;
+                _initialLocalMatrix = _rudderSubpart.PositionComp.LocalMatrixRef;
             }
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public override void UpdateBeforeSimulation10()
         {
+            if (!_enginesCached)
+            {
+                CacheEngines();
+                _enginesCached = true;
+            }
+            GetThrottle();
             _rudder.RefreshCustomInfo();
         }
 
         public override void UpdateBeforeSimulation()
         {
-            if (_targetAngle > 0f)
+            GetAngle();
+            ApplyForce();
+            if (_distToCamera <= 1000)
             {
-                GetAngle();
-                ApplyForce();
+                RudderAnimation();
             }
-            
+        }
+
+        public override void UpdateAfterSimulation100()
+        {
+            UpdateDistanceToCamera();
+            _gridMass = _rudderGrid.GetCurrentMass() / 1000000f;
+        }
+
+        private void MarkForEngineSearch(IMySlimBlock block)
+        {
+            _enginesCached = false;
         }
 
         private void GetAngle()
         {
-            var controller = MyAPIGateway.CubeGrid.ControlSystem.RelativeControl as IMyShipController;
-            if (controller == null) return 0f;
+            var controller = MyAPIGateway.Players.GetPlayerControllingEntity(_myRudder.CubeGrid);
+            IMyShipController shipController = controller?.Controller?.ControlledEntity as IMyShipController;
 
-            return controller.MoveIndicator.X;
+            float angle = 0f;
+            if (shipController != null)
+            {
+                angle = shipController.MoveIndicator.X;
+            }
+            
+            if (angle != 0f)
+            {
+                _targetAngle += angle * _degreeSpeed;
+            }
+            else if (_isAutoCenter)
+            {
+                _targetAngle = MathHelper.Lerp(_targetAngle, 0f, _degreeSpeed);
+            }
+
+            _targetAngle = MathHelper.Clamp(_targetAngle, -_maxAngle, _maxAngle);
+
+            _currentAngle = MathHelper.Lerp(_currentAngle, _targetAngle, _degreeSpeed);
         }
 
-        private void GetThrottle()
+        private void CacheEngines()
         {
-            if (_gearboxLogic != null)
+            _cachedEngines.Clear();
+            var grid = _rudderGrid as IMyCubeGrid;
+            if (_rudderGrid == null) return;
+
+            List<IMySlimBlock> blocks = new List<IMySlimBlock>();
+            grid.GetBlocks(blocks);
+
+            foreach ( var block in blocks)
             {
-                _currentThrottle = _gearboxLogic.urrentThrottle;
-            }
-            else
-            {
-                var controller = MyAPIGateway.CubeGrid.ControlSystem.RelativeControl as IMyShipController;
-                if (controller != null)
+                if (block.FatBlock == null) continue;
+
+                var logic = block.FatBlock.GameLogic.GetAs<NavalEngineLogicBase>();
+                if (logic != null)
                 {
-                    _currentThrottle = controller.MoveIndicator.Z;
+                    _cachedEngines.Add(logic);
                 }
             }
         }
 
+        private void GetThrottle()
+        {
+            if (_cachedEngines.Count == 0)
+            {
+                _currentThrottle = 0f;
+                return;
+            }
+
+            float throttle = 0f;
+            foreach (var engine in _cachedEngines)
+            {
+                if (engine._currentThrottle > throttle)
+                    throttle = engine._currentThrottle;
+            }
+
+            _currentThrottle = throttle;
+        }
+
         private void ApplyForce()
         {
-            var grid = _myRudder.CubeGrid as MyCubeGrid;
-
-            if (grid.IsPreview || grid.Physics == null || !grid.Physics.Enabled || grid.Physics.IsStatic)
+            if (_rudderGrid.IsPreview || _rudderGrid.Physics == null || !_rudderGrid.Physics.Enabled || _rudderGrid.Physics.IsStatic)
                 return;
 
-            Vector3D velocity = grid.Physics.LinearVelocity;
+            Vector3D velocity = _rudderGrid.Physics.LinearVelocity;
             double speed = velocity.Length();
-            float finalThrust = 0f;
+            double propWash = _currentThrottle * 15.0;
+            double effectiveSpeed = speed + propWash;
+            float finalThrust = (_gridMass * (float)effectiveSpeed * _degreeSpeed) * (float)Math.Sin(MathHelper.ToRadians(_currentAngle));
 
-            finalThrust *= 1000000f; // Convert MN to N for physics application
+            float finalThrustN = finalThrust * 1000000f; // Convert MN to N for physics application
 
-            if (finalThrust > 100)
+            if (Math.Abs(finalThrustN) > 100)
             {
-                Vector3D thrustVector = _myRudder.WorldMatrix.Right * (float)finalThrust;
+                Vector3D thrustVector = _myRudder.WorldMatrix.Right * (float)finalThrustN;
                 var BlockPos = _myRudder.PositionComp.GetPosition();
-                grid.Physics.AddForce(
+                _rudderGrid.Physics.AddForce(
                     MyPhysicsForceType.APPLY_WORLD_FORCE,
                     thrustVector,
                     BlockPos,
@@ -159,6 +227,12 @@ namespace NavalPowerSystems.Drivetrain
 
         public override void OnRemovedFromScene()
         {
+            base.OnRemovedFromScene();
+            if (_rudderGrid != null )
+            {
+                _rudderGrid.OnBlockAdded -= MarkForEngineSearch;
+                _rudderGrid.OnBlockRemoved -= MarkForEngineSearch;
+            }
             if (_rudder != null) _rudder.AppendingCustomInfo -= AppendCustomInfo;
         }
 

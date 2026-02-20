@@ -1,6 +1,5 @@
 ﻿using EmptyKeys.UserInterface;
 using NavalPowerSystems.Communication;
-using NavalPowerSystems.DieselEngines;
 using ProtoBuf.Meta;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
