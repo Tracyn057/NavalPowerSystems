@@ -5,7 +5,7 @@ namespace NavalPowerSystems.Production
 {
     internal class ProductionManager
     {
-        public static ProductionManager Instance { get; private set; } = null;
+        public static ProductionManager Instance = new ProductionManager();
 
         public ModularDefinition ProductionDefinition;
         

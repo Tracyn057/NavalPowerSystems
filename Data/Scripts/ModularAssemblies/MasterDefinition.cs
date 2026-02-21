@@ -9,9 +9,9 @@
 
             LoadDefinitions
                 (
-                    DrivetrainDefinition,
                     ProductionDefinition,
-                    ExtractionDefinition
+                    ExtractionDefinition,
+                    DrivetrainDefinition
                 );
         }
     }
