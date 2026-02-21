@@ -3,16 +3,10 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using VRage.Game.Components;
-using VRage.Game.ModAPI.Network;
 using VRage.ModAPI;
-using VRage.Network;
-using VRage.ObjectBuilders;
-using VRage.Sync;
 using VRage.Utils;
-using VRageMath;
 using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems.Drivetrain
@@ -43,9 +37,9 @@ namespace NavalPowerSystems.Drivetrain
 
         protected override void SetupEngineReferences()
         {
-            _engine = (IMyGasTank)_engineBlock;
+            _engine = _engineBlock as IMyGasTank;
             if (_engine == null) return;
-            _engineStats = Config.EngineSettings[_engine.BlockDefinition.SubtypeName];
+            _engineStats = Config.EngineSettings[_engine.BlockDefinition.SubtypeId];
         }
 
         #region Updates
@@ -318,7 +312,7 @@ namespace NavalPowerSystems.Drivetrain
                             sb.Append(throttleNames[val]);
                     }
                 };
-                throttleActions.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeName);
+                throttleActions.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId);
 
                 MyAPIGateway.TerminalControls.AddAction<IMyGasTank>(throttleActions);
             }
@@ -335,7 +329,7 @@ namespace NavalPowerSystems.Drivetrain
                         logic.RequestedThrottleSync.Value = Math.Min(logic.RequestedThrottleSync.Value + 0.05f, 1.25f);
                     }
                 };
-                increaseThrottle.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeName);
+                increaseThrottle.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId);
                 increaseThrottle.Writer = (b, sb) => sb.Append($"{(b?.GameLogic?.GetAs<CombustionEngineLogic>()?.RequestedThrottleSync.Value ?? 0) * 100:F0}%");
 
                 MyAPIGateway.TerminalControls.AddAction<IMyGasTank>(increaseThrottle);
@@ -353,7 +347,7 @@ namespace NavalPowerSystems.Drivetrain
                         logic.RequestedThrottleSync.Value = Math.Max(logic.RequestedThrottleSync.Value - 0.05f, 0f);
                     }
                 };
-                decreaseThrottle.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeName);
+                decreaseThrottle.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId);
                 decreaseThrottle.Writer = (b, sb) => sb.Append($"{(b?.GameLogic?.GetAs<CombustionEngineLogic>()?.RequestedThrottleSync.Value ?? 0) * 100:F0}%");
 
                 MyAPIGateway.TerminalControls.AddAction<IMyGasTank>(decreaseThrottle);

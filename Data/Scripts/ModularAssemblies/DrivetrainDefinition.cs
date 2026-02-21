@@ -65,36 +65,36 @@ namespace NavalPowerSystems
             // If the connection type whitelist is empty, all allowed subtypes may connect on that side.
             AllowedConnections = new Dictionary<string, Dictionary<Vector3I, string[]>>
             {
-                //Driveshafts
-                {
-                    "NPSDrivetrainDriveshaft", new Dictionary<Vector3I, string[]>
-                    {
-                        [Vector3I.Forward] = AllowedDriveshaftConnections,
-                        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                    }
-                },
-                {
-                    "NPSDrivetrainShaftTubeEndVertical", new Dictionary<Vector3I, string[]>
-                    {
-                        [Vector3I.Forward] = AllowedPropellerConnections,
-                        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                    }
-                },
-                {
-                    "NPSDriveshaftTube", new Dictionary<Vector3I, string[]>
-                    {
-                        [Vector3I.Forward] = AllowedDriveshaftConnections,
-                        [Vector3I.Forward] = AllowedPropellerConnections,
-                        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                    }
-                },
-                //Propellers
-                {
-                    "NPSDrivetrainProp33", new Dictionary<Vector3I, string[]>
-                    {
-                        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                    }
-                },
+                ////Driveshafts
+                //{
+                //    "NPSDrivetrainDriveshaft", new Dictionary<Vector3I, string[]>
+                //    {
+                //        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                //    }
+                //},
+                //{
+                //    "NPSDrivetrainShaftTubeEndVertical", new Dictionary<Vector3I, string[]>
+                //    {
+                //        [Vector3I.Forward] = AllowedPropellerConnections,
+                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                //    }
+                //},
+                //{
+                //    "NPSDriveshaftTube", new Dictionary<Vector3I, string[]>
+                //    {
+                //        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                //        [Vector3I.Forward] = AllowedPropellerConnections,
+                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                //    }
+                //},
+                ////Propellers
+                //{
+                //    "NPSDrivetrainProp33", new Dictionary<Vector3I, string[]>
+                //    {
+                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                //    }
+                //},
             },
         };
 

@@ -1,6 +1,5 @@
 ﻿using NavalPowerSystems.Communication;
 using Sandbox.ModAPI;
-using SixLabors.ImageSharp.Formats;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +75,7 @@ namespace NavalPowerSystems.Drivetrain
             {
                 drivetrain = new DrivetrainSystem(assemblyId);
                 Instance.DrivetrainSystems.Add(assemblyId, drivetrain);
-                ModularApi.Log($"DrivetrainManager created new assembly {assemblyId}");
+                //ModularApi.Log($"DrivetrainManager created new assembly {assemblyId}");
             }
 
             drivetrain.AddPart(block);

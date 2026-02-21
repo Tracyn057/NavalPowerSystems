@@ -29,7 +29,7 @@ namespace NavalPowerSystems
         public const int scanSize = 100;                //Grid size for the LCD scan component
 
         //Viable component lists
-        public static string[] EngineSubtypes = new string[]
+        public static readonly HashSet<string> EngineSubtypes = new HashSet<string>
         {
             "NPSDieselTurbine2MW",
             "NPSDieselTurbine5MW",
@@ -41,18 +41,18 @@ namespace NavalPowerSystems
             "NPSDieselEngine25MW"
         };
 
-        public static readonly string[] PropellerSubtypes = new string[]
+        public static readonly HashSet<string> PropellerSubtypes = new HashSet<string>
         {
             "NPSDrivetrainProp33",
         };
 
-        public static string[] DriveshaftSubtypes = new string[]
+        public static readonly HashSet<string> DriveshaftSubtypes = new HashSet<string>
         {
             "NPSDrivetrainDriveshaft",
             "NPSDrivetrainShaftTubeEndVertical"
         };
 
-        public static string[] GearboxSubtypes = new string[]
+        public static readonly HashSet<string> GearboxSubtypes = new HashSet<string>
         {
             "NPSDrivetrainMRG"
         };

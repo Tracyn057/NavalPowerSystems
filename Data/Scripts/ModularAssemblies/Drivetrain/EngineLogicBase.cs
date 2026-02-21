@@ -10,7 +10,7 @@ namespace NavalPowerSystems.Drivetrain
 {
     public abstract class NavalEngineLogicBase : MyGameLogicComponent, IMyEventProxy
     {
-        protected IMyTerminalBlock _engineBlock;
+        protected IMyFunctionalBlock _engineBlock;
         protected EngineStats _engineStats;
         public MySync<float, SyncDirection.BothWays> RequestedThrottleSync;
         public MySync<int, SyncDirection.BothWays> SelectedThrottleIndexSync;
@@ -21,7 +21,7 @@ namespace NavalPowerSystems.Drivetrain
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
-            _engineBlock = (IMyTerminalBlock)Entity;
+            _engineBlock = (IMyFunctionalBlock)Entity;
             _engineStats = Config.EngineSettings[_engineBlock.BlockDefinition.SubtypeName];
             if (RequestedThrottleSync != null)
                 RequestedThrottleSync.ValueChanged += obj => OnRequestedThrottleChanged(obj.Value);

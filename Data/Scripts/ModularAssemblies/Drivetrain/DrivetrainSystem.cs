@@ -20,7 +20,7 @@ namespace NavalPowerSystems.Drivetrain
         private bool TraceComplete = false;
         private bool IsLeader = false;
         public List<IMyFunctionalBlock> Gearboxes = new List<IMyFunctionalBlock>();
-        public List<IMyFunctionalBlock> Inputs = new List<IMyFunctionalBlock>();
+        public List<IMyGasTank> Inputs = new List<IMyGasTank>();
         public List<IMyFunctionalBlock> Outputs = new List<IMyFunctionalBlock>();
         public List<IMySlimBlock> Driveshafts = new List<IMySlimBlock>();
         private List<DrivetrainCircuit> DrivetrainMap = new List<DrivetrainCircuit>();
@@ -41,37 +41,63 @@ namespace NavalPowerSystems.Drivetrain
 
         public void AddPart(IMyCubeBlock block)
         {
-            if (block == null) return;
+            if (block == null || AssemblyId == -1) return;
 
-            string subtype = block.BlockDefinition.SubtypeName;
+            string subtype = block.BlockDefinition.SubtypeId;
+            ModularApi.Log($"Adding part {subtype} to {AssemblyId}");
             var part = block as IMyFunctionalBlock;
-            if (part != null) return;
 
             if (Config.GearboxSubtypes.Contains(subtype))
+            {
                 Gearboxes.Add(part);
+                ModularApi.Log($"{AssemblyId} now contains {Gearboxes.Count} Gearboxes.");
+            }
             else if (Config.PropellerSubtypes.Contains(subtype))
+            {
                 Outputs.Add(part);
-            else if (Config.EngineSubtypes.Contains(subtype))
-                Inputs.Add(part);
+                ModularApi.Log($"{AssemblyId} now contains {Outputs.Count} Power Consumers.");
+            }
+            else if (block is IMyGasTank)
+            {
+                Inputs.Add(block as IMyGasTank);
+                ModularApi.Log($"{AssemblyId} now contains {Inputs.Count} Power Producers.");
+            }
             else if (Config.DriveshaftSubtypes.Contains(subtype))
+            {
                 Driveshafts.Add(block.SlimBlock);
+                ModularApi.Log($"{AssemblyId} now contains {Driveshafts.Count} Driveshafts.");
+            }
 
             TraceComplete = false;
         }
 
         public void RemovePart(IMyCubeBlock block)
         {
-            string subtype = block.BlockDefinition.SubtypeName;
+            if (block == null || AssemblyId == -1) return;
+            string subtype = block.BlockDefinition.SubtypeId;
+            ModularApi.Log($"Removing part {subtype} from {AssemblyId}");
             var part = block as IMyFunctionalBlock;
 
             if (Config.GearboxSubtypes.Contains(subtype))
+            {
                 Gearboxes.Remove(part);
+                ModularApi.Log($"{AssemblyId} now contains {Driveshafts.Count} Driveshafts.");
+            }
             else if (Config.PropellerSubtypes.Contains(subtype))
-                Outputs.Remove(part) ;
+            {
+                Outputs.Remove(part);
+                ModularApi.Log($"{AssemblyId} now contains {Driveshafts.Count} Driveshafts.");
+            }
             else if (Config.EngineSubtypes.Contains(subtype))
-                Inputs.Remove(part);
+            {
+                Inputs.Remove(block as IMyGasTank);
+                ModularApi.Log($"{AssemblyId} now contains {Driveshafts.Count} Driveshafts.");
+            }
             else if (Config.DriveshaftSubtypes.Contains(subtype))
+            {
                 Driveshafts.Remove(block.SlimBlock);
+                ModularApi.Log($"{AssemblyId} now contains {Driveshafts.Count} Driveshafts.");
+            }
 
             TraceComplete = false;
         }
@@ -133,7 +159,7 @@ namespace NavalPowerSystems.Drivetrain
                 if (visited.Contains(currentBlock)) continue;
                 visited.Add(currentBlock);
 
-                string subtype = currentBlock.BlockDefinition.SubtypeName;
+                string subtype = currentBlock.BlockDefinition.SubtypeId;
 
                 if (Config.GearboxSubtypes.Contains(subtype))
                 {
@@ -157,11 +183,11 @@ namespace NavalPowerSystems.Drivetrain
                     }
                 }
             }
+            ModularApi.Log($"{DrivetrainMap.Count} drivetrain systems found.");
         }
 
         public void UpdateClutches()
         {
-            MyAPIGateway.Utilities.ShowNotification($"{Inputs.Count} engines in assembly {AssemblyId}", 2000);
             if (Inputs.Count == 0) return;
 
             float highThrottle = 0f;
@@ -190,7 +216,7 @@ namespace NavalPowerSystems.Drivetrain
 
                 if (!logic._isEngaged)
                 {
-                    if (highThrottle < 0.1f || logic._currentThrottle >= (highThrottle - 0.04f))
+                    if (logic._currentThrottle >= (highThrottle - 0.04f))
                     {
                         logic._isEngaged = true;
                     }
@@ -202,8 +228,6 @@ namespace NavalPowerSystems.Drivetrain
                         logic._isEngaged = false;
                     }
                 }
-
-                MyAPIGateway.Utilities.ShowNotification($"{logic.Entity.EntityId} {logic.Entity.Name} clutch is {logic._isEngaged}", 2000);
             }
         }
 
@@ -233,7 +257,7 @@ namespace NavalPowerSystems.Drivetrain
         public void UpdateOutput()
         {
             Outputs.RemoveAll(x => x == null || x.Closed || x.MarkedForClose);
-
+            MyAPIGateway.Utilities.ShowNotification($"Assembly {AssemblyId} update output for {Outputs.Count} propellers.");
             if (Outputs.Count == 0) return;
             float perPropMW = TotalInputMW / Outputs.Count;
 
@@ -348,7 +372,7 @@ namespace NavalPowerSystems.Drivetrain
             PathReduction = reduction;
             HasClutch = hasClutch;
 
-            string subtype = engine.BlockDefinition.SubtypeName;
+            string subtype = engine.BlockDefinition.SubtypeId;
             var stats = Config.EngineSettings[subtype];
             var type = stats.Type;
 

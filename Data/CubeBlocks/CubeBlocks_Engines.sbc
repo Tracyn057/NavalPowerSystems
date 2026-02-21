@@ -236,13 +236,13 @@
             </Id>
             <DisplayName>Marine Gas Turbine, 2MW</DisplayName>
             <Description>Description_PowerGenerator</Description>
-            <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
+            <Icon>Textures\GUI\Icons\Cubes\NPSDieselTurbineLarge.dds</Icon>
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
             <Size x="2" y="2" z="4" />
             <ModelOffset x="0" y="0" z="0" />
-            <Model>Models\Cubes\Large\Prototech_Refinery.mwm</Model>
+            <Model>Models\Cubes\Large\NPSDieselTurbineLarge.mwm</Model>
             <Components>
                 <Component Subtype="SteelPlate" Count="1100" />
                 <Component Subtype="Construction" Count="40" />
@@ -253,31 +253,15 @@
                 <Component Subtype="SteelPlate" Count="100" />
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
-            <MountPoints>
-                <MountPoint Side="Back" StartX="0" StartY="0.1" EndX="0.1" EndY="1" />
-                <MountPoint Side="Back" StartX="0.1" StartY="0" EndX="1" EndY="0.1" />
-                <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" />
-                <MountPoint Side="Back" StartX="1.9" StartY="1" EndX="2" EndY="1.9" />
-                <MountPoint Side="Back" StartX="1" StartY="1.9" EndX="1.9" EndY="2" />
-                <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="2" />
-                <MountPoint Side="Front" StartX="1" StartY="0" EndX="2" EndY="1.5" />
-                <MountPoint Side="Front" StartX="1" StartY="1.5" EndX="1.5" EndY="2" />
-                <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1.8" EndY="2" />
-                <MountPoint Side="Bottom" StartX="0.5" StartY="2" EndX="1.8" EndY="4" />
-                <MountPoint Side="Top" StartX="1" StartY="0" EndX="1.6" EndY="2" />
-                <MountPoint Side="Top" StartX="1.9" StartY="2" EndX="2" EndY="3.85" />
-                <MountPoint Side="Top" StartX="0.5" StartY="3.85" EndX="2" EndY="4" />
-                <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.15" EndY="1.5" />
-                <MountPoint Side="Left" StartX="0.15" StartY="0" EndX="2" EndY="0.1" />
-                <MountPoint Side="Left" StartX="2" StartY="0.4" EndX="4" EndY="1" />
-                <MountPoint Side="Right" StartX="0" StartY="0.2" EndX="2" EndY="1.5" />
-                <MountPoint Side="Right" StartX="2" StartY="0.2" EndX="4" EndY="2" />
-            </MountPoints>
-            <BuildProgressModels>
-                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\Prototech_Refinery_Construction_1.mwm" />
-                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
-                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
-            </BuildProgressModels>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDieselTurbineLarge_BS1.mwm"/>
+			</BuildProgressModels>
             <BlockPairName>DieselTurbine2mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
@@ -325,13 +309,13 @@
             </Id>
             <DisplayName>Marine Gas Turbine, 5MW</DisplayName>
             <Description>Description_PowerGenerator</Description>
-            <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
+            <Icon>Textures\GUI\Icons\Cubes\NPSDieselTurbineLarge.dds</Icon>
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
             <Size x="2" y="2" z="4" />
             <ModelOffset x="0" y="0" z="0" />
-            <Model>Models\Cubes\Large\Prototech_Refinery.mwm</Model>
+            <Model>Models\Cubes\Large\NPSDieselTurbineLarge.mwm</Model>
             <Components>
                 <Component Subtype="SteelPlate" Count="1100" />
                 <Component Subtype="Construction" Count="40" />
@@ -342,31 +326,15 @@
                 <Component Subtype="SteelPlate" Count="100" />
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
-            <MountPoints>
-                <MountPoint Side="Back" StartX="0" StartY="0.1" EndX="0.1" EndY="1" />
-                <MountPoint Side="Back" StartX="0.1" StartY="0" EndX="1" EndY="0.1" />
-                <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" />
-                <MountPoint Side="Back" StartX="1.9" StartY="1" EndX="2" EndY="1.9" />
-                <MountPoint Side="Back" StartX="1" StartY="1.9" EndX="1.9" EndY="2" />
-                <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="2" />
-                <MountPoint Side="Front" StartX="1" StartY="0" EndX="2" EndY="1.5" />
-                <MountPoint Side="Front" StartX="1" StartY="1.5" EndX="1.5" EndY="2" />
-                <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1.8" EndY="2" />
-                <MountPoint Side="Bottom" StartX="0.5" StartY="2" EndX="1.8" EndY="4" />
-                <MountPoint Side="Top" StartX="1" StartY="0" EndX="1.6" EndY="2" />
-                <MountPoint Side="Top" StartX="1.9" StartY="2" EndX="2" EndY="3.85" />
-                <MountPoint Side="Top" StartX="0.5" StartY="3.85" EndX="2" EndY="4" />
-                <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.15" EndY="1.5" />
-                <MountPoint Side="Left" StartX="0.15" StartY="0" EndX="2" EndY="0.1" />
-                <MountPoint Side="Left" StartX="2" StartY="0.4" EndX="4" EndY="1" />
-                <MountPoint Side="Right" StartX="0" StartY="0.2" EndX="2" EndY="1.5" />
-                <MountPoint Side="Right" StartX="2" StartY="0.2" EndX="4" EndY="2" />
-            </MountPoints>
-            <BuildProgressModels>
-                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\Prototech_Refinery_Construction_1.mwm" />
-                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
-                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
-            </BuildProgressModels>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDieselTurbineLarge_BS1.mwm"/>
+			</BuildProgressModels>
             <BlockPairName>DieselTurbine5mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
@@ -414,13 +382,13 @@
             </Id>
             <DisplayName>Marine Gas Turbine, 12MW</DisplayName>
             <Description>Description_PowerGenerator</Description>
-            <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
+            <Icon>Textures\GUI\Icons\Cubes\NPSDieselTurbineLarge.dds</Icon>
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
             <Size x="1" y="3" z="1" />
             <ModelOffset x="0" y="0" z="0" />
-            <Model>Models\Cubes\Large\LM2500.mwm</Model>
+            <Model>Models\Cubes\Large\NPSDieselTurbineLarge.mwm</Model>
             <Components>
                 <Component Subtype="SteelPlate" Count="1100" />
                 <Component Subtype="Construction" Count="40" />
@@ -431,31 +399,15 @@
                 <Component Subtype="SteelPlate" Count="100" />
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
-            <!--<MountPoints>
-                <MountPoint Side="Back" StartX="0" StartY="0.1" EndX="0.1" EndY="1" />
-                <MountPoint Side="Back" StartX="0.1" StartY="0" EndX="1" EndY="0.1" />
-                <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" />
-                <MountPoint Side="Back" StartX="1.9" StartY="1" EndX="2" EndY="1.9" />
-                <MountPoint Side="Back" StartX="1" StartY="1.9" EndX="1.9" EndY="2" />
-                <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="2" />
-                <MountPoint Side="Front" StartX="1" StartY="0" EndX="2" EndY="1.5" />
-                <MountPoint Side="Front" StartX="1" StartY="1.5" EndX="1.5" EndY="2" />
-                <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1.8" EndY="2" />
-                <MountPoint Side="Bottom" StartX="0.5" StartY="2" EndX="1.8" EndY="4" />
-                <MountPoint Side="Top" StartX="1" StartY="0" EndX="1.6" EndY="2" />
-                <MountPoint Side="Top" StartX="1.9" StartY="2" EndX="2" EndY="3.85" />
-                <MountPoint Side="Top" StartX="0.5" StartY="3.85" EndX="2" EndY="4" />
-                <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.15" EndY="1.5" />
-                <MountPoint Side="Left" StartX="0.15" StartY="0" EndX="2" EndY="0.1" />
-                <MountPoint Side="Left" StartX="2" StartY="0.4" EndX="4" EndY="1" />
-                <MountPoint Side="Right" StartX="0" StartY="0.2" EndX="2" EndY="1.5" />
-                <MountPoint Side="Right" StartX="2" StartY="0.2" EndX="4" EndY="2" />
-            </MountPoints>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
+			</MountPoints>
             <BuildProgressModels>
-                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\Prototech_Refinery_Construction_1.mwm" />
-                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
-                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
-            </BuildProgressModels>-->
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDieselTurbineLarge_BS1.mwm"/>
+			</BuildProgressModels>
             <BlockPairName>DieselTurbine12mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
@@ -503,13 +455,13 @@
             </Id>
             <DisplayName>Marine Gas Turbine, 25MW</DisplayName>
             <Description>Description_PowerGenerator</Description>
-            <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
+            <Icon>Textures\GUI\Icons\Cubes\NPSDieselTurbineLarge.dds</Icon>
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
             <Size x="2" y="2" z="4" />
             <ModelOffset x="0" y="0" z="0" />
-            <Model>Models\Cubes\Large\Prototech_Refinery.mwm</Model>
+            <Model>Models\Cubes\Large\NPSDieselTurbineLarge.mwm</Model>
             <Components>
                 <Component Subtype="SteelPlate" Count="1100" />
                 <Component Subtype="Construction" Count="40" />
@@ -520,31 +472,15 @@
                 <Component Subtype="SteelPlate" Count="100" />
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
-            <MountPoints>
-                <MountPoint Side="Back" StartX="0" StartY="0.1" EndX="0.1" EndY="1" />
-                <MountPoint Side="Back" StartX="0.1" StartY="0" EndX="1" EndY="0.1" />
-                <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" />
-                <MountPoint Side="Back" StartX="1.9" StartY="1" EndX="2" EndY="1.9" />
-                <MountPoint Side="Back" StartX="1" StartY="1.9" EndX="1.9" EndY="2" />
-                <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="2" />
-                <MountPoint Side="Front" StartX="1" StartY="0" EndX="2" EndY="1.5" />
-                <MountPoint Side="Front" StartX="1" StartY="1.5" EndX="1.5" EndY="2" />
-                <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1.8" EndY="2" />
-                <MountPoint Side="Bottom" StartX="0.5" StartY="2" EndX="1.8" EndY="4" />
-                <MountPoint Side="Top" StartX="1" StartY="0" EndX="1.6" EndY="2" />
-                <MountPoint Side="Top" StartX="1.9" StartY="2" EndX="2" EndY="3.85" />
-                <MountPoint Side="Top" StartX="0.5" StartY="3.85" EndX="2" EndY="4" />
-                <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.15" EndY="1.5" />
-                <MountPoint Side="Left" StartX="0.15" StartY="0" EndX="2" EndY="0.1" />
-                <MountPoint Side="Left" StartX="2" StartY="0.4" EndX="4" EndY="1" />
-                <MountPoint Side="Right" StartX="0" StartY="0.2" EndX="2" EndY="1.5" />
-                <MountPoint Side="Right" StartX="2" StartY="0.2" EndX="4" EndY="2" />
-            </MountPoints>
-            <BuildProgressModels>
-                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\Prototech_Refinery_Construction_1.mwm" />
-                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
-                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
-            </BuildProgressModels>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDieselTurbineLarge_BS1.mwm"/>
+			</BuildProgressModels>
             <BlockPairName>DieselTurbine25mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
@@ -592,13 +528,13 @@
             </Id>
             <DisplayName>Marine Gas Turbine, 40MW</DisplayName>
             <Description>Description_PowerGenerator</Description>
-            <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
+            <Icon>Textures\GUI\Icons\Cubes\NPSDieselTurbineLarge.dds</Icon>
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
             <Size x="2" y="2" z="4" />
             <ModelOffset x="0" y="0" z="0" />
-            <Model>Models\Cubes\Large\Prototech_Refinery.mwm</Model>
+            <Model>Models\Cubes\Large\NPSDieselTurbineLarge.mwm</Model>
             <Components>
                 <Component Subtype="SteelPlate" Count="1100" />
                 <Component Subtype="Construction" Count="40" />
@@ -609,31 +545,15 @@
                 <Component Subtype="SteelPlate" Count="100" />
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
-            <MountPoints>
-                <MountPoint Side="Back" StartX="0" StartY="0.1" EndX="0.1" EndY="1" />
-                <MountPoint Side="Back" StartX="0.1" StartY="0" EndX="1" EndY="0.1" />
-                <MountPoint Side="Back" StartX="1" StartY="0" EndX="2" EndY="1" />
-                <MountPoint Side="Back" StartX="1.9" StartY="1" EndX="2" EndY="1.9" />
-                <MountPoint Side="Back" StartX="1" StartY="1.9" EndX="1.9" EndY="2" />
-                <MountPoint Side="Front" StartX="0" StartY="0" EndX="1" EndY="2" />
-                <MountPoint Side="Front" StartX="1" StartY="0" EndX="2" EndY="1.5" />
-                <MountPoint Side="Front" StartX="1" StartY="1.5" EndX="1.5" EndY="2" />
-                <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="1.8" EndY="2" />
-                <MountPoint Side="Bottom" StartX="0.5" StartY="2" EndX="1.8" EndY="4" />
-                <MountPoint Side="Top" StartX="1" StartY="0" EndX="1.6" EndY="2" />
-                <MountPoint Side="Top" StartX="1.9" StartY="2" EndX="2" EndY="3.85" />
-                <MountPoint Side="Top" StartX="0.5" StartY="3.85" EndX="2" EndY="4" />
-                <MountPoint Side="Left" StartX="0" StartY="0" EndX="0.15" EndY="1.5" />
-                <MountPoint Side="Left" StartX="0.15" StartY="0" EndX="2" EndY="0.1" />
-                <MountPoint Side="Left" StartX="2" StartY="0.4" EndX="4" EndY="1" />
-                <MountPoint Side="Right" StartX="0" StartY="0.2" EndX="2" EndY="1.5" />
-                <MountPoint Side="Right" StartX="2" StartY="0.2" EndX="4" EndY="2" />
-            </MountPoints>
-            <BuildProgressModels>
-                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\Prototech_Refinery_Construction_1.mwm" />
-                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_Refinery_Construction_2.mwm" />
-                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_Refinery_Construction_3.mwm" />
-            </BuildProgressModels>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDieselTurbineLarge_BS1.mwm"/>
+			</BuildProgressModels>
             <BlockPairName>DieselTurbine40mw</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
