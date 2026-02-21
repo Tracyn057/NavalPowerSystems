@@ -1,6 +1,4 @@
-﻿using EmptyKeys.UserInterface;
-using NavalPowerSystems.Communication;
-using ProtoBuf.Meta;
+﻿using NavalPowerSystems.Communication;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
@@ -16,7 +14,7 @@ namespace NavalPowerSystems.Drivetrain
     internal class DrivetrainSystem
     {
         //Overhead Variables
-        internal static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
+        private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         public readonly int AssemblyId;
         public readonly IMyCubeGrid Grid;
         private bool TraceComplete = false;
@@ -38,15 +36,16 @@ namespace NavalPowerSystems.Drivetrain
         {
             AssemblyId = id;
             Grid = ModularApi.GetAssemblyGrid(id);
+            ModularApi.Log($"DrivetrainSystem, assembly {AssemblyId} registered.");
         }
 
         public void AddPart(IMyCubeBlock block)
         {
-            if (block == null)
-                return;
+            if (block == null) return;
 
             string subtype = block.BlockDefinition.SubtypeName;
             var part = block as IMyFunctionalBlock;
+            if (part != null) return;
 
             if (Config.GearboxSubtypes.Contains(subtype))
                 Gearboxes.Add(part);
@@ -91,9 +90,9 @@ namespace NavalPowerSystems.Drivetrain
                 ApplyDrag();
             }
             else
-             {
+            {
                 UpdateGridLeader();
-             }
+            }
         }
 
         public void UpdateTick10()
@@ -101,6 +100,11 @@ namespace NavalPowerSystems.Drivetrain
             UpdateClutches();
             UpdateInput();
             UpdateOutput();
+        }
+
+        public void Unload()
+        {
+            ModularApi.Log($"DrivetrainSystem, assembly {AssemblyId} unload called.");
         }
 
         private void RebuildDrivetrain()
@@ -157,27 +161,28 @@ namespace NavalPowerSystems.Drivetrain
 
         public void UpdateClutches()
         {
-            if (DrivetrainMap.Count == 0 || Inputs.Count == 0) return;
+            MyAPIGateway.Utilities.ShowNotification($"{Inputs.Count} engines in assembly {AssemblyId}", 2000);
+            if (Inputs.Count == 0) return;
 
             float highThrottle = 0f;
 
-            
-            foreach (var circuit in DrivetrainMap)
-            {
-                if (!circuit.IsPathValid || circuit.EngineLogic == null)
-                    continue;
-                if (circuit.HasClutch)
-                {
-                    if (circuit.EngineLogic._currentThrottle > highThrottle)
-                        highThrottle = circuit.EngineLogic._currentThrottle;
-                }
-            }
             foreach (var engine in Inputs)
             {
-                var logic = engine.GameLogic?.GetAs<NavalEngineLogic>();
+                var logic = engine.GameLogic?.GetAs<NavalEngineLogicBase>();
                 if (logic == null) continue;
 
-                if (logic._currentThrottle < 0.01f)
+                if (logic._currentThrottle > highThrottle)
+                {
+                    highThrottle = logic._currentThrottle;
+                }
+            }
+
+            foreach (var engine in Inputs)
+            {
+                var logic = engine.GameLogic?.GetAs<NavalEngineLogicBase>();
+                if (logic == null) continue;
+
+                if (logic._currentThrottle < 0.01)
                 {
                     logic._isEngaged = false;
                     continue;
@@ -185,18 +190,20 @@ namespace NavalPowerSystems.Drivetrain
 
                 if (!logic._isEngaged)
                 {
-                    if (highThrottle < 0.06f || logic._currentThrottle >= highThrottle - 0.02f)
+                    if (highThrottle < 0.1f || logic._currentThrottle >= (highThrottle - 0.04f))
                     {
                         logic._isEngaged = true;
                     }
                 }
                 else
                 {
-                    if (logic._currentThrottle < highThrottle - 0.06f)
+                    if (logic._currentThrottle < (highThrottle - 0.06f))
                     {
                         logic._isEngaged = false;
                     }
                 }
+
+                MyAPIGateway.Utilities.ShowNotification($"{logic.Entity.EntityId} {logic.Entity.Name} clutch is {logic._isEngaged}", 2000);
             }
         }
 
@@ -207,7 +214,7 @@ namespace NavalPowerSystems.Drivetrain
 
             foreach (var engine in Inputs)
             {
-                var logic = engine.GameLogic?.GetAs<NavalEngineLogic>();
+                var logic = engine.GameLogic?.GetAs<NavalEngineLogicBase>();
                 if (logic == null) continue;
                 bool contributes = false;
                 foreach (var circuit in DrivetrainMap)
@@ -225,6 +232,8 @@ namespace NavalPowerSystems.Drivetrain
 
         public void UpdateOutput()
         {
+            Outputs.RemoveAll(x => x == null || x.Closed || x.MarkedForClose);
+
             if (Outputs.Count == 0) return;
             float perPropMW = TotalInputMW / Outputs.Count;
 
@@ -326,7 +335,7 @@ namespace NavalPowerSystems.Drivetrain
 
     public class DrivetrainCircuit
     {
-        public NavalEngineLogic EngineLogic;
+        public NavalEngineLogicBase EngineLogic;
         public PropellerLogic PropLogic;
         public int PathReduction;
         public bool IsPathValid;
@@ -334,7 +343,7 @@ namespace NavalPowerSystems.Drivetrain
 
         public DrivetrainCircuit(IMyCubeBlock engine, IMyCubeBlock prop, int reduction, bool hasClutch)
         {
-            EngineLogic = engine.GameLogic.GetAs<NavalEngineLogic>();
+            EngineLogic = engine.GameLogic.GetAs<NavalEngineLogicBase>();
             PropLogic = prop.GameLogic.GetAs<PropellerLogic>();
             PathReduction = reduction;
             HasClutch = hasClutch;

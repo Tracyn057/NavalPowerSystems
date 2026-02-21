@@ -7,7 +7,7 @@ namespace NavalPowerSystems.Extraction
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
     internal class ExtractionManager : MySessionComponentBase
     {
-        public static ExtractionManager Instance = new ExtractionManager();
+        public static ExtractionManager Instance { get; private set; } = null;
         public ModularDefinition ExtractionDefinition;
         public static Dictionary<int, ExtractionSystem> ExtractionSystems = new Dictionary<int, ExtractionSystem>();
 

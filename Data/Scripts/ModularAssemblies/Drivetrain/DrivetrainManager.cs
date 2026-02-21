@@ -1,4 +1,6 @@
 ﻿using NavalPowerSystems.Communication;
+using Sandbox.ModAPI;
+using SixLabors.ImageSharp.Formats;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,37 +13,48 @@ namespace NavalPowerSystems.Drivetrain
     internal class DrivetrainManager : MySessionComponentBase
     {
         private int _ticks;
-        public static DrivetrainManager Instance = new DrivetrainManager();
-        public ModularDefinition DrivetrainDefinition;
-        public static Dictionary<int, DrivetrainSystem> DrivetrainSystems = new Dictionary<int, DrivetrainSystem>();
-        private static ModularDefinitionApi ModularApi => NavalPowerSystems.ModularDefinition.ModularApi;
+        public static DrivetrainManager Instance { get; private set; } = null;
+        private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
+        public IEnumerable<DrivetrainSystem> GetAssemblies => DrivetrainSystems.Values;
+        private Dictionary<int, DrivetrainSystem> DrivetrainSystems = new Dictionary<int, DrivetrainSystem>();
+        
+        
 
-        public void Load()
+        public override void LoadData()
         {
             Instance = this;
+            ModularApi.Log("DrivetrainManager Loaded.");
         }
 
-        public void Unload()
+        protected override void UnloadData()
         {
+            foreach (var drivtrain in DrivetrainSystems.Values)
+            {
+                drivtrain.Unload();
+            }
             Instance = null;
+            ModularApi.Log("DrivetrainManager closed.");
         }
 
-        public void UpdateTick()
+        public override void UpdateAfterSimulation()
         {
-            foreach (var driveSystem in DrivetrainSystems.Values)
-                driveSystem.UpdateTick();
+            foreach (var drivetrain in DrivetrainSystems.Values)
+            {
+                drivetrain.UpdateTick();
+            }
 
             if (_ticks % 10 == 0)
             {
-                foreach (var driveSystem in DrivetrainSystems.Values)
+                foreach (var drivetrain in DrivetrainSystems.Values)
                 {
-                    driveSystem.UpdateTick10();
+                    drivetrain.UpdateTick10();
                 }
             }
 
             if (_ticks % 100 == 0)
+            {
                 Update100();
-
+            }
             _ticks++;
         }
 
@@ -54,22 +67,48 @@ namespace NavalPowerSystems.Drivetrain
                     DrivetrainSystems.Remove(driveSystem.AssemblyId);
         }
 
-        public void OnPartAdd(int assemblyId, IMyCubeBlock block, bool isBasePart)
+        public static void OnPartAdd(int assemblyId, IMyCubeBlock block, bool isBasePart)
         {
-            if (!DrivetrainSystems.ContainsKey(assemblyId))
-                DrivetrainSystems.Add(assemblyId, new DrivetrainSystem(assemblyId));
+            if (Instance == null) return;
 
-            DrivetrainSystems[assemblyId].AddPart(block);
+            DrivetrainSystem drivetrain;
+            if (!Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
+            {
+                drivetrain = new DrivetrainSystem(assemblyId);
+                Instance.DrivetrainSystems.Add(assemblyId, drivetrain);
+                ModularApi.Log($"DrivetrainManager created new assembly {assemblyId}");
+            }
+
+            drivetrain.AddPart(block);
         }
 
-        public void OnPartRemove(int assemblyId, IMyCubeBlock block, bool isBasePart)
+        public static void OnPartRemove(int assemblyId, IMyCubeBlock block, bool isBasePart)
         {
-            if (!DrivetrainSystems.ContainsKey(assemblyId))
+            DrivetrainSystem drivetrain;
+            if (Instance == null || !Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
                 return;
 
-            if (!isBasePart)
-                DrivetrainSystems[assemblyId].RemovePart(block);
+            drivetrain.RemovePart(block);
+        }
 
+        public static void OnPartDestroy(int assemblyId, IMyCubeBlock block, bool isBasePart)
+        {
+            DrivetrainSystem drivetrain;
+            if (Instance == null || !Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
+                return;
+
+            //drivetrain.OnPartDestroy(block);
+        }
+
+        public static void OnAssemblyClose(int assemblyId)
+        {
+            DrivetrainSystem drivetrain;
+            if (Instance == null || !Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
+                return;
+
+            drivetrain.Unload();
+            Instance.DrivetrainSystems.Remove(assemblyId);
+            ModularApi.Log($"DrivetrainManager removed assembly {assemblyId}");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using ProtoBuf;
 using Sandbox.ModAPI;
@@ -59,6 +60,8 @@ namespace NavalPowerSystems.Communication
             _isRegistered = true;
             MyAPIGateway.Utilities.RegisterMessageHandler(ApiChannel, HandleMessage);
             MyAPIGateway.Utilities.SendModMessage(ApiChannel, "ApiEndpointRequest");
+            MyLog.Default.WriteLineAndConsole(
+                $"{_modContext.ModName}: ModularDefinitionsAPI listening for API methods...");
         }
 
         /// <summary>
@@ -687,12 +690,6 @@ namespace NavalPowerSystems.Communication
             /// </summary>
             [ProtoMember(4)]
             public string BaseBlockSubtype { get; set; }
-
-            /// <summary>
-            ///     The primary block of a PhysicalAssembly. Make sure this is an AssemblyCore block OR null.
-            /// </summary>
-            [ProtoMember(5)]
-            public string[] BaseBlockSubtypes { get; set; }
         }
     }
 }

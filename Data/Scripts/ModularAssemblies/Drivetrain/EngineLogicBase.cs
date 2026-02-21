@@ -1,19 +1,10 @@
-using NavalPowerSystems.Common;
-using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;
-using Sandbox.ModAPI.Interfaces.Terminal;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using VRage.Game.Components;
 using VRage.Game.ModAPI.Network;
 using VRage.ModAPI;
 using VRage.Network;
 using VRage.ObjectBuilders;
 using VRage.Sync;
-using VRage.Utils;
-using VRageMath;
-using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems.Drivetrain
 {
@@ -32,8 +23,10 @@ namespace NavalPowerSystems.Drivetrain
             base.Init(objectBuilder);
             _engineBlock = (IMyTerminalBlock)Entity;
             _engineStats = Config.EngineSettings[_engineBlock.BlockDefinition.SubtypeName];
-            RequestedThrottleSync.ValueChanged += obj => OnRequestedThrottleChanged(obj.Value);
-            SelectedThrottleIndexSync.ValueChanged += obj => OnSelectedThrottleIndexChanged(obj.Value);
+            if (RequestedThrottleSync != null)
+                RequestedThrottleSync.ValueChanged += obj => OnRequestedThrottleChanged(obj.Value);
+            if (SelectedThrottleIndexSync != null)
+                SelectedThrottleIndexSync.ValueChanged += obj => OnSelectedThrottleIndexChanged(obj.Value);
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;

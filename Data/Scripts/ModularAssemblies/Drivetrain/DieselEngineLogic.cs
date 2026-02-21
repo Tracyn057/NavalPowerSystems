@@ -206,6 +206,7 @@ namespace NavalPowerSystems.Drivetrain
             sb.AppendLine($"Fuel Rate: {(_fuelBurn * 6):F2} l/s");
             sb.AppendLine($"Throttle: {(_currentThrottle * 100):F0}");
             sb.AppendLine($"Requested Throttle: {(RequestedThrottleSync.Value * 100):F0}");
+            sb.AppendLine($"Clutch Engaged: {_isEngaged} ");
         }
 
         public void ParseSpeedInput(string input)

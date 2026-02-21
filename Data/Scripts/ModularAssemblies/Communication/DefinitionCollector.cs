@@ -1,7 +1,6 @@
 ﻿using NavalPowerSystems.Communication;
 using static NavalPowerSystems.Communication.DefinitionDefs;
 
-// ReSharper disable once CheckNamespace
 namespace NavalPowerSystems
 {
     internal partial class ModularDefinition
@@ -20,7 +19,7 @@ namespace NavalPowerSystems
         /// <param name="baseDefs"></param>
         internal static ModularDefinitionContainer GetBaseDefinitions()
         {
-            return new ModularDefinition().Container;
+            return new NavalPowerSystems.ModularDefinition().Container;
         }
     }
 }

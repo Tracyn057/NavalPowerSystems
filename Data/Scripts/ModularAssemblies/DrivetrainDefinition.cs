@@ -1,5 +1,6 @@
 ﻿using NavalPowerSystems.Drivetrain;
 using System.Collections.Generic;
+using Sandbox.ModAPI;
 using VRageMath;
 using static NavalPowerSystems.Communication.DefinitionDefs;
 
@@ -16,42 +17,19 @@ namespace NavalPowerSystems
             // Unique name of the definition.
             Name = "Drivetrain_Definition",
 
-            OnInit = () =>
-            {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Extraction Initialized.");
-                DrivetrainManager.Instance.DrivetrainDefinition = this;
-            },
+            //Boop
+            OnInit = null,
 
             // Triggers whenever a new part is added to an assembly.
-            OnPartAdd = (assemblyId, block, isBasePart) =>
-            {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartAdd called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
-                //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
-
-                DrivetrainManager.Instance.OnPartAdd(assemblyId, block, isBasePart);
-            },
+            OnPartAdd = DrivetrainManager.OnPartAdd,
 
             // Triggers whenever a part is removed from an assembly.
-            OnPartRemove = (assemblyId, block, isBasePart) =>
-            {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Extraction_Definition.OnPartRemove called.\nAssembly: {assemblyId}\nBlock: {block.DisplayNameText}\nIsBasePart: {isBasePart}");
-                //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
-
-                DrivetrainManager.Instance.OnPartRemove(assemblyId, block, isBasePart);
-            },
+            OnPartRemove = DrivetrainManager.OnPartRemove,
 
             // Triggers whenever a part is destroyed, just after OnPartRemove.
-            OnPartDestroy = (assemblyId, block, isBasePart) =>
-            {
-                // You can remove this function, and any others if need be.
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Production_Definition.OnPartDestroy called.\nI hope the explosion was pretty.");
-                //MyAPIGateway.Utilities.ShowNotification("Assembly has " + ModularApi.GetMemberParts(assemblyId).Length + " blocks.");
-            },
+            OnPartDestroy = DrivetrainManager.OnPartDestroy,
 
-            OnAssemblyClose = (assemblyId) =>
-            {
-                //MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", $"Production_Definition.OnAssemblyClose called.\nAssembly: {assemblyId}");
-            },
+            OnAssemblyClose = DrivetrainManager.OnAssemblyClose,
 
             // Optional - if this is set, an assembly will not be created until a baseblock exists.
             BaseBlockSubtype = null,
@@ -107,6 +85,13 @@ namespace NavalPowerSystems
                     {
                         [Vector3I.Forward] = AllowedDriveshaftConnections,
                         [Vector3I.Forward] = AllowedPropellerConnections,
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
+                //Propellers
+                {
+                    "NPSDrivetrainProp33", new Dictionary<Vector3I, string[]>
+                    {
                         [Vector3I.Backward] = AllowedDriveshaftConnections,
                     }
                 },
