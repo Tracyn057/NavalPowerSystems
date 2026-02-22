@@ -6,16 +6,16 @@
 		<Definition>
 			<Id>
 				<TypeId>TerminalBlock</TypeId>
-				<SubtypeId>NPSDrivetrainProp33</SubtypeId>
+				<SubtypeId>NPSDrivetrainProp34</SubtypeId>
 			</Id>
-			<DisplayName>3 Blade Propeller, 3m</DisplayName>
-			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainProp33.dds</Icon>
+			<DisplayName>3 Blade Propeller, 4m</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainProp34.dds</Icon>
 			<Description>Description_ProductivityModule</Description>
 			<CubeSize>Large</CubeSize>
 			<BlockTopology>TriangleMesh</BlockTopology>
 			<Size x="1" y="1" z="1" />
 			<ModelOffset x="0" y="0" z="0" />
-			<Model>Models\Cubes\large\NPSDrivetrainProp33.mwm</Model>
+			<Model>Models\Cubes\large\NPSDrivetrainProp34.mwm</Model>
 			<Components>
 				<Component Subtype="SteelPlate" Count="80" />
 				<Component Subtype="Construction" Count="40" />
@@ -26,14 +26,107 @@
 			</Components>
 			<CriticalComponent Subtype="Motor" Index="0" />
 			<MountPoints>
-				<MountPoint Side="Front" StartX="0.35" StartY="0.35" EndX="0.65" EndY="0.65"/>
+				<MountPoint Side="Back" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70" PropertiesMask="3" ExclusionMask="3" CouplingTag="NPSPropeller"/>
 			</MountPoints>
 			<BuildProgressModels>
-				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainProp33_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainProp34_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainProp34_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainProp34_BS3.mwm"/>
 			</BuildProgressModels>
-			<BlockPairName>NPSDrivetrainProp33</BlockPairName>
-			<MirroringX>Z</MirroringX>
-			<MirroringZ>X</MirroringZ>
+			<BlockPairName>NPSDrivetrainProp34</BlockPairName>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<PrimarySound>BlockModuleProductivity</PrimarySound>
+			<DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
+			<DamagedSound>ParticleElectrical</DamagedSound>
+			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+			<DestroySound>WepSmallWarheadExpl</DestroySound>
+			<PCU>1</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition>
+			<Id>
+				<TypeId>TerminalBlock</TypeId>
+				<SubtypeId>NPSDrivetrainProp44</SubtypeId>
+			</Id>
+			<DisplayName>4 Blade Propeller, 4m</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainProp44.dds</Icon>
+			<Description>Description_ProductivityModule</Description>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="1" />
+			<ModelOffset x="0" y="0" z="0" />
+			<Model>Models\Cubes\large\NPSDrivetrainProp44.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="80" />
+				<Component Subtype="Construction" Count="40" />
+				<Component Subtype="SmallTube" Count="20" />
+				<Component Subtype="Computer" Count="60" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="SteelPlate" Count="20" />
+			</Components>
+			<CriticalComponent Subtype="Motor" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Back" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70" PropertiesMask="3" ExclusionMask="3" CouplingTag="NPSPropeller"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainProp44_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainProp44_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainProp44_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainProp44</BlockPairName>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<PrimarySound>BlockModuleProductivity</PrimarySound>
+			<DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
+			<DamagedSound>ParticleElectrical</DamagedSound>
+			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+			<DestroySound>WepSmallWarheadExpl</DestroySound>
+			<PCU>1</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition>
+			<Id>
+				<TypeId>TerminalBlock</TypeId>
+				<SubtypeId>NPSDrivetrainProp54</SubtypeId>
+			</Id>
+			<DisplayName>5 Blade Propeller, 4m</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainProp54.dds</Icon>
+			<Description>Description_ProductivityModule</Description>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="1" />
+			<ModelOffset x="0" y="0" z="0" />
+			<Model>Models\Cubes\large\NPSDrivetrainProp54.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="80" />
+				<Component Subtype="Construction" Count="40" />
+				<Component Subtype="SmallTube" Count="20" />
+				<Component Subtype="Computer" Count="60" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="SteelPlate" Count="20" />
+			</Components>
+			<CriticalComponent Subtype="Motor" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Back" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70" PropertiesMask="3" ExclusionMask="3" CouplingTag="NPSPropeller"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainProp54_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainProp54_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainProp54_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainProp54</BlockPairName>
+			<MirroringZ>Y</MirroringZ>
 			<EdgeType>Light</EdgeType>
 			<PrimarySound>BlockModuleProductivity</PrimarySound>
 			<DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>

@@ -43,7 +43,7 @@ namespace NavalPowerSystems
 
         public static readonly HashSet<string> PropellerSubtypes = new HashSet<string>
         {
-            "NPSDrivetrainProp33",
+            "NPSDrivetrainProp34",
         };
 
         public static readonly HashSet<string> DriveshaftSubtypes = new HashSet<string>
@@ -90,7 +90,9 @@ namespace NavalPowerSystems
 
         public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
         {
-            {"NPSDrivetrainProp33", new PropellerStats { MaxMW = 3.5f, SpoolTime = 18f } },
+            {"NPSDrivetrainProp34", new PropellerStats { MaxMW = 3.5f, SpoolTime = 20f } },
+            {"NPSDrivetrainProp44", new PropellerStats { MaxMW = 4.6f, SpoolTime = 22f } },
+            {"NPSDrivetrainProp54", new PropellerStats { MaxMW = 5.4f, SpoolTime = 24f } },
         };
 
         public static readonly Dictionary<string, GearboxStats> GearboxSettings = new Dictionary<string, GearboxStats>

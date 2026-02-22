@@ -53,10 +53,12 @@ namespace NavalPowerSystems
                 //Driveshafts
                 "NPSDrivetrainDriveshaft",
                 "NPSDrivetrainShaftTubeEndVertical",
-                "NPSDriveshaftTube",
+                "NPSDrivetrainShaftTubeEndL",
 
                 //Propellers
-                "NPSDrivetrainProp33",
+                "NPSDrivetrainProp34",
+                "NPSDrivetrainProp44",
+                "NPSDrivetrainProp54",
 
             },
 
@@ -108,7 +110,9 @@ namespace NavalPowerSystems
 
         private static readonly string[] AllowedPropellerConnections =
         {
-            "NPSDrivetrainProp33",
+            "NPSDrivetrainProp34",
+            "NPSDrivetrainProp44",
+            "NPSDrivetrainProp54",
         };
 
         private static readonly string[] AllowedEngineConnections =
