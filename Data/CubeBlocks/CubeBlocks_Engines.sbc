@@ -37,7 +37,7 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenEngine_Construction2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenEngine_Construction3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>DieselEngine</BlockPairName>
+            <BlockPairName>DieselEngine500KW</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
@@ -112,7 +112,7 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenEngine_Construction2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenEngine_Construction3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>DieselEngine</BlockPairName>
+            <BlockPairName>DieselEngine15MW</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
@@ -187,7 +187,7 @@
                 <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\HydrogenEngine_Construction2.mwm" />
                 <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\HydrogenEngine_Construction3.mwm" />
             </BuildProgressModels>
-            <BlockPairName>DieselEngine</BlockPairName>
+            <BlockPairName>DieselEngine25MW</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
@@ -240,7 +240,7 @@
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="2" y="2" z="4" />
+			<Size x="1" y="1" z="3"/>
             <ModelOffset x="0" y="0" z="0" />
             <Model>Models\Cubes\Large\NPSDieselTurbineLarge.mwm</Model>
             <Components>
@@ -254,7 +254,7 @@
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
 			<MountPoints>
-				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
 				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
@@ -262,7 +262,7 @@
 			<BuildProgressModels>
 				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDieselTurbineLarge_BS1.mwm"/>
 			</BuildProgressModels>
-            <BlockPairName>DieselTurbine2mw</BlockPairName>
+            <BlockPairName>DieselTurbine2MW</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
@@ -313,7 +313,7 @@
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="2" y="2" z="4" />
+			<Size x="1" y="1" z="3"/>
             <ModelOffset x="0" y="0" z="0" />
             <Model>Models\Cubes\Large\NPSDieselTurbineLarge.mwm</Model>
             <Components>
@@ -327,7 +327,7 @@
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
 			<MountPoints>
-				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
 				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
@@ -335,7 +335,7 @@
 			<BuildProgressModels>
 				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDieselTurbineLarge_BS1.mwm"/>
 			</BuildProgressModels>
-            <BlockPairName>DieselTurbine5mw</BlockPairName>
+            <BlockPairName>DieselTurbine5MW</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
@@ -386,7 +386,7 @@
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="1" y="3" z="1" />
+			<Size x="1" y="1" z="3"/>
             <ModelOffset x="0" y="0" z="0" />
             <Model>Models\Cubes\Large\NPSDieselTurbineLarge.mwm</Model>
             <Components>
@@ -400,7 +400,7 @@
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
 			<MountPoints>
-				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
 				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
@@ -408,7 +408,7 @@
             <BuildProgressModels>
 				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDieselTurbineLarge_BS1.mwm"/>
 			</BuildProgressModels>
-            <BlockPairName>DieselTurbine12mw</BlockPairName>
+            <BlockPairName>DieselTurbine12MW</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
@@ -459,7 +459,7 @@
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="2" y="2" z="4" />
+			<Size x="1" y="1" z="3"/>
             <ModelOffset x="0" y="0" z="0" />
             <Model>Models\Cubes\Large\NPSDieselTurbineLarge.mwm</Model>
             <Components>
@@ -473,7 +473,7 @@
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
 			<MountPoints>
-				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
 				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
@@ -481,7 +481,7 @@
 			<BuildProgressModels>
 				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDieselTurbineLarge_BS1.mwm"/>
 			</BuildProgressModels>
-            <BlockPairName>DieselTurbine25mw</BlockPairName>
+            <BlockPairName>DieselTurbine25MW</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
@@ -532,7 +532,7 @@
             <CubeSize>Large</CubeSize>
             <GuiVisible>false</GuiVisible>
             <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="2" y="2" z="4" />
+			<Size x="1" y="1" z="3"/>
             <ModelOffset x="0" y="0" z="0" />
             <Model>Models\Cubes\Large\NPSDieselTurbineLarge.mwm</Model>
             <Components>
@@ -546,7 +546,7 @@
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
 			<MountPoints>
-				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
 				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
@@ -554,7 +554,7 @@
 			<BuildProgressModels>
 				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDieselTurbineLarge_BS1.mwm"/>
 			</BuildProgressModels>
-            <BlockPairName>DieselTurbine40mw</BlockPairName>
+            <BlockPairName>DieselTurbine40MW</BlockPairName>
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>

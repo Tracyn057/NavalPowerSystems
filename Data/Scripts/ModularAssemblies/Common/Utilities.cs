@@ -59,7 +59,7 @@ namespace NavalPowerSystems.Common
         public static bool ShouldRemoveTankControls(IMyTerminalBlock block)
         {
             if (block == null) return false;
-            string subtype = block.BlockDefinition.SubtypeId;
+            string subtype = block.BlockDefinition.SubtypeName;
 
             return Config.EngineSubtypes.Contains(subtype) || 
                 Config.PropellerSubtypes.Contains(subtype) ||

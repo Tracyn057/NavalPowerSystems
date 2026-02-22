@@ -1,4 +1,5 @@
-﻿using Sandbox.Game.Entities;
+﻿using NavalPowerSystems.Communication;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
 using System.Text;
@@ -18,6 +19,7 @@ namespace NavalPowerSystems.Drivetrain
     )]
     public class PropellerLogic : MyGameLogicComponent
     {
+        private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         private IMyTerminalBlock _propeller;
         private IMyCubeBlock _myPropeller;
         private PropellerStats _propellerStats;
@@ -127,14 +129,6 @@ namespace NavalPowerSystems.Drivetrain
                 }
             }
 
-            _rpmRatio = (float)MathHelper.Clamp(finalThrust / (_maxRpm * Config.mnPerMW), 0f, 1.5f);
-
-            if (_propellerSubpart != null)
-            {
-                _currentAngle += _maxRpm * _rpmRatio / 60 * 6f; // 6f is 360 degrees per second at max RPM
-                _currentAngle %= 360f; // Keep angle within 0-360 degrees
-            }
-
             finalThrust *= 1000000f; // Convert MN to N for physics application
 
             if (finalThrust >100)
@@ -154,6 +148,14 @@ namespace NavalPowerSystems.Drivetrain
         {
             if (MyAPIGateway.Utilities.IsDedicated || _propellerSubpart == null || _distToCamera >= 1000f)
                 return;
+
+            if (_propellerSubpart != null)
+            {
+                float desiredRpm = _maxRpm * (_inputMW / _propellerStats.MaxMW); // linear fraction of max
+                float degreesPerTick = desiredRpm * 360f / 60f / 60f; // convert RPM → degrees/tick at 60 Hz
+                _currentAngle += degreesPerTick;
+                _currentAngle %= 360f;
+            }
 
             float frameRotation = _maxRpm * _rpmRatio / 60 * 6f;
 

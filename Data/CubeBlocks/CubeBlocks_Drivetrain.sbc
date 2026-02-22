@@ -8,14 +8,12 @@
                 <SubtypeId>NPSDrivetrainMRG</SubtypeId>
             </Id>
             <DisplayName>Main Reduction Gear</DisplayName>
-            <Icon>Textures\GUI\Icons\Cubes\Prototech_JumpDrive.dds</Icon>
+            <Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainMRG.dds</Icon>
             <Description>Heart of the modern drivetrain.</Description>
             <CubeSize>Large</CubeSize>
             <BlockTopology>TriangleMesh</BlockTopology>
-            <Size x="3" y="3" z="3" />
-            <Center x="1" y="0" z="1" />
-            <ModelOffset x="0" y="0" z="0" />
-            <Model>Models\Cubes\Large\Prototech_JumpDrive.mwm</Model>
+			<Size x="3" y="2" z="2"/>
+            <Model>Models\Cubes\Large\NPSDrivetrainMRG.mwm</Model>
             <Components>
                 <Component Subtype="SteelPlate" Count="1100" />
                 <Component Subtype="Construction" Count="40" />
@@ -26,25 +24,18 @@
                 <Component Subtype="SteelPlate" Count="100" />
             </Components>
             <CriticalComponent Subtype="Computer" Index="0" />
-            <MountPoints>
-                <MountPoint Side="Back" StartX="0" StartY="0" EndX="0.5" EndY="1" />
-                <MountPoint Side="Back" StartX="0.5" StartY="0" EndX="2.5" EndY="0.5" />
-                <MountPoint Side="Back" StartX="2.5" StartY="0" EndX="3" EndY="1" />
-                <MountPoint Side="Back" StartX="1.2" StartY="1.2" EndX="1.8" EndY="1.8" />
-                <MountPoint Side="Left" StartX="0" StartY="0" EndX="3" EndY="1" />
-                <MountPoint Side="Front" StartX="0" StartY="0" EndX="0.5" EndY="1" />
-                <MountPoint Side="Front" StartX="0.5" StartY="0" EndX="2.5" EndY="0.5" />
-                <MountPoint Side="Front" StartX="2.5" StartY="0" EndX="3" EndY="1" />
-                <MountPoint Side="Front" StartX="1.2" StartY="1.2" EndX="1.8" EndY="1.8" />
-                <MountPoint Side="Right" StartX="0" StartY="0" EndX="3" EndY="1" />
-                <MountPoint Side="Bottom" StartX="0" StartY="0" EndX="3" EndY="3" Default="true" />
-            </MountPoints>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="1.25" StartY="0.25" EndX="1.75" EndY="0.75"/>
+				<MountPoint Side="Back" StartX="0.25" StartY="1.25" EndX="0.75" EndY="1.75"/>
+				<MountPoint Side="Back" StartX="2.25" StartY="1.25" EndX="2.75" EndY="1.75"/>
+				<MountPoint Side="Left" StartX="0.00" StartY="1.00" EndX="2.00" EndY="2.00"/>
+				<MountPoint Side="Right" StartX="0.00" StartY="1.00" EndX="2.00" EndY="2.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="3.00" EndY="2.00"/>
+			</MountPoints>
             <BuildProgressModels>
-                <Model BuildPercentUpperBound="0.33" File="Models\Cubes\Large\Prototech_JumpDrive_Construction_1.mwm" />
-                <Model BuildPercentUpperBound="0.66" File="Models\Cubes\Large\Prototech_JumpDrive_Construction_2.mwm" />
-                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\Prototech_JumpDrive_Construction_3.mwm" />
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\NPSDrivetrainMRG_BS1.mwm" />
             </BuildProgressModels>
-            <BlockPairName>Gearbox</BlockPairName>
+            <BlockPairName>GearboxMRG</BlockPairName>
             <MirroringY>X</MirroringY>
             <MirroringX>Y</MirroringX>
             <EdgeType>Light</EdgeType>
