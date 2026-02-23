@@ -56,8 +56,8 @@ https://www.linquip.com/industrial-directories/21/marine-gas-turbine
 
 
 Phase 1 Release:
-Diesel Engines - Vanilla blocks
-Gas Turbine Engines - Partial custom blocks
+X Diesel Engines - Vanilla blocks
+X Gas Turbine Engines - Partial custom blocks
 Diesel and Turbine Generators - Partial custom blocks
 Main Reduction Gearbox - Possibly custom block
 Propellers - Minimal Variants

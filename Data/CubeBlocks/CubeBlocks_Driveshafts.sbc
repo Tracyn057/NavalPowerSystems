@@ -53,7 +53,7 @@
 				<SubtypeId>NPSDrivetrainShaftTubeEndVertical</SubtypeId>
 			</Id>
 			<DisplayName>Driveshaft Tube with Pylon, Long Vertical</DisplayName>
-			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainShaftTubeEndVertical.dds</Icon>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainPylonVerticalLong.dds</Icon>
 			<Description></Description>
 			<GuiVisible>false</GuiVisible>
 			<CubeSize>Large</CubeSize>
@@ -70,9 +70,9 @@
 			</Components>
 			<CriticalComponent Subtype="Construction" Index="0"/>
 			<MountPoints>
-				<MountPoint Side="Front" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75" PropertiesMask="3" ExclusionMask="3" CouplingTag="NPSPropeller"/>
-				<MountPoint Side="Back" StartX="0.35" StartY="0.35" EndX="0.65" EndY="0.65" PropertiesMask="3" ExclusionMask="3" CouplingTag="NPSDriveshaft"/>
-				<MountPoint Side="Top" StartX="0.40" StartY="1.08" EndX="0.60" EndY="1.93" PropertiesMask="2" ExclusionMask="1"/>
+				<MountPoint Side="Front" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+				<MountPoint Side="Back" StartX="0.35" StartY="0.35" EndX="0.65" EndY="0.65"/>
+				<MountPoint Side="Top" StartX="0.40" StartY="1.08" EndX="0.60" EndY="1.93"/>
 			</MountPoints>
 			<BuildProgressModels>
 				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainShaftTubeEndVertical_BS1.mwm"/>
@@ -119,10 +119,10 @@
 			</Components>
 			<CriticalComponent Subtype="Construction" Index="0"/>
 			<MountPoints>
-				<MountPoint Side="Front" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75" PropertiesMask="3" ExclusionMask="3" CouplingTag="NPSPropeller"/>
-				<MountPoint Side="Back" StartX="0.35" StartY="0.35" EndX="0.65" EndY="0.65" PropertiesMask="3" ExclusionMask="3" CouplingTag="NPSDriveshaft"/>
-				<MountPoint Side="Right" StartX="1.08" StartY="0.40" EndX="1.92" EndY="0.60" PropertiesMask="2" ExclusionMask="1"/>
-				<MountPoint Side="Top" StartX="0.40" StartY="1.08" EndX="0.60" EndY="1.93" PropertiesMask="2" ExclusionMask="1"/>
+				<MountPoint Side="Front" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+				<MountPoint Side="Back" StartX="0.35" StartY="0.35" EndX="0.65" EndY="0.65"/>
+				<MountPoint Side="Right" StartX="1.08" StartY="0.40" EndX="1.92" EndY="0.60"/>
+				<MountPoint Side="Top" StartX="0.40" StartY="1.08" EndX="0.60" EndY="1.93"/>
 			</MountPoints>
 			<BuildProgressModels>
 				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainShaftTubeEndL_BS1.mwm"/>
@@ -157,7 +157,7 @@
 			<GuiVisible>false</GuiVisible>
 			<CubeSize>Large</CubeSize>
 			<BlockTopology>TriangleMesh</BlockTopology>
-			<Size x="1" y="1" z="2"/>
+			<Size x="1" y="1" z="1"/>
 			<ModelOffset x="0" y="0" z="0"/>
 			<Model>Models\Cubes\large\NPSDrivetrainPylonVerticalEnd.mwm</Model>
 			<Components>
@@ -169,8 +169,8 @@
 			</Components>
 			<CriticalComponent Subtype="Construction" Index="0"/>
 			<MountPoints>
-				<MountPoint Side="Top" StartX="0.40" StartY="0.08" EndX="0.60" EndY="0.93" PropertiesMask="2" ExclusionMask="1"/>
-				<MountPoint Side="Bottom" StartX="0.40" StartY="0.08" EndX="0.60" EndY="0.92" PropertiesMask="2" ExclusionMask="1"/>
+				<MountPoint Side="Top" StartX="0.40" StartY="0.08" EndX="0.60" EndY="0.93"/>
+				<MountPoint Side="Bottom" StartX="0.40" StartY="0.08" EndX="0.60" EndY="0.92"/>
 			</MountPoints>
 			<BuildProgressModels>
 				<Model BuildPercentUpperBound="0.50" File="Models\Cubes\large\NPSDrivetrainPylonVerticalEnd_BS1.mwm"/>
@@ -204,7 +204,7 @@
 			<GuiVisible>false</GuiVisible>
 			<CubeSize>Large</CubeSize>
 			<BlockTopology>TriangleMesh</BlockTopology>
-			<Size x="1" y="1" z="2"/>
+			<Size x="1" y="1" z="1"/>
 			<ModelOffset x="0" y="0" z="0"/>
 			<Model>Models\Cubes\large\NPSDrivetrainPylonVertical.mwm</Model>
 			<Components>
@@ -224,6 +224,59 @@
 				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainPylonVertical_BS2.mwm"/>
 			</BuildProgressModels>
 			<BlockPairName>NPSDrivetrainPylonVertical</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>7</BuildTimeSeconds>
+			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<DestroyEffect>BlockDestroyed_Large</DestroyEffect>
+			<DestroySound>PoofExplosionCat3</DestroySound>
+			<PCU>10</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition>
+			<Id>
+				<TypeId>CubeBlock</TypeId>
+				<SubtypeId>NPSDrivetrainTubeSealSlope2</SubtypeId>
+			</Id>
+			<DisplayName>Driveshaft Tube Seal, 2x1 Slope</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainTubeSealSlope2.dds</Icon>
+			<Description></Description>
+			<GuiVisible>false</GuiVisible>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="2"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\NPSDrivetrainTubeSealSlope2.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="150"/>
+				<Component Subtype="LargeTube" Count="45" />
+				<Component Subtype="Construction" Count="25" />
+				<Component Subtype="MetalGrid" Count="25" />
+				<Component Subtype="SteelPlate" Count="50" />
+			</Components>
+			<CriticalComponent Subtype="Construction" Index="0"/>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+				<MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+				<MountPoint Side="Left" StartX="1.00" StartY="0.00" EndX="2.00" EndY="1.00"/>
+				<MountPoint Side="Left" StartX="0.00" StartY="0.50" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Right" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Right" StartX="1.00" StartY="0.50" EndX="2.00" EndY="1.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="2.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainTubeSealSlope2_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainTubeSealSlope2_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainTubeSealSlope2_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainTubeSealSlope2</BlockPairName>
 			<MirroringY>Z</MirroringY>
 			<MirroringZ>Y</MirroringZ>
 			<EdgeType>Light</EdgeType>

@@ -18,7 +18,7 @@ using VRageMath;
 namespace NavalPowerSystems.Drivetrain
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TerminalBlock), false,
-            ""
+            "NPSDrivetrainRudderSmallCenteredV1"
     )]
     internal class RudderLogic : MyGameLogicComponent
     {
@@ -46,12 +46,18 @@ namespace NavalPowerSystems.Drivetrain
             base.Init(objectBuilder);
             _rudder = (IMyTerminalBlock)Entity;
             _myRudder = (MyCubeBlock)Entity;
-            _rudderGrid = (MyCubeGrid)Entity.Parent;
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         public override void UpdateOnceBeforeFrame()
         {
+            _rudderGrid = Entity.Parent as MyCubeGrid;
+
+            if (_rudderGrid == null)
+            {
+                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                return;
+            }
             _rudder.AppendingCustomInfo += AppendCustomInfo;
 
             _enginesCached = false;
@@ -172,7 +178,8 @@ namespace NavalPowerSystems.Drivetrain
 
             Vector3D velocity = _rudderGrid.Physics.LinearVelocity;
             double speed = velocity.Length();
-            double propWash = _currentThrottle * 15.0;
+            if (speed < 1.5 && _currentThrottle < 0.025) return;
+            double propWash = _currentThrottle * 2.5;
             double effectiveSpeed = speed + propWash;
             float finalThrust = (_gridMass * (float)effectiveSpeed * _degreeSpeed) * (float)Math.Sin(MathHelper.ToRadians(_currentAngle));
 
@@ -180,12 +187,17 @@ namespace NavalPowerSystems.Drivetrain
 
             if (Math.Abs(finalThrustN) > 100)
             {
-                Vector3D thrustVector = _myRudder.WorldMatrix.Right * (float)finalThrustN;
-                var BlockPos = _myRudder.PositionComp.GetPosition();
+                // Adjust thrust application zone to above rudder in line with COM
+                Vector3D comToRudder = _myRudder.WorldMatrix.Translation - _rudderGrid.Physics.CenterOfMassWorld;
+                Vector3D vectorForward = _rudderGrid.WorldMatrix.Forward;
+                Vector3D offset = Vector3D.ProjectOnVector(ref comToRudder, ref vectorForward);
+                Vector3D forcePos = _rudderGrid.Physics.CenterOfMassWorld + offset;
+
+                Vector3D thrustVector = _myRudder.WorldMatrix.Left * (float)finalThrustN;
                 _rudderGrid.Physics.AddForce(
                     MyPhysicsForceType.APPLY_WORLD_FORCE,
                     thrustVector,
-                    BlockPos,
+                    forcePos,
                     null
                 );
             }

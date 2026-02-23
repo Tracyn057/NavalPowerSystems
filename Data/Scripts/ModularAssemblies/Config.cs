@@ -44,12 +44,16 @@ namespace NavalPowerSystems
         public static readonly HashSet<string> PropellerSubtypes = new HashSet<string>
         {
             "NPSDrivetrainProp34",
+            "NPSDrivetrainProp44",
+            "NPSDrivetrainProp54",
         };
 
         public static readonly HashSet<string> DriveshaftSubtypes = new HashSet<string>
         {
             "NPSDrivetrainDriveshaft",
-            "NPSDrivetrainShaftTubeEndVertical"
+            "NPSDrivetrainShaftTubeEndVertical",
+            "NPSDrivetrainShaftTubeEndL",
+            "NPSDrivetrainTubeSealSlope2"
         };
 
         public static readonly HashSet<string> GearboxSubtypes = new HashSet<string>

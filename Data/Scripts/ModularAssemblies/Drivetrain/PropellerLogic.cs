@@ -15,7 +15,9 @@ using VRageMath;
 namespace NavalPowerSystems.Drivetrain
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TerminalBlock), false,
-            "NPSDrivetrainProp33"
+            "NPSDrivetrainProp34",
+            "NPSDrivetrainProp44",
+            "NPSDrivetrainProp54"
     )]
     public class PropellerLogic : MyGameLogicComponent
     {
@@ -61,7 +63,14 @@ namespace NavalPowerSystems.Drivetrain
         public override void UpdateAfterSimulation100()
         {
             UpdateDistanceToCamera();
-            
+            if (_propellerSubpart == null)
+            {
+                Entity.TryGetSubpart("Propeller", out _propellerSubpart);
+                if (_propellerSubpart != null)
+                {
+                    _initialLocalMatrix = _propellerSubpart.PositionComp.LocalMatrixRef;
+                }
+            }
         }
 
         public override void UpdateBeforeSimulation10()

@@ -26,7 +26,7 @@
 			</Components>
 			<CriticalComponent Subtype="Motor" Index="0" />
 			<MountPoints>
-				<MountPoint Side="Back" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70" PropertiesMask="3" ExclusionMask="3" CouplingTag="NPSPropeller"/>
+				<MountPoint Side="Back" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70"/>
 			</MountPoints>
 			<BuildProgressModels>
 				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainProp34_BS1.mwm"/>
@@ -72,7 +72,7 @@
 			</Components>
 			<CriticalComponent Subtype="Motor" Index="0" />
 			<MountPoints>
-				<MountPoint Side="Back" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70" PropertiesMask="3" ExclusionMask="3" CouplingTag="NPSPropeller"/>
+				<MountPoint Side="Back" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70"/>
 			</MountPoints>
 			<BuildProgressModels>
 				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainProp44_BS1.mwm"/>
@@ -118,7 +118,7 @@
 			</Components>
 			<CriticalComponent Subtype="Motor" Index="0" />
 			<MountPoints>
-				<MountPoint Side="Back" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70" PropertiesMask="3" ExclusionMask="3" CouplingTag="NPSPropeller"/>
+				<MountPoint Side="Back" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70"/>
 			</MountPoints>
 			<BuildProgressModels>
 				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainProp54_BS1.mwm"/>

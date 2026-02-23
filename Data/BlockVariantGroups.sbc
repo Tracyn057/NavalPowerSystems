@@ -3,9 +3,9 @@
     <BlockVariantGroups>
 
         <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSDieselGenerator" />
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSDieselGeneratorGroup" />
             <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
-            <DisplayName>MarineDieselGenerator</DisplayName>
+            <DisplayName>MarineDieselGenerators</DisplayName>
             <Description>Description_PowerGenerator</Description>
             <Blocks>
                 <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSDieselGenerator500KW" />
@@ -15,8 +15,8 @@
         </BlockVariantGroup>   
 
         <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSMarineGasTurbineGenerator" />
-            <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSMarineGasTurbineGeneratorGroup" />
+            <Icon>Textures\GUI\Icons\Cubes\NPSDieselTurbineLarge.dds</Icon>
             <DisplayName>MarineGasTurbineGenerator</DisplayName>
             <Description>Description_PowerGenerator</Description>
             <Blocks>
@@ -29,7 +29,7 @@
         </BlockVariantGroup>   
 
         <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSDieselEngine" />
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSDieselEngineGroup" />
             <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
             <DisplayName>MarineDieselEngine</DisplayName>
             <Description>Description_PowerGenerator</Description>
@@ -41,8 +41,8 @@
         </BlockVariantGroup>   
 
         <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSMarineGasTurbineEngine" />
-            <Icon>Textures\GUI\Icons\Cubes\Prototech_Refinery.dds</Icon>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSMarineGasTurbineEngineGroup" />
+            <Icon>Textures\GUI\Icons\Cubes\NPSDieselTurbineLarge.dds</Icon>
             <DisplayName>MarineGasTurbineEngine</DisplayName>
             <Description>Description_PowerGenerator</Description>
             <Blocks>
@@ -55,14 +55,13 @@
         </BlockVariantGroup>   
 
         <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSProductionInputOutput" />
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSProductionInputOutputGroup" />
             <Icon>Textures\GUI\Icons\Cubes\largeHydrogenTankSmall.dds</Icon>
             <DisplayName>OilRefineryInputOutput</DisplayName>
             <Description>Description_PowerGenerator</Description>
             <Blocks>
                 <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionCrudeInput" />
                 <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionFuelInput" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine40MW" />
             </Blocks>
         </BlockVariantGroup>   
 

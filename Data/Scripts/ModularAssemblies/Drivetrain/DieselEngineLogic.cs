@@ -60,6 +60,7 @@ namespace NavalPowerSystems.Drivetrain
 
             if (!_controlsInit)
             {
+                //Utilities.RemoveControls();
                 CreateControls();
                 _controlsInit = true;
                 CreateActions();

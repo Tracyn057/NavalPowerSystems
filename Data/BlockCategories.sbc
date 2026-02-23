@@ -42,13 +42,16 @@
 				 <string>TerminalBlock/NPSExtractionDrillHead</string>
 				 <string>OxygenTank/NPSExtractionCrudeOutput</string>
 				 <!-- Drivetrain -->
-				 <string>TerminalBlock/NPSDrivetrainClutch</string>
-				 <string>TerminalBlock/NPSDrivetrainDirectDrive</string>
+				 <string>TerminalBlock/NPSDrivetrainRudderSmallCenteredV1</string>
 				 <string>TerminalBlock/NPSDrivetrainMRG</string>
 				 <string>CubeBlock/NPSDrivetrainDriveshaft</string>
 				 <string>CubeBlock/NPSDrivetrainShaftTubeEndVertical</string>
-				 <string>CubeBlock/NPSDriveshaftTube</string>
-				 <string>TerminalBlock/NPSDrivetrainProp33</string>
+				 <string>CubeBlock/NPSDrivetrainShaftTubeEndL</string>
+				 <string>CubeBlock/NPSDrivetrainPylonVertical</string>
+				 <string>CubeBlock/NPSDrivetrainPylonVerticalEnd</string>
+				 <string>TerminalBlock/NPSDrivetrainProp34</string>
+				 <string>TerminalBlock/NPSDrivetrainProp44</string>
+				 <string>TerminalBlock/NPSDrivetrainProp54</string>
 				 <!-- Fuel Tanks -->
 				 <string>OxygenTank/LargeDieselTank</string>
 				 <string>OxygenTank/LargeDieselTankSmall</string>
