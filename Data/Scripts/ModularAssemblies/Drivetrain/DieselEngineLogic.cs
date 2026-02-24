@@ -361,5 +361,65 @@ namespace NavalPowerSystems.Drivetrain
         }
 
         #endregion
+
+        #region Startup and Running
+
+        public enum EngineState { Off, Starting, Running, Stopping }
+
+        private EngineState _state = EngineState.Off;
+        private int _startupTicks = 0;
+        private const int STARTUP_TIME_TICKS = 5400; // 1.5 minutes at 60 ticks per second
+
+        private void UpdateEngineState()
+        {   
+            bool canWork = _engine != null && _engine.IsWorking;
+
+            switch (_state)
+            {
+                case EngineState.Off:
+                    if (canWork) _state = EngineState.Starting;
+                    break;
+
+                case EngineState.Starting:
+                    if (!canWork)
+                    { 
+                        _state = EngineState.Off; 
+                        _startupTicks = 0; 
+                        _currentOutputMW = 0f;
+                        return; 
+                    }
+                    
+                    _startupTicks++;
+                    
+                    if (_startupTicks >= STARTUP_TIME_TICKS)
+                        _state = EngineState.Running;
+                    break;
+
+                case EngineState.Running:
+                    if (!canWork) 
+                    {  
+                        _state = EngineState.Stopping;
+                        _startupTicks = 0; 
+                    }
+                    break;
+
+                case EngineState.Stopping:
+                    if (canWork) 
+                    {
+                        _state = EngineState.Running; 
+                        return;
+                    }
+                    RequestedThrottleSync = 0f;
+                    _currentOutputMW = 0f;
+                    if (_currentThrottle <= 0.01f)
+                    {
+                        _state = EngineState.Off;
+                        _startupTicks = 0;
+                    }
+                    break;
+            }
+        }
+
+        #endregion
     }
 }
