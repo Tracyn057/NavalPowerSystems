@@ -39,9 +39,8 @@ namespace NavalPowerSystems.Drivetrain
         private float _lastAngle = 0f;
         private float _distToCamera = 0f;
         private float _targetAngle = 0f;
-        private float _currentThrottle = 0f;
-        private bool _enginesCached = false;
-        private List<NavalEngineLogicBase> _cachedEngines = new List<NavalEngineLogicBase>();
+        private IMyTerminalBlock _linkedPropeller;
+        private bool _propCached = false;
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -79,12 +78,11 @@ namespace NavalPowerSystems.Drivetrain
 
         public override void UpdateBeforeSimulation10()
         {
-            if (!_enginesCached)
+            if (!_propCached)
             {
-                CacheEngines();
-                _enginesCached = true;
+                CacheProp();
+                _propCached = true;
             }
-            GetThrottle();
             _rudder.RefreshCustomInfo();
         }
 
@@ -105,9 +103,9 @@ namespace NavalPowerSystems.Drivetrain
             _degreeSpeed = MathHelper.Clamp(2.0f / _gridMass, 0.05f, 0.5f);
         }
 
-        private void MarkForEngineSearch(IMySlimBlock block)
+        private void MarkForPropSearch(IMySlimBlock block)
         {
-            _enginesCached = false;
+            _propCached = false;
         }
 
         private void FindShipControllers(IMyCubeGrid grid)
@@ -154,43 +152,25 @@ namespace NavalPowerSystems.Drivetrain
             _currentAngle = MathHelper.Lerp(_currentAngle, _targetAngle, _degreeSpeed);
         }
 
-        private void CacheEngines()
+        private void CacheProp()
         {
-            _cachedEngines.Clear();
-            var grid = _rudderGrid as IMyCubeGrid;
-            if (_rudderGrid == null) return;
+            Vector3D startPos = _rudder.WorldMatrix.Translation;
+            Vector3D scanDirection = _rudder.WorldMatrix.Forward;
+            
+            LineD ray = new LineD(startPos, startPos + (scanDirection * 12.0));
+            
+            List<IMyTerminalBlock> hits = new List<IMyTerminalBlock>();
+            _rudderGrid.GetBlocksIntersectingRay(ray, hits);
 
-            List<IMySlimBlock> blocks = new List<IMySlimBlock>();
-            grid.GetBlocks(blocks);
-
-            foreach ( var block in blocks)
+            foreach (var slim in hits)
             {
-                if (block.FatBlock == null) continue;
-
-                var logic = block.FatBlock.GameLogic.GetAs<NavalEngineLogicBase>();
-                if (logic != null)
+                var fat = slim.FatBlock as IMyTerminalBlock;
+                if (fat != null && Config.PropellerSubtypes.Contains(fat.BlockDefinition.SubtypeName) && fat.IsFunctional)
                 {
-                    _cachedEngines.Add(logic);
+                    _linkedPropeller = fat;
+                    break;
                 }
             }
-        }
-
-        private void GetThrottle()
-        {
-            if (_cachedEngines.Count == 0)
-            {
-                _currentThrottle = 0f;
-                return;
-            }
-
-            float throttle = 0f;
-            foreach (var engine in _cachedEngines)
-            {
-                if (engine._currentThrottle > throttle)
-                    throttle = engine._currentThrottle;
-            }
-
-            _currentThrottle = throttle;
         }
 
         private void ApplyForce()
@@ -200,13 +180,26 @@ namespace NavalPowerSystems.Drivetrain
 
             double velocity = _rudderGrid.Physics.LinearVelocity.Dot(_rudderGrid.WorldMatrix.Forward);
             double speed = Math.Abs(velocity);
+            float propWash = 0f;
+            if (_linkedPropeller != null)
+            {
+                var propLogic = _linkedPropeller.GameLogic?.GetAs<PropellerLogic>();
+                if (propLogic != null && speed < 20f)
+                {
+                    propWash = propLogic._outputMN * 1.5f;
+                }
+                else
+                {
+                    propWash = 0f;
+                }
+            }
 
-            if (speed < 1) return;
+            if (speed < 1 && propWash < 0.25f) return;
 
             float rudderLiftCoef = 0.05f;
-            float lifMagnitude = (float)(_gridMass * speed * rudderLiftCoef * Math.Sin(MathHelper.ToRadians(_currentAngle)));
+            float lifMagnitude = (float)(_gridMass * (speed + propWash) * rudderLiftCoef * Math.Sin(MathHelper.ToRadians(_currentAngle)));
             float forceN = lifMagnitude * 1000000f;
-            Vector3D linearForce = _rudderGrid.WorldMatrix.Right * (forceN * 1f);
+            Vector3D linearForce = _rudderGrid.WorldMatrix.Right * forceN * 0.25f;
             double leverArm = Vector3D.Distance(_myRudder.WorldMatrix.Translation, _rudderGrid.Physics.CenterOfMassWorld);
             Vector3 gravity = _gridController.GetNaturalGravity();
             Vector3D skyAxis = Vector3D.Normalize(-gravity);

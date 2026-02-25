@@ -30,6 +30,7 @@ namespace NavalPowerSystems.Drivetrain
         private static readonly Dictionary<long, int> GridDragLeaders = new Dictionary<long, int>();
         //Engine System Variables
         public float TotalInputMW = 0f;
+        public float _highThrottle = 0f;
 
         //Gearbox Variables
 
@@ -186,6 +187,16 @@ namespace NavalPowerSystems.Drivetrain
                     0,
                     false);
             }
+
+            if ( Outputs.Count > 0)
+            {
+                foreach (var prop in Outputs)
+                {
+                    if (prop == null) continue;
+                    var logic = prop.GameLogic?.GetAs<PropellerLogic>();
+                    logic._currentThrottle = _highThrottle;
+                }
+            }
         }
 
         private void TraceDirectional(
@@ -272,16 +283,14 @@ namespace NavalPowerSystems.Drivetrain
         {
             if (Inputs.Count == 0) return;
 
-            float highThrottle = 0f;
-
             foreach (var engine in Inputs)
             {
                 var logic = engine.GameLogic?.GetAs<NavalEngineLogicBase>();
                 if (logic == null) continue;
 
-                if (logic._currentThrottle > highThrottle)
+                if (logic._currentThrottle > _highThrottle)
                 {
-                    highThrottle = logic._currentThrottle;
+                    _highThrottle = logic._currentThrottle;
                 }
             }
 
@@ -298,14 +307,14 @@ namespace NavalPowerSystems.Drivetrain
 
                 if (!logic._isEngaged)
                 {
-                    if (logic._currentThrottle >= (highThrottle - 0.04f))
+                    if (logic._currentThrottle >= (_highThrottle - 0.04f))
                     {
                         logic._isEngaged = true;
                     }
                 }
                 else
                 {
-                    if (logic._currentThrottle < (highThrottle - 0.06f))
+                    if (logic._currentThrottle < (_highThrottle - 0.06f))
                     {
                         logic._isEngaged = false;
                     }

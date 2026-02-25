@@ -29,6 +29,7 @@ namespace NavalPowerSystems.Drivetrain
         private Matrix _initialLocalMatrix;
         public float _inputMW { get; set; }
         private float _outputMW = 0f;
+        public float _outputMN { get; private set; } = 0f;
         private float _rpmRatio = 0f;
         private float _inertia = 0f;
         private float _distToCamera = 0f;
@@ -113,7 +114,7 @@ namespace NavalPowerSystems.Drivetrain
 
         private void ApplyForce()
         {
-            float outputMN = _outputMW * Config.mnPerMW;
+            _outputMN = _outputMW * Config.mnPerMW;
             var grid = _myPropeller.CubeGrid as MyCubeGrid;
             float limit = _propellerStats.MaxMW;
 
@@ -124,7 +125,7 @@ namespace NavalPowerSystems.Drivetrain
             Vector3D velocity = grid.Physics.LinearVelocity;
             double speed = velocity.Length();
             double efficiency = Math.Max(0.5, 1.0 - (speed / 40.0));
-            float adjustedThrust = outputMN * cubicFactor * (float)efficiency;
+            float adjustedThrust = _outputMN * cubicFactor * (float)efficiency;
             double finalThrust = limit * Math.Tanh(adjustedThrust / limit);
 
             double waste = adjustedThrust - finalThrust;
