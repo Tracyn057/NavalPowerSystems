@@ -409,7 +409,7 @@ namespace NavalPowerSystems.Drivetrain
                         _state = EngineState.Running; 
                         return;
                     }
-                    RequestedThrottleSync = 0f;
+                    RequestedThrottleSync.Value = 0f;
                     _currentOutputMW = 0f;
                     if (_currentThrottle <= 0.01f)
                     {

@@ -1,6 +1,7 @@
 ﻿using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
+using SharpDX.XInput;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace NavalPowerSystems.Drivetrain
         private IMyTerminalBlock _rudder;
         private IMyCubeBlock _myRudder;
         private MyCubeGrid _rudderGrid;
+        private IMyShipController _gridController;
         private MyEntitySubpart _rudderSubpart;
         private Matrix _initialLocalMatrix;
 
@@ -52,12 +54,12 @@ namespace NavalPowerSystems.Drivetrain
         public override void UpdateOnceBeforeFrame()
         {
             _rudderGrid = Entity.Parent as MyCubeGrid;
-
             if (_rudderGrid == null)
             {
                 NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
                 return;
             }
+            FindShipControllers(_rudderGrid);
             _rudder.AppendingCustomInfo += AppendCustomInfo;
 
             _enginesCached = false;
@@ -106,6 +108,25 @@ namespace NavalPowerSystems.Drivetrain
         private void MarkForEngineSearch(IMySlimBlock block)
         {
             _enginesCached = false;
+        }
+
+        private void FindShipControllers(IMyCubeGrid grid)
+        {
+            var terminalSystem = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(grid);
+            if (terminalSystem == null) { return; }
+            List<IMyShipController> controllers = new List<IMyShipController>();
+            terminalSystem.GetBlocksOfType<IMyShipController>(controllers);
+
+            foreach (var control in controllers)
+            {
+                if 
+                    (   
+                    control.IsUnderControl
+                    || _gridController == null // TODO prefer controller on same grid as PB.
+                    || (!_gridController.IsUnderControl && control.IsMainCockpit)
+                    )
+                    _gridController = control;
+            }
         }
 
         private void GetAngle()
@@ -176,41 +197,69 @@ namespace NavalPowerSystems.Drivetrain
             if (_rudderGrid.IsPreview || _rudderGrid.Physics == null || !_rudderGrid.Physics.Enabled || _rudderGrid.Physics.IsStatic)
                 return;
 
-            Vector3D velocity = _rudderGrid.Physics.LinearVelocity;
-            Vector3D forward = _rudderGrid.WorldMatrix.Forward;
+            double velocity = _rudderGrid.Physics.LinearVelocity.Dot(_rudderGrid.WorldMatrix.Forward);
+            double speed = Math.Abs(velocity);
 
-            double forwardSpeed = velocity.Dot(forward);
-            double speed = Math.Max(0, forwardSpeed);
+            if (speed < 1) return;
 
-            if (speed < 1.5 && _currentThrottle < 0.1) return;
-            double propWash = _currentThrottle * 1.25;
-            double effectiveSpeed = MathHelper.Clamp(speed, 0, 10) + propWash;
+            float rudderLiftCoef = 0.05f;
+            float lifMagnitude = (float)(_gridMass * speed * rudderLiftCoef * Math.Sin(MathHelper.ToRadians(_currentAngle)));
+            float forceN = lifMagnitude * 1000000f;
+            Vector3D linearForce = _rudderGrid.WorldMatrix.Right * (forceN * 1f);
+            double leverArm = Vector3D.Distance(_myRudder.WorldMatrix.Translation, _rudderGrid.Physics.CenterOfMassWorld);
+            Vector3 gravity = _gridController.GetNaturalGravity();
+            Vector3D skyAxis = Vector3D.Normalize(-gravity);
 
-            float liftCoef = 0.05f;
-            float maxForce = _gridMass * (float)effectiveSpeed;
-            float forceMagnitude = (float)(_gridMass * effectiveSpeed * liftCoef * Math.Sin(MathHelper.ToRadians(_currentAngle)));
-            forceMagnitude = MathHelper.Clamp(forceMagnitude, -maxForce, maxForce);
-            float finalThrustN = forceMagnitude * 1000000f; // Convert MN to N for physics application
+            Vector3D angularTorque = skyAxis * (forceN * leverArm);
 
-            if (Math.Abs(finalThrustN) > 100)
-            {
-                // Adjust thrust application zone to above rudder in line with COM
-                Vector3D comToRudder = _myRudder.WorldMatrix.Translation - _rudderGrid.Physics.CenterOfMassWorld;
-                //Vector3D offset = Vector3D.ProjectOnVector(ref comToRudder, ref forward);
-                //Vector3D forcePos = _rudderGrid.Physics.CenterOfMassWorld + offset;
-
-                double leverDistance = Vector3D.Dot(comToRudder, forward);
-                Vector3D forcePos = _rudderGrid.Physics.CenterOfMassWorld + (forward * leverDistance);
-
-                Vector3D thrustVector = _myRudder.WorldMatrix.Right * (float)finalThrustN;
-                _rudderGrid.Physics.AddForce(
-                    MyPhysicsForceType.APPLY_WORLD_FORCE,
-                    thrustVector,
-                    forcePos,
-                    null
-                );
-            }
+            _rudderGrid.Physics.AddForce(
+                MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE,
+                linearForce,
+                null,
+                angularTorque
+            );
         }
+
+        //private void ApplyForce()
+        //{
+        //    if (_rudderGrid.IsPreview || _rudderGrid.Physics == null || !_rudderGrid.Physics.Enabled || _rudderGrid.Physics.IsStatic)
+        //        return;
+
+        //    Vector3D velocity = _rudderGrid.Physics.LinearVelocity;
+        //    Vector3D forward = _rudderGrid.WorldMatrix.Forward;
+
+        //    double forwardSpeed = velocity.Dot(forward);
+        //    double speed = Math.Max(0, forwardSpeed);
+
+        //    if (speed < 1.5 && _currentThrottle < 0.1) return;
+        //    double propWash = _currentThrottle * 1.25;
+        //    double effectiveSpeed = MathHelper.Clamp(speed, 0, 10) + propWash;
+
+        //    float liftCoef = 0.05f;
+        //    float maxForce = _gridMass * (float)effectiveSpeed;
+        //    float forceMagnitude = (float)(_gridMass * effectiveSpeed * liftCoef * Math.Sin(MathHelper.ToRadians(_currentAngle)));
+        //    forceMagnitude = MathHelper.Clamp(forceMagnitude, -maxForce, maxForce);
+        //    float finalThrustN = forceMagnitude * 1000000f; // Convert MN to N for physics application
+
+        //    if (Math.Abs(finalThrustN) > 100)
+        //    {
+        //        // Adjust thrust application zone to above rudder in line with COM
+        //        Vector3D comToRudder = _myRudder.WorldMatrix.Translation - _rudderGrid.Physics.CenterOfMassWorld;
+        //        //Vector3D offset = Vector3D.ProjectOnVector(ref comToRudder, ref forward);
+        //        //Vector3D forcePos = _rudderGrid.Physics.CenterOfMassWorld + offset;
+
+        //        double leverDistance = Vector3D.Dot(comToRudder, forward);
+        //        Vector3D forcePos = _rudderGrid.Physics.CenterOfMassWorld + (forward * leverDistance);
+
+        //        Vector3D thrustVector = _myRudder.WorldMatrix.Right * (float)finalThrustN;
+        //        _rudderGrid.Physics.AddForce(
+        //            MyPhysicsForceType.APPLY_WORLD_FORCE,
+        //            thrustVector,
+        //            forcePos,
+        //            null
+        //        );
+        //    }
+        //}
 
         private void RudderAnimation()
         {
