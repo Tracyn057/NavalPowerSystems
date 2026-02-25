@@ -32,7 +32,7 @@ namespace NavalPowerSystems.Drivetrain
 
         private float _gridMass = 1.0f;
         private float _maxAngle = 35f;
-        private float _degreeSpeed = 0.15f;
+        private float _degreeSpeed = 0.05f;
         private float _currentAngle = 0f;
         private float _lastAngle = 0f;
         private float _distToCamera = 0f;
@@ -100,6 +100,7 @@ namespace NavalPowerSystems.Drivetrain
         {
             UpdateDistanceToCamera();
             _gridMass = _rudderGrid.GetCurrentMass() / 1000000f;
+            _degreeSpeed = MathHelper.Clamp(2.0f / _gridMass, 0.05f, 0.5f);
         }
 
         private void MarkForEngineSearch(IMySlimBlock block)
@@ -112,11 +113,7 @@ namespace NavalPowerSystems.Drivetrain
             var controller = MyAPIGateway.Players.GetPlayerControllingEntity(_myRudder.CubeGrid);
             IMyShipController shipController = controller?.Controller?.ControlledEntity as IMyShipController;
 
-            float angle = 0f;
-            if (shipController != null)
-            {
-                angle = shipController.MoveIndicator.X;
-            }
+            float angle = shipController?.MoveIndicator.X ?? 0f;
             
             if (angle != 0f)
             {
@@ -124,7 +121,10 @@ namespace NavalPowerSystems.Drivetrain
             }
             else if (_isAutoCenter)
             {
-                _targetAngle = MathHelper.Lerp(_targetAngle, 0f, _degreeSpeed);
+                if (Math.Abs(_targetAngle) > 0.01f)
+                {
+                    _targetAngle = MathHelper.Lerp(_targetAngle, 0f, 0.01f);
+                }
             }
 
             _targetAngle = MathHelper.Clamp(_targetAngle, -_maxAngle, _maxAngle);
@@ -177,23 +177,32 @@ namespace NavalPowerSystems.Drivetrain
                 return;
 
             Vector3D velocity = _rudderGrid.Physics.LinearVelocity;
-            double speed = velocity.Length();
-            if (speed < 1.5 && _currentThrottle < 0.025) return;
-            double propWash = _currentThrottle * 2.5;
-            double effectiveSpeed = speed + propWash;
-            float finalThrust = (_gridMass * (float)effectiveSpeed * _degreeSpeed) * (float)Math.Sin(MathHelper.ToRadians(_currentAngle));
+            Vector3D forward = _rudderGrid.WorldMatrix.Forward;
 
-            float finalThrustN = finalThrust * 1000000f; // Convert MN to N for physics application
+            double forwardSpeed = velocity.Dot(forward);
+            double speed = Math.Max(0, forwardSpeed);
+
+            if (speed < 1.5 && _currentThrottle < 0.1) return;
+            double propWash = _currentThrottle * 1.25;
+            double effectiveSpeed = MathHelper.Clamp(speed, 0, 10) + propWash;
+
+            float liftCoef = 0.05f;
+            float maxForce = _gridMass * (float)effectiveSpeed;
+            float forceMagnitude = (float)(_gridMass * effectiveSpeed * liftCoef * Math.Sin(MathHelper.ToRadians(_currentAngle)));
+            forceMagnitude = MathHelper.Clamp(forceMagnitude, -maxForce, maxForce);
+            float finalThrustN = forceMagnitude * 1000000f; // Convert MN to N for physics application
 
             if (Math.Abs(finalThrustN) > 100)
             {
                 // Adjust thrust application zone to above rudder in line with COM
                 Vector3D comToRudder = _myRudder.WorldMatrix.Translation - _rudderGrid.Physics.CenterOfMassWorld;
-                Vector3D vectorForward = _rudderGrid.WorldMatrix.Forward;
-                Vector3D offset = Vector3D.ProjectOnVector(ref comToRudder, ref vectorForward);
-                Vector3D forcePos = _rudderGrid.Physics.CenterOfMassWorld + offset;
+                //Vector3D offset = Vector3D.ProjectOnVector(ref comToRudder, ref forward);
+                //Vector3D forcePos = _rudderGrid.Physics.CenterOfMassWorld + offset;
 
-                Vector3D thrustVector = _myRudder.WorldMatrix.Left * (float)finalThrustN;
+                double leverDistance = Vector3D.Dot(comToRudder, forward);
+                Vector3D forcePos = _rudderGrid.Physics.CenterOfMassWorld + (forward * leverDistance);
+
+                Vector3D thrustVector = _myRudder.WorldMatrix.Right * (float)finalThrustN;
                 _rudderGrid.Physics.AddForce(
                     MyPhysicsForceType.APPLY_WORLD_FORCE,
                     thrustVector,
@@ -205,22 +214,15 @@ namespace NavalPowerSystems.Drivetrain
 
         private void RudderAnimation()
         {
-            //if (_rudderSubpart == null || MyAPIGateway.Utilities.IsDedicated)
-            //    return;
+            if (MyAPIGateway.Utilities.IsDedicated || _rudderSubpart == null || _distToCamera >= 1000f)
+                return;
 
-            //Vector2 gimbal = new Vector2(ThrustLR);
+            _currentAngle = MathHelper.Lerp(_currentAngle, _targetAngle, 0.05f);
 
-            //if (_distToCamera >= 1000f)
-            //    gimbal = Vector2.Zero;
+            Matrix rotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(_currentAngle));
 
-            //float YAngle = gimbal.Y - _lastAngle;
-            //if (YAngle != 0)
-            //{
-            //    Matrix rudderMatrix = _rudderSubpart.PositionComp.LocalMatrixRef;
-            //    rudderMatrix = Matrix.CreateRotationY(-YAngle * (float)JETGimbalAngle) * rudderMatrix;
-            //    _rudderSubpart.PositionComp.SetLocalMatrix(ref rudderMatrix);
-            //    _lastAngle = gimbal.Y;
-            //}
+            Matrix finalMatrix = rotationMatrix * _initialLocalMatrix;
+            _rudderSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
         }
 
         public void UpdateDistanceToCamera()

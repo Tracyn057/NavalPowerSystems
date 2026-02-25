@@ -32,8 +32,10 @@ namespace NavalPowerSystems.Drivetrain
         private float _rpmRatio = 0f;
         private float _inertia = 0f;
         private float _distToCamera = 0f;
+        private float _currentRPM = 0f;
+        private float _targetRPM = 0f;
         public float _currentAngle { get; private set; } = 0f;
-        private const float _maxRpm = 200;
+        private const float _maxRpm = 125;
 
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -160,23 +162,17 @@ namespace NavalPowerSystems.Drivetrain
 
             if (_propellerSubpart != null)
             {
-                float desiredRpm = _maxRpm * (_inputMW / _propellerStats.MaxMW); // linear fraction of max
-                float degreesPerTick = desiredRpm * 360f / 60f / 60f; // convert RPM → degrees/tick at 60 Hz
+                float rawRPM = _maxRpm * (_inputMW / _propellerStats.MaxMW); // linear fraction of max
+                _targetRPM = MathHelper.Clamp(rawRPM, 0, _maxRpm);
+
+                _currentRPM = MathHelper.Lerp(_currentRPM, _targetRPM, 0.01f);
+
+                float degreesPerTick = _currentRPM * 360f / 3600f; // convert RPM → degrees/tick at 60 Hz
                 _currentAngle += degreesPerTick;
                 _currentAngle %= 360f;
-            }
 
-            float frameRotation = _maxRpm * _rpmRatio / 60 * 6f;
-
-            if (frameRotation != 0)
-            {
-                _currentAngle += frameRotation;
-                _currentAngle %= 360f;
-
-                Matrix rotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(_currentAngle));
-
+                Matrix rotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(-_currentAngle));
                 Matrix finalMatrix = rotationMatrix * _initialLocalMatrix;
-
                 _propellerSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
             }
         }
@@ -193,6 +189,7 @@ namespace NavalPowerSystems.Drivetrain
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
         {
             sb.AppendLine($"Output: {_outputMW:F4} MN");
+            sb.AppendLine($"Rotation: {_targetRPM:F4} RPM");
         }
 
         public override void OnRemovedFromScene()
