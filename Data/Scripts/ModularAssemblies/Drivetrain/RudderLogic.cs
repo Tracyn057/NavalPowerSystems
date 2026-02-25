@@ -21,7 +21,7 @@ namespace NavalPowerSystems.Drivetrain
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TerminalBlock), false,
             "NPSDrivetrainRudderSmallCenteredV1"
     )]
-    internal class RudderLogic : MyGameLogicComponent
+    internal class RudderLogic : MyGameLogicComponent, IMyEventProxy
     {
         private IMyTerminalBlock _rudder;
         private IMyCubeBlock _myRudder;
@@ -30,7 +30,9 @@ namespace NavalPowerSystems.Drivetrain
         private MyEntitySubpart _rudderSubpart;
         private Matrix _initialLocalMatrix;
 
-        private bool _isAutoCenter = true;
+        private MySync<bool, SyncDirection.BothWays> _isAutoCenterSync = true;
+        private bool _controlsInit = false;
+        private bool _actionsInit = false;
 
         private float _gridMass = 1.0f;
         private float _maxAngle = 35f;
@@ -69,6 +71,14 @@ namespace NavalPowerSystems.Drivetrain
             if (_rudderSubpart != null)
             {
                 _initialLocalMatrix = _rudderSubpart.PositionComp.LocalMatrixRef;
+            }
+
+            if (!_controlsInit)
+            {
+                CreateControls();
+                _controlsInit = true;
+                CreateActions();
+                _actionsInit = true;
             }
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
@@ -139,7 +149,7 @@ namespace NavalPowerSystems.Drivetrain
             {
                 _targetAngle += angle * _degreeSpeed;
             }
-            else if (_isAutoCenter)
+            else if (_isAutoCenterSync.Value)
             {
                 if (Math.Abs(_targetAngle) > 0.01f)
                 {
@@ -279,7 +289,21 @@ namespace NavalPowerSystems.Drivetrain
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
         {
-            sb.AppendLine($"Angle: {_currentAngle:F4} degrees");
+            sb.AppendLine($"Angle: {_currentAngle:F2} degrees");
+        }
+
+        private static void CreateControls()
+        {
+            if (_controlsInit) return;
+            _controlsInit = true;
+            //Add checkbox to toggle auto-centering
+        }
+
+        private static void CreateActions()
+        {
+            if (_actionsInit) return;
+            _actionsInit = true;
+            //Add action to toggle auto-centering
         }
 
         public override void OnRemovedFromScene()

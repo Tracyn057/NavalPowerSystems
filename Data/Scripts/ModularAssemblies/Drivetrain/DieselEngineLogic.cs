@@ -93,12 +93,16 @@ namespace NavalPowerSystems.Drivetrain
 
         protected override void EngineUpdate10()
         {
-            UpdateThrottle();
-            UpdateFuel();
-            UpdatePower();
+            UpdateEngineState();
 
-            _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
-            _status = (_currentThrottle > 0.01f) ? "Running" : "Idle";
+            if (_state == EngineState.Running)
+            {
+                UpdateThrottle();
+                UpdateFuel();
+                UpdatePower();
+
+                _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
+            }
         }
 
         #endregion
@@ -199,11 +203,12 @@ namespace NavalPowerSystems.Drivetrain
             sb.AppendLine($"Output: {_currentOutputMW:F2} MW");
             sb.AppendLine($"Max Output: {_engineStats.MaxMW:F2} MW");
             sb.AppendLine($"Fuel Rate: {(_fuelBurn * 6):F2} l/s");
-            sb.AppendLine($"Throttle: {(_currentThrottle * 100):F0}");
-            sb.AppendLine($"Requested Throttle: {(RequestedThrottleSync.Value * 100):F0}");
+            sb.AppendLine($"Throttle: {(_currentThrottle):P0}");
+            sb.AppendLine($"Requested Throttle: {(RequestedThrottleSync.Value):P0}");
             sb.AppendLine($"Clutch Engaged: {_isEngaged} ");
         }
 
+        //Future function for when setting target speed by m/s or knots is added
         public void ParseSpeedInput(string input)
         {
             float parsedValue;
@@ -377,7 +382,11 @@ namespace NavalPowerSystems.Drivetrain
             switch (_state)
             {
                 case EngineState.Off:
-                    if (canWork) _state = EngineState.Starting;
+                    if (canWork) 
+                    {
+                        _state = EngineState.Starting;
+                        _status = "Starting";
+                    }
                     break;
 
                 case EngineState.Starting:
@@ -386,13 +395,18 @@ namespace NavalPowerSystems.Drivetrain
                         _state = EngineState.Off; 
                         _startupTicks = 0; 
                         _currentOutputMW = 0f;
+                        _status = "Starting";
                         return; 
                     }
                     
                     _startupTicks++;
                     
                     if (_startupTicks >= STARTUP_TIME_TICKS)
+                    {
                         _state = EngineState.Running;
+                        _status = "Running";
+                    }
+                        
                     break;
 
                 case EngineState.Running:
@@ -400,13 +414,15 @@ namespace NavalPowerSystems.Drivetrain
                     {  
                         _state = EngineState.Stopping;
                         _startupTicks = 0; 
+                        _status = "Shutting Down";
                     }
                     break;
 
                 case EngineState.Stopping:
                     if (canWork) 
                     {
-                        _state = EngineState.Running; 
+                        _state = EngineState.Running;
+                        _status = "Running";
                         return;
                     }
                     RequestedThrottleSync.Value = 0f;
@@ -415,6 +431,7 @@ namespace NavalPowerSystems.Drivetrain
                     {
                         _state = EngineState.Off;
                         _startupTicks = 0;
+                        _status = "Off";
                     }
                     break;
             }
