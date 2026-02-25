@@ -48,6 +48,7 @@ namespace NavalPowerSystems.Drivetrain
         {
 
             _engine.Stockpile = true;
+            _engine.Enabled = false;
 
             if (_engineStats.Type == EngineType.GasTurbine)
             {
@@ -60,7 +61,6 @@ namespace NavalPowerSystems.Drivetrain
 
             if (!_controlsInit)
             {
-                //Utilities.RemoveControls();
                 CreateControls();
                 _controlsInit = true;
                 CreateActions();
