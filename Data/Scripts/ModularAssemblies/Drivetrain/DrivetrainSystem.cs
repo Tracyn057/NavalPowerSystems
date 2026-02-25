@@ -25,6 +25,7 @@ namespace NavalPowerSystems.Drivetrain
         public List<IMyGasTank> Inputs = new List<IMyGasTank>();
         public List<IMyTerminalBlock> Outputs = new List<IMyTerminalBlock>();
         public List<IMySlimBlock> Driveshafts = new List<IMySlimBlock>();
+        public List<CachedShaft> CachedShafts = new List<CachedShaft>();
         private List<DrivetrainCircuit> DrivetrainMap = new List<DrivetrainCircuit>();
         private static readonly Dictionary<long, int> GridDragLeaders = new Dictionary<long, int>();
         //Engine System Variables
@@ -68,6 +69,14 @@ namespace NavalPowerSystems.Drivetrain
                     return;
                 }
                 Outputs.Add(block as IMyTerminalBlock);
+                if (Outputs.Count == 1)
+                {
+                    var logic = block.GameLogic?.GetAs<PropellerLogic>();
+                    if (logic != null)
+                    {
+                        logic._isPrime = true;
+                    }
+                }
                 ModularApi.Log($"{AssemblyId} now contains {Outputs.Count} Power Consumers.");
                 ModularApi.Log($"{AssemblyId} now contains {BlockCount} parts.");
             }
@@ -90,6 +99,7 @@ namespace NavalPowerSystems.Drivetrain
                     return;
                 }
                 Driveshafts.Add(block.SlimBlock);
+                RegisterShaft(block);
                 ModularApi.Log($"{AssemblyId} now contains {Driveshafts.Count} Driveshafts.");
                 ModularApi.Log($"{AssemblyId} now contains {BlockCount} parts.");
             }
@@ -125,6 +135,7 @@ namespace NavalPowerSystems.Drivetrain
             else if (Config.DriveshaftSubtypes.Contains(subtype))
             {
                 Driveshafts.Remove(block.SlimBlock);
+                CachedShafts.RemoveAll(x => x.ShaftId == block.EntityId);
                 ModularApi.Log($"{AssemblyId} now contains {Driveshafts.Count} Driveshafts.");
                 ModularApi.Log($"{AssemblyId} now contains {BlockCount} parts.");
             }
@@ -380,6 +391,19 @@ namespace NavalPowerSystems.Drivetrain
             }
         }
 
+        public void RegisterShaft(IMyCubeBlock block) 
+        {
+            var subpart = block.GetSubpart("Shaft");
+            if (subpart != null) {
+                CachedShafts.Add(new CachedShaft {
+                    Shaft = block,
+                    ShaftId = block.EntityId,
+                    Subpart = subpart,
+                    InitialMatrix = subpart.PositionComp.LocalMatrixRef
+                });
+            }
+        }
+
         public void DrivetrainDebug10()
         {
             ModularApi.Log($"{AssemblyId} Output count is {Outputs.Count}.");
@@ -436,6 +460,14 @@ namespace NavalPowerSystems.Drivetrain
                 CurrentReductionLevel = level;
                 HasClutch = hasClutch;
             }
+        }
+
+        public struct CachedShaft 
+        {
+            public IMyCubeBlock Shaft;
+            public long ShaftId;
+            public MyEntitySubpart Subpart;
+            public Matrix InitialMatrix;
         }
     }
 

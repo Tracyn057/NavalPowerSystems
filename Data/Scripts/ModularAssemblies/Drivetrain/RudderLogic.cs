@@ -122,8 +122,9 @@ namespace NavalPowerSystems.Drivetrain
                 if 
                     (   
                     control.IsUnderControl
-                    || _gridController == null // TODO prefer controller on same grid as PB.
-                    || (!_gridController.IsUnderControl && control.IsMainCockpit)
+                    || _gridController == null
+                    || (!_gridController.IsUnderControl 
+                    && control.IsMainCockpit)
                     )
                     _gridController = control;
             }
