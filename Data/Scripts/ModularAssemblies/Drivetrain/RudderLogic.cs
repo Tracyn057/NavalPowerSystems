@@ -287,8 +287,8 @@ namespace NavalPowerSystems.Drivetrain
             base.OnRemovedFromScene();
             if (_rudderGrid != null )
             {
-                _rudderGrid.OnBlockAdded -= MarkForEngineSearch;
-                _rudderGrid.OnBlockRemoved -= MarkForEngineSearch;
+                _rudderGrid.OnBlockAdded -= MarkForPropSearch;
+                _rudderGrid.OnBlockRemoved -= MarkForPropSearch;
             }
             if (_rudder != null) _rudder.AppendingCustomInfo -= AppendCustomInfo;
         }
