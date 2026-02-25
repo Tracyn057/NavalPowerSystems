@@ -62,8 +62,8 @@ namespace NavalPowerSystems.Drivetrain
             _rudder.AppendingCustomInfo += AppendCustomInfo;
 
             _enginesCached = false;
-            _rudderGrid.OnBlockAdded += MarkForEngineSearch;
-            _rudderGrid.OnBlockRemoved += MarkForEngineSearch;
+            _rudderGrid.OnBlockAdded += MarkForPropSearch;
+            _rudderGrid.OnBlockRemoved += MarkForPropSearch;
 
             Entity.TryGetSubpart("Rudder", out _rudderSubpart);
             if (_rudderSubpart != null)
