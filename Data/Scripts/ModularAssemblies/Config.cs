@@ -61,6 +61,11 @@ namespace NavalPowerSystems
             "NPSDrivetrainMRG"
         };
 
+        public static readonly HashSet<string> RudderSubtypes = new HashSet<string>
+        {
+            "NPSDrivetrainRudderSmallCenteredV1"
+        };
+
 
 
         //Component stats definition

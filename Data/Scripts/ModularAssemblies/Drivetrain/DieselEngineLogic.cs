@@ -93,16 +93,12 @@ namespace NavalPowerSystems.Drivetrain
 
         protected override void EngineUpdate10()
         {
-            UpdateEngineState();
 
-            if (_state == EngineState.Running)
-            {
-                UpdateThrottle();
-                UpdateFuel();
-                UpdatePower();
+            UpdateThrottle();
+            UpdateFuel();
+            UpdatePower();
 
-                _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
-            }
+            _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
         }
 
         #endregion

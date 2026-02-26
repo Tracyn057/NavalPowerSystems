@@ -1,18 +1,18 @@
 ﻿using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Cube;
 using Sandbox.ModAPI;
-using SharpDX.XInput;
+using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Network;
 using VRage.ModAPI;
+using VRage.Network;
 using VRage.ObjectBuilders;
+using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
@@ -30,9 +30,9 @@ namespace NavalPowerSystems.Drivetrain
         private MyEntitySubpart _rudderSubpart;
         private Matrix _initialLocalMatrix;
 
-        private MySync<bool, SyncDirection.BothWays> _isAutoCenterSync = true;
-        private bool _controlsInit = false;
-        private bool _actionsInit = false;
+        private MySync<bool, SyncDirection.BothWays> _isAutoCenterSync;
+        private static bool _controlsInit = false;
+        private static bool _actionsInit = false;
 
         private float _gridMass = 1.0f;
         private float _maxAngle = 35f;
@@ -63,7 +63,7 @@ namespace NavalPowerSystems.Drivetrain
             FindShipControllers(_rudderGrid);
             _rudder.AppendingCustomInfo += AppendCustomInfo;
 
-            _enginesCached = false;
+            _propCached = false;
             _rudderGrid.OnBlockAdded += MarkForPropSearch;
             _rudderGrid.OnBlockRemoved += MarkForPropSearch;
 
@@ -166,19 +166,18 @@ namespace NavalPowerSystems.Drivetrain
         {
             Vector3D startPos = _rudder.WorldMatrix.Translation;
             Vector3D scanDirection = _rudder.WorldMatrix.Forward;
+            Vector3D endPos = startPos + (scanDirection + 12.0);
             
-            LineD ray = new LineD(startPos, startPos + (scanDirection * 12.0));
-            
-            List<IMyTerminalBlock> hits = new List<IMyTerminalBlock>();
-            _rudderGrid.GetBlocksIntersectingRay(ray, hits);
+            Vector3I? hitBlock = _rudderGrid.RayCastBlocks(startPos, endPos);
 
-            foreach (var slim in hits)
+            if (hitBlock.HasValue)
             {
-                var fat = slim.FatBlock as IMyTerminalBlock;
-                if (fat != null && Config.PropellerSubtypes.Contains(fat.BlockDefinition.SubtypeName) && fat.IsFunctional)
+                IMySlimBlock slim = _rudderGrid.GetCubeBlock(hitBlock.Value);
+                var fat = slim?.FatBlock as IMyTerminalBlock;
+
+                if (fat != null && Config.PropellerSubtypes.Contains(fat.BlockDefinition.SubtypeId))
                 {
                     _linkedPropeller = fat;
-                    break;
                 }
             }
         }
@@ -296,7 +295,32 @@ namespace NavalPowerSystems.Drivetrain
         {
             if (_controlsInit) return;
             _controlsInit = true;
-            //Add checkbox to toggle auto-centering
+
+            {
+                var centeringToggle =
+                    MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyTerminalBlock>("NPSRudderCenterToggleControl");
+                centeringToggle.Title = MyStringId.GetOrCompute("Auto-Center");
+                centeringToggle.Tooltip = MyStringId.GetOrCompute("");
+                centeringToggle.Getter = (block) =>
+                    block.GameLogic.GetAs<RudderLogic>()?._isAutoCenterSync.Value ?? true;
+                centeringToggle.Setter = (block, value) =>
+                {
+                    var logic = block.GameLogic.GetAs<RudderLogic>();
+                    if (!value)
+                    {
+                        logic._isAutoCenterSync.Value = value;
+                    }
+                };
+                centeringToggle.OnText = MyStringId.GetOrCompute("On");
+                centeringToggle.OffText = MyStringId.GetOrCompute("Off");
+
+                centeringToggle.Visible = block => 
+                    Config.RudderSubtypes.Contains(block.BlockDefinition.SubtypeId);
+                centeringToggle.Enabled = block => true;
+                centeringToggle.SupportsMultipleBlocks = true;
+
+                MyAPIGateway.TerminalControls.AddControl<IMyTerminalBlock>(centeringToggle);
+            }
         }
 
         private static void CreateActions()

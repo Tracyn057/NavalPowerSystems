@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using VRage.Game.Components;
+using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRageMath;
 using static NavalPowerSystems.Config;
@@ -25,7 +26,6 @@ namespace NavalPowerSystems.Drivetrain
         public List<IMyGasTank> Inputs = new List<IMyGasTank>();
         public List<IMyTerminalBlock> Outputs = new List<IMyTerminalBlock>();
         public List<IMySlimBlock> Driveshafts = new List<IMySlimBlock>();
-        public List<CachedShaft> CachedShafts = new List<CachedShaft>();
         private List<DrivetrainCircuit> DrivetrainMap = new List<DrivetrainCircuit>();
         private static readonly Dictionary<long, int> GridDragLeaders = new Dictionary<long, int>();
         //Engine System Variables
@@ -100,7 +100,6 @@ namespace NavalPowerSystems.Drivetrain
                     return;
                 }
                 Driveshafts.Add(block.SlimBlock);
-                RegisterShaft(block);
                 ModularApi.Log($"{AssemblyId} now contains {Driveshafts.Count} Driveshafts.");
                 ModularApi.Log($"{AssemblyId} now contains {BlockCount} parts.");
             }
@@ -136,7 +135,6 @@ namespace NavalPowerSystems.Drivetrain
             else if (Config.DriveshaftSubtypes.Contains(subtype))
             {
                 Driveshafts.Remove(block.SlimBlock);
-                CachedShafts.RemoveAll(x => x.ShaftId == block.EntityId);
                 ModularApi.Log($"{AssemblyId} now contains {Driveshafts.Count} Driveshafts.");
                 ModularApi.Log($"{AssemblyId} now contains {BlockCount} parts.");
             }
@@ -186,16 +184,6 @@ namespace NavalPowerSystems.Drivetrain
                     new HashSet<IMyCubeBlock>(),
                     0,
                     false);
-            }
-
-            if ( Outputs.Count > 0)
-            {
-                foreach (var prop in Outputs)
-                {
-                    if (prop == null) continue;
-                    var logic = prop.GameLogic?.GetAs<PropellerLogic>();
-                    logic._currentThrottle = _highThrottle;
-                }
             }
         }
 
@@ -400,19 +388,6 @@ namespace NavalPowerSystems.Drivetrain
             }
         }
 
-        public void RegisterShaft(IMyCubeBlock block) 
-        {
-            var subpart = block.GetSubpart("Shaft");
-            if (subpart != null) {
-                CachedShafts.Add(new CachedShaft {
-                    Shaft = block,
-                    ShaftId = block.EntityId,
-                    Subpart = subpart,
-                    InitialMatrix = subpart.PositionComp.LocalMatrixRef
-                });
-            }
-        }
-
         public void DrivetrainDebug10()
         {
             ModularApi.Log($"{AssemblyId} Output count is {Outputs.Count}.");
@@ -471,9 +446,9 @@ namespace NavalPowerSystems.Drivetrain
             }
         }
 
-        public struct CachedShaft 
+        public struct CachedShaft
         {
-            public IMyCubeBlock Shaft;
+            public IMySlimBlock Shaft;
             public long ShaftId;
             public MyEntitySubpart Subpart;
             public Matrix InitialMatrix;

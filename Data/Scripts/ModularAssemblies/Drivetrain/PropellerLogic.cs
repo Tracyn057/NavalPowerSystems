@@ -173,16 +173,7 @@ namespace NavalPowerSystems.Drivetrain
 
                 Matrix rotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(-_currentAngle));
                 Matrix finalMatrix = rotationMatrix * _initialLocalMatrix;
-                _propellerSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
-
-                if (_isPrime && DrivetrainSystem.CachedShafts != null)
-                {                    
-                    foreach (var cached in DrivetrainSystem.CachedShafts)
-                    {
-                        Matrix shaftFinal = rotationMatrix * cached.InitialMatrix;
-                        cached.Subpart.PositionComp.SetLocalMatrix(ref shaftFinal);
-                    }
-                }               
+                _propellerSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);             
             }
         }
 
