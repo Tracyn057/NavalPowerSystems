@@ -73,7 +73,12 @@ namespace NavalPowerSystems.Drivetrain
                     break;
                 }
             }
-        }     
+        }  
+
+        private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
+        {
+            sb.AppendLine($"Status: {_status}");
+        }   
 
         public override void OnRemovedFromScene()
         {
@@ -81,6 +86,10 @@ namespace NavalPowerSystems.Drivetrain
             {
                 _linkedEngineLogic._isLinkedToGenerator = false;
                 _linkedEngineLogic.RefreshCustomControls();
+            }
+            if (_generator != null)
+            {
+                _generator.AppendingCustomInfo -= AppendCustomInfo;
             }
         }   
     }
