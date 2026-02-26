@@ -40,8 +40,16 @@
 
   -->
     <EntityComponents>
-
-    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+        <EntityComponent xsi:type="MyObjectBuilder_ModStorageComponentDefinition">
+            <Id>
+                <TypeId>ModStorageComponent</TypeId>
+                <SubtypeId>NavalPowerSystemsModStorage</SubtypeId>
+            </Id>
+            <RegisteredStorageGuids>
+                <guid>ff61eeb4-2728-4deb-9a8e-76b0a8ca1f93</guid>
+            </RegisteredStorageGuids>
+        </EntityComponent>
+        <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
             <Id>
                 <TypeId>Inventory</TypeId>
                 <SubtypeId>NPSDieselEngine500KW</SubtypeId>
@@ -54,8 +62,7 @@
                 </Entry>
             </InputConstraint>
         </EntityComponent>
-
-    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+        <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
             <Id>
                 <TypeId>Inventory</TypeId>
                 <SubtypeId>NPSDieselEngine15MW</SubtypeId>
@@ -68,8 +75,7 @@
                 </Entry>
             </InputConstraint>
         </EntityComponent>
-
-    <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
+        <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
             <Id>
                 <TypeId>Inventory</TypeId>
                 <SubtypeId>NPSDieselEngine25MW</SubtypeId>
@@ -82,6 +88,5 @@
                 </Entry>
             </InputConstraint>
         </EntityComponent>
-
     </EntityComponents>
 </Definitions>

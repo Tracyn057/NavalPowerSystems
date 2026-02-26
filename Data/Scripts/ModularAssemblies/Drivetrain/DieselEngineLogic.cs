@@ -32,6 +32,7 @@ namespace NavalPowerSystems.Drivetrain
         private float _fuelBurn = 0f;
         private static bool _controlsInit = false;
         private static bool _actionsInit = false;
+        public bool _isLinkedToGenerator { get; set; } = false;
 
         #endregion
 
@@ -49,6 +50,14 @@ namespace NavalPowerSystems.Drivetrain
 
             _engine.Stockpile = true;
             _engine.Enabled = false;
+            _state = EngineState.Off;
+
+            LoadSettings();
+            _state = (EngineState)Settings.EngineState;
+            _engine.Enabled = Settings.Enabled;
+            _currentThrottle = Settings.CurrentThrottle;
+            RequestedThrottleSync.Value = Settings.RequestedThrottle;
+            SaveSettings();
 
             if (_engineStats.Type == EngineType.GasTurbine)
             {
@@ -84,6 +93,7 @@ namespace NavalPowerSystems.Drivetrain
                 case 4: newTarget = 1.0f; break;
             }
             RequestedThrottleSync.Value = newTarget;
+            SaveSettings();
         }
 
         protected override void OnRequestedThrottleChanged(float value)
@@ -93,12 +103,20 @@ namespace NavalPowerSystems.Drivetrain
 
         protected override void EngineUpdate10()
         {
+            UpdateEngineState();
 
-            UpdateThrottle();
-            UpdateFuel();
-            UpdatePower();
+            if (EngineState == EngineState.Running)
+            {
+                UpdateThrottle();
+                UpdateFuel();
+                UpdatePower();
 
-            _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
+                _currentOutputMW = _engineStats.MaxMW * _currentThrottle;
+            }
+            else
+            {
+                _currentOutputMW = 0f;
+            }
         }
 
         #endregion
@@ -241,13 +259,22 @@ namespace NavalPowerSystems.Drivetrain
                 };
                 throttleList.Getter = (block) => 
                     (long)(block.GameLogic.GetAs<CombustionEngineLogic>()?.SelectedThrottleIndexSync.Value ?? 0);
-                throttleList.Setter = (block, key) => 
+                throttleList.Setter = (block, key) =>
+                {
                     block.GameLogic.GetAs<CombustionEngineLogic>().SelectedThrottleIndexSync.Value = (int)key;
+                };
                 throttleList.Visible = (block) =>
                     block.BlockDefinition.SubtypeName.Contains("NPSDieselTurbine") ||
                     block.BlockDefinition.SubtypeName.Contains("NPSDieselEngine");
                 throttleList.SupportsMultipleBlocks = true;
-                throttleList.Enabled = (block) => true;
+                throttleList.Enabled = (block) => 
+                {
+                    var logic = block.GameLogic.GetAs<CombustionEngineLogic>();
+                    if (logic != null)
+                    {
+                        return Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId) && !logic._isLinkedToGenerator;
+                    }
+                };
 
                 MyAPIGateway.TerminalControls.AddControl<IMyGasTank>(throttleList);
             }
@@ -279,7 +306,14 @@ namespace NavalPowerSystems.Drivetrain
                     block.BlockDefinition.SubtypeName.Contains("NPSDieselTurbine") ||
                     block.BlockDefinition.SubtypeName.Contains("NPSDieselEngine");
                 throttleSlider.SupportsMultipleBlocks = true;
-                throttleSlider.Enabled = (block) => true;
+                throttleSlider.Enabled = (block) => 
+                {
+                    var logic = block.GameLogic.GetAs<CombustionEngineLogic>();
+                    if (logic != null)
+                    {
+                        return Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId) && !logic._isLinkedToGenerator;
+                    }
+                };;
 
                 MyAPIGateway.TerminalControls.AddControl<IMyGasTank>(throttleSlider);
             }
@@ -314,7 +348,14 @@ namespace NavalPowerSystems.Drivetrain
                             sb.Append(throttleNames[val]);
                     }
                 };
-                throttleActions.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId);
+                throttleActions.Enabled = block =>
+                {
+                    var logic = block.GameLogic.GetAs<CombustionEngineLogic>();
+                    if (logic != null)
+                    {
+                        return Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId) && !logic._isLinkedToGenerator;
+                    }
+                };
 
                 MyAPIGateway.TerminalControls.AddAction<IMyGasTank>(throttleActions);
             }
@@ -331,7 +372,14 @@ namespace NavalPowerSystems.Drivetrain
                         logic.RequestedThrottleSync.Value = Math.Min(logic.RequestedThrottleSync.Value + 0.05f, 1.25f);
                     }
                 };
-                increaseThrottle.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId);
+                increaseThrottle.Enabled = block => 
+                {
+                    var logic = block.GameLogic.GetAs<CombustionEngineLogic>();
+                    if (logic != null)
+                    {
+                        return Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId) && !logic._isLinkedToGenerator;
+                    }
+                };
                 increaseThrottle.Writer = (b, sb) => sb.Append($"{(b?.GameLogic?.GetAs<CombustionEngineLogic>()?.RequestedThrottleSync.Value ?? 0) * 100:F0}%");
 
                 MyAPIGateway.TerminalControls.AddAction<IMyGasTank>(increaseThrottle);
@@ -349,7 +397,14 @@ namespace NavalPowerSystems.Drivetrain
                         logic.RequestedThrottleSync.Value = Math.Max(logic.RequestedThrottleSync.Value - 0.05f, 0f);
                     }
                 };
-                decreaseThrottle.Enabled = block => Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId);
+                decreaseThrottle.Enabled = block => 
+                {
+                    var logic = block.GameLogic.GetAs<CombustionEngineLogic>();
+                    if (logic != null)
+                    {
+                        return Config.EngineSubtypes.Contains(block.BlockDefinition.SubtypeId) && !logic._isLinkedToGenerator;
+                    }
+                };
                 decreaseThrottle.Writer = (b, sb) => sb.Append($"{(b?.GameLogic?.GetAs<CombustionEngineLogic>()?.RequestedThrottleSync.Value ?? 0) * 100:F0}%");
 
                 MyAPIGateway.TerminalControls.AddAction<IMyGasTank>(decreaseThrottle);
@@ -358,6 +413,7 @@ namespace NavalPowerSystems.Drivetrain
 
         public override void OnRemovedFromScene()
         {
+            SaveSettings();
             if (_engine != null) _engine.AppendingCustomInfo -= AppendCustomInfo;
         }
 
@@ -369,7 +425,7 @@ namespace NavalPowerSystems.Drivetrain
 
         private EngineState _state = EngineState.Off;
         private int _startupTicks = 0;
-        private const int STARTUP_TIME_TICKS = 5400; // 1.5 minutes at 60 ticks per second
+        private const int STARTUP_TIME_TICKS = 180; //This is in Update10 calls, so 180 = 30 seconds
 
         private void UpdateEngineState()
         {   
@@ -434,5 +490,108 @@ namespace NavalPowerSystems.Drivetrain
         }
 
         #endregion
+
+        #region Settings
+
+        public static readonly Guid SettingsGuid = new Guid("ff61eeb4-2728-4deb-9a8e-76b0a8ca1f93");
+        public CombustionEngineSettings Settings;
+
+        internal void SaveSettings()
+        {
+            if (Block == null || Settings == null)
+            {
+                ModularApi.Log($"Save block null or settings null for {typeof(CombustionEngineLogic).Name}");
+                return;
+            }
+
+            if (MyAPIGateway.Utilities == null)
+                throw new NullReferenceException(
+                    $"MyAPIGateway.Utilities == null; entId={Entity?.EntityId}; Test log 2");
+
+            if (Block.Storage == null)
+                Block.Storage = new MyModStorageComponent();
+
+            Settings.EngineState = (int)_state;
+            Settings.Enabled = _engine.Enabled;
+            Settings.CurrentThrottle = _currentThrottle;
+            Settings.RequestedThrottle = RequestedThrottleSync.Value;
+
+            Block.Storage.SetValue(SettingsGuid,
+                Convert.ToBase64String(MyAPIGateway.Utilities.SerializeToBinary(Settings)));
+        }
+
+        internal virtual void LoadDefaultSettings()
+        {
+            if (!MyAPIGateway.Session.IsServer)
+                return;
+
+            Settings.EngineState = (int)EngineState.Off;
+            Settings.Enabled = false;
+            Settings.CurrentThrottle = 0f;
+            Settings.RequestedThrottle = 0f;
+        }
+
+        internal virtual bool LoadSettings()
+        {
+            if (Settings == null)
+                Settings = new CombustionEngineSettings();
+
+            if (Block.Storage == null)
+            {
+                LoadDefaultSettings();
+                return false;
+            }
+
+            string rawData;
+            if (!Block.Storage.TryGetValue(SettingsGuid, out rawData))
+            {
+                LoadDefaultSettings();
+                return false;
+            }
+
+            try
+            {
+                var loadedSettings =
+                    MyAPIGateway.Utilities.SerializeFromBinary<CombustionEngineSettings>(Convert.FromBase64String(rawData));
+
+                if (loadedSettings != null)
+                {
+                    if (Enum.IsDefined(typeof(EngineState), loadedSettings.EngineState))
+                    {
+                        _state = (EngineState)loadedSettings.EngineState;
+                    }
+                    else
+                    {
+                        _state = EngineState.Off;
+                    }
+
+                    Settings.Enabled = loadedSettings.Enabled;
+                    Settings.CurrentThrottle = loadedSettings.CurrentThrottle;
+                    Settings.RequestedThrottle = loadedSettings.RequestedThrottle;
+
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                MyLog.Default.WriteLineAndConsole("Exception in loading Combustion Engine settings: " + e);
+                MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Exception in loading Combustion Engine settings: " + e);
+                ModularApi.Log("Exception in loading Combustion Engine settings: " + e);
+            }
+
+            return false;
+        }
+
+        #endregion
+    }
+
+    [ProtoContract(UseProtoMembersOnly = true)]
+    internal class CombustionEngineSettings
+    {
+        [ProtoMember(4)] public int EngineState;
+        [ProtoMember(3)] public bool Enabled;
+        [ProtoMember(2)] public float CurrentThrottle;
+
+        [ProtoMember(1)] public float RequestedThrottle;
     }
 }
