@@ -68,36 +68,66 @@ namespace NavalPowerSystems
             // If the connection type whitelist is empty, all allowed subtypes may connect on that side.
             AllowedConnections = new Dictionary<string, Dictionary<Vector3I, string[]>>
             {
-                ////Driveshafts
-                //{
-                //    "NPSDrivetrainDriveshaft", new Dictionary<Vector3I, string[]>
-                //    {
-                //        [Vector3I.Forward] = AllowedDriveshaftConnections,
-                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                //    }
-                //},
-                //{
-                //    "NPSDrivetrainShaftTubeEndVertical", new Dictionary<Vector3I, string[]>
-                //    {
-                //        [Vector3I.Forward] = AllowedPropellerConnections,
-                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                //    }
-                //},
-                //{
-                //    "NPSDriveshaftTube", new Dictionary<Vector3I, string[]>
-                //    {
-                //        [Vector3I.Forward] = AllowedDriveshaftConnections,
-                //        [Vector3I.Forward] = AllowedPropellerConnections,
-                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                //    }
-                //},
-                ////Propellers
-                //{
-                //    "NPSDrivetrainProp33", new Dictionary<Vector3I, string[]>
-                //    {
-                //        [Vector3I.Backward] = AllowedDriveshaftConnections,
-                //    }
-                //},
+                //Gearboxes
+                {
+                    "NPSDrivetrainMRG", new Dictionary<Vector3I, string[]>
+                    {
+                        [new Vector3I(0,-1,-2)] = AllowedDriveshaftConnections,
+                        [new Vector3I(-1,1,2)] = AllowedEngineConnections,
+                        [new Vector3I(1,1,2)] = AllowedEngineConnections
+
+                    }
+                },
+                //Engines
+                {
+                    "NPSDrivetrainDriveshaft", new Dictionary<Vector3I, string[]>
+                    {
+                        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
+                //Driveshafts
+                {
+                    "NPSDrivetrainDriveshaft", new Dictionary<Vector3I, string[]>
+                    {
+                        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
+                {
+                    "NPSDrivetrainShaftTubeEndVertical", new Dictionary<Vector3I, string[]>
+                    {
+                        [Vector3I.Forward] = AllowedPropellerConnections,
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
+                {
+                    "NPSDriveshaftTube", new Dictionary<Vector3I, string[]>
+                    {
+                        [Vector3I.Forward] = AllowedDriveshaftConnections,
+                        [Vector3I.Forward] = AllowedPropellerConnections,
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
+                //Propellers
+                {
+                    "NPSDrivetrainProp43", new Dictionary<Vector3I, string[]>
+                    {
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
+                {
+                    "NPSDrivetrainProp44", new Dictionary<Vector3I, string[]>
+                    {
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
+                {
+                    "NPSDrivetrainProp45", new Dictionary<Vector3I, string[]>
+                    {
+                        [Vector3I.Backward] = AllowedDriveshaftConnections,
+                    }
+                },
             },
         };
 
@@ -127,6 +157,10 @@ namespace NavalPowerSystems
             "NPSDieselEngine500KW",
             "NPSDieselEngine15MW",
             "NPSDieselEngine25MW",
+        };
+        private static readonly string[] AllowedGearboxConnections =
+        {
+            "NPSDrivetrainMRG",
         };
     }
 }

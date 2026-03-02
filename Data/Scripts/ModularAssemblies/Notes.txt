@@ -64,7 +64,7 @@ Propellers - Minimal Variants
 Driveshafts - Minimal
 Shaft Tubes - Minimal
 Rudders - 2? Variants
-Oil System with Vanilla blocks
+X Oil System with Vanilla blocks
 
 Phase 2 Release:
 Electric Induction Motors

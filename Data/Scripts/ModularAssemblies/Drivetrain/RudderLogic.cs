@@ -1,345 +1,225 @@
-﻿using Sandbox.Game.Entities;
+﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;
-using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using VRage.Game;
+using System.Numerics;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
-using VRage.Game.ModAPI.Network;
 using VRage.ModAPI;
-using VRage.Network;
 using VRage.ObjectBuilders;
-using VRage.Sync;
-using VRage.Utils;
 using VRageMath;
+using Vector3 = VRageMath.Vector3;
 
 namespace NavalPowerSystems.Drivetrain
 {
-    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_TerminalBlock), false,
-            "NPSDrivetrainRudderSmallCenteredV1"
+    [MyEntityComponentDescriptor(typeof(MyObjectBuilder_Gyro), false,
+        "NPSDrivetrainRudderSmallCenteredV1"
     )]
-    internal class RudderLogic : MyGameLogicComponent, IMyEventProxy
+    internal class RudderLogic : MyGameLogicComponent
     {
-        private IMyTerminalBlock _rudder;
-        private IMyCubeBlock _myRudder;
-        private MyCubeGrid _rudderGrid;
-        private IMyShipController _gridController;
-        private MyEntitySubpart _rudderSubpart;
-        private Matrix _initialLocalMatrix;
+        private IMyCubeBlock Rudder;
+        private IMyGyro RudderGyro;
+        private MyEntitySubpart RudderSubpart;
+        private MatrixD RudderSubpartMatrix;
+        private IMyCubeGrid RudderGrid;
+        private IMyShipController RudderShipController;
 
-        private MySync<bool, SyncDirection.BothWays> _isAutoCenterSync;
-        private static bool _controlsInit = false;
-        private static bool _actionsInit = false;
-
-        private float _gridMass = 1.0f;
-        private float _maxAngle = 35f;
-        private float _degreeSpeed = 0.05f;
-        private float _currentAngle = 0f;
-        private float _lastAngle = 0f;
-        private float _distToCamera = 0f;
-        private float _targetAngle = 0f;
-        private IMyTerminalBlock _linkedPropeller;
-        private bool _propCached = false;
+        private float DistanceToCamera = 0f;
+        private float RudderMaxAngle = 35f;
+        private float RudderTargetAngle = 0f;
+        private float RudderCurrentAngle = 0f;
+        private const double InnerZone = 0.2094395;
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
-            _rudder = (IMyTerminalBlock)Entity;
-            _myRudder = (MyCubeBlock)Entity;
+
+            Rudder = Entity as IMyCubeBlock;
+            RudderGyro = Entity as IMyGyro;
+
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         public override void UpdateOnceBeforeFrame()
         {
-            _rudderGrid = Entity.Parent as MyCubeGrid;
-            if (_rudderGrid == null)
+            if (Rudder != null && RudderGyro != null)
             {
-                NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
-                return;
-            }
-            FindShipControllers(_rudderGrid);
-            _rudder.AppendingCustomInfo += AppendCustomInfo;
+                Entity.TryGetSubpart("Rudder", out RudderSubpart);
+                if (RudderSubpart != null)
+                {
+                    RudderSubpartMatrix = RudderSubpart.PositionComp.LocalMatrixRef;
+                }
+                RudderGrid = Rudder.Parent as IMyCubeGrid;
+                if (RudderGrid == null)
+                {
+                    NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+                    return;
+                }
 
-            _propCached = false;
-            _rudderGrid.OnBlockAdded += MarkForPropSearch;
-            _rudderGrid.OnBlockRemoved += MarkForPropSearch;
+                var player = MyAPIGateway.Players.GetPlayerControllingEntity(RudderGrid);
 
-            Entity.TryGetSubpart("Rudder", out _rudderSubpart);
-            if (_rudderSubpart != null)
-            {
-                _initialLocalMatrix = _rudderSubpart.PositionComp.LocalMatrixRef;
-            }
-
-            if (!_controlsInit)
-            {
-                CreateControls();
-                _controlsInit = true;
-                CreateActions();
-                _actionsInit = true;
+                if (player?.Controller?.ControlledEntity != null)
+                {
+                    RudderShipController = player.Controller.ControlledEntity as IMyShipController;
+                }
             }
 
-            NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
-        public override void UpdateBeforeSimulation10()
-        {
-            if (!_propCached)
-            {
-                CacheProp();
-                _propCached = true;
-            }
-            _rudder.RefreshCustomInfo();
-        }
-
         public override void UpdateBeforeSimulation()
         {
-            GetAngle();
-            ApplyForce();
-            if (_distToCamera <= 1000)
+            if (!Rudder.IsWorking) return;
+
+            if (RudderShipController == null || !RudderShipController.IsWorking || !RudderShipController.IsMainCockpit)
             {
-                RudderAnimation();
-            }
-        }
+                var player = MyAPIGateway.Players.GetPlayerControllingEntity(RudderGrid);
 
-        public override void UpdateAfterSimulation100()
-        {
-            UpdateDistanceToCamera();
-            _gridMass = _rudderGrid.GetCurrentMass() / 1000000f;
-            _degreeSpeed = MathHelper.Clamp(2.0f / _gridMass, 0.05f, 0.5f);
-        }
-
-        private void MarkForPropSearch(IMySlimBlock block)
-        {
-            _propCached = false;
-        }
-
-        private void FindShipControllers(IMyCubeGrid grid)
-        {
-            var terminalSystem = MyAPIGateway.TerminalActionsHelper.GetTerminalSystemForGrid(grid);
-            if (terminalSystem == null) { return; }
-            List<IMyShipController> controllers = new List<IMyShipController>();
-            terminalSystem.GetBlocksOfType<IMyShipController>(controllers);
-
-            foreach (var control in controllers)
-            {
-                if 
-                    (   
-                    control.IsUnderControl
-                    || _gridController == null
-                    || (!_gridController.IsUnderControl 
-                    && control.IsMainCockpit)
-                    )
-                    _gridController = control;
-            }
-        }
-
-        private void GetAngle()
-        {
-            var controller = MyAPIGateway.Players.GetPlayerControllingEntity(_myRudder.CubeGrid);
-            IMyShipController shipController = controller?.Controller?.ControlledEntity as IMyShipController;
-
-            float angle = shipController?.MoveIndicator.X ?? 0f;
-            
-            if (angle != 0f)
-            {
-                _targetAngle += angle * _degreeSpeed;
-            }
-            else if (_isAutoCenterSync.Value)
-            {
-                if (Math.Abs(_targetAngle) > 0.01f)
+                if (player?.Controller?.ControlledEntity != null)
                 {
-                    _targetAngle = MathHelper.Lerp(_targetAngle, 0f, 0.01f);
+                    RudderShipController = player.Controller.ControlledEntity as IMyShipController;
                 }
             }
 
-            _targetAngle = MathHelper.Clamp(_targetAngle, -_maxAngle, _maxAngle);
+            RudderGyro.GyroOverride = true;
 
-            _currentAngle = MathHelper.Lerp(_currentAngle, _targetAngle, _degreeSpeed);
+            float yawInput = 0f;
+            if (RudderShipController != null)
+                yawInput = RudderShipController.MoveIndicator.X;
+            AlignToGravity(yawInput);
+            RudderAnimation(yawInput);
         }
 
-        private void CacheProp()
-        {
-            Vector3D startPos = _rudder.WorldMatrix.Translation;
-            Vector3D scanDirection = _rudder.WorldMatrix.Forward;
-            Vector3D endPos = startPos + (scanDirection + 12.0);
-            
-            Vector3I? hitBlock = _rudderGrid.RayCastBlocks(startPos, endPos);
-
-            if (hitBlock.HasValue)
-            {
-                IMySlimBlock slim = _rudderGrid.GetCubeBlock(hitBlock.Value);
-                var fat = slim?.FatBlock as IMyTerminalBlock;
-
-                if (fat != null && Config.PropellerSubtypes.Contains(fat.BlockDefinition.SubtypeId))
-                {
-                    _linkedPropeller = fat;
-                }
-            }
-        }
-
-        private void ApplyForce()
-        {
-            if (_rudderGrid.IsPreview || _rudderGrid.Physics == null || !_rudderGrid.Physics.Enabled || _rudderGrid.Physics.IsStatic)
-                return;
-
-            double velocity = _rudderGrid.Physics.LinearVelocity.Dot(_rudderGrid.WorldMatrix.Forward);
-            double speed = Math.Abs(velocity);
-            float propWash = 0f;
-            if (_linkedPropeller != null)
-            {
-                var propLogic = _linkedPropeller.GameLogic?.GetAs<PropellerLogic>();
-                if (propLogic != null && speed < 20f)
-                {
-                    propWash = propLogic._outputMN * 1.5f;
-                }
-                else
-                {
-                    propWash = 0f;
-                }
-            }
-
-            if (speed < 1 && propWash < 0.25f) return;
-
-            float rudderLiftCoef = 0.05f;
-            float lifMagnitude = (float)(_gridMass * (speed + propWash) * rudderLiftCoef * Math.Sin(MathHelper.ToRadians(_currentAngle)));
-            float forceN = lifMagnitude * 1000000f;
-            Vector3D linearForce = _rudderGrid.WorldMatrix.Right * forceN * 0.25f;
-            double leverArm = Vector3D.Distance(_myRudder.WorldMatrix.Translation, _rudderGrid.Physics.CenterOfMassWorld);
-            Vector3 gravity = _gridController.GetNaturalGravity();
-            Vector3D skyAxis = Vector3D.Normalize(-gravity);
-
-            Vector3D angularTorque = skyAxis * (forceN * leverArm);
-
-            _rudderGrid.Physics.AddForce(
-                MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE,
-                linearForce,
-                null,
-                angularTorque
-            );
-        }
-
-        //private void ApplyForce()
-        //{
-        //    if (_rudderGrid.IsPreview || _rudderGrid.Physics == null || !_rudderGrid.Physics.Enabled || _rudderGrid.Physics.IsStatic)
-        //        return;
-
-        //    Vector3D velocity = _rudderGrid.Physics.LinearVelocity;
-        //    Vector3D forward = _rudderGrid.WorldMatrix.Forward;
-
-        //    double forwardSpeed = velocity.Dot(forward);
-        //    double speed = Math.Max(0, forwardSpeed);
-
-        //    if (speed < 1.5 && _currentThrottle < 0.1) return;
-        //    double propWash = _currentThrottle * 1.25;
-        //    double effectiveSpeed = MathHelper.Clamp(speed, 0, 10) + propWash;
-
-        //    float liftCoef = 0.05f;
-        //    float maxForce = _gridMass * (float)effectiveSpeed;
-        //    float forceMagnitude = (float)(_gridMass * effectiveSpeed * liftCoef * Math.Sin(MathHelper.ToRadians(_currentAngle)));
-        //    forceMagnitude = MathHelper.Clamp(forceMagnitude, -maxForce, maxForce);
-        //    float finalThrustN = forceMagnitude * 1000000f; // Convert MN to N for physics application
-
-        //    if (Math.Abs(finalThrustN) > 100)
-        //    {
-        //        // Adjust thrust application zone to above rudder in line with COM
-        //        Vector3D comToRudder = _myRudder.WorldMatrix.Translation - _rudderGrid.Physics.CenterOfMassWorld;
-        //        //Vector3D offset = Vector3D.ProjectOnVector(ref comToRudder, ref forward);
-        //        //Vector3D forcePos = _rudderGrid.Physics.CenterOfMassWorld + offset;
-
-        //        double leverDistance = Vector3D.Dot(comToRudder, forward);
-        //        Vector3D forcePos = _rudderGrid.Physics.CenterOfMassWorld + (forward * leverDistance);
-
-        //        Vector3D thrustVector = _myRudder.WorldMatrix.Right * (float)finalThrustN;
-        //        _rudderGrid.Physics.AddForce(
-        //            MyPhysicsForceType.APPLY_WORLD_FORCE,
-        //            thrustVector,
-        //            forcePos,
-        //            null
-        //        );
-        //    }
-        //}
-
-        private void RudderAnimation()
-        {
-            if (MyAPIGateway.Utilities.IsDedicated || _rudderSubpart == null || _distToCamera >= 1000f)
-                return;
-
-            _currentAngle = MathHelper.Lerp(_currentAngle, _targetAngle, 0.05f);
-
-            Matrix rotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(_currentAngle));
-
-            Matrix finalMatrix = rotationMatrix * _initialLocalMatrix;
-            _rudderSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
-        }
-
-        public void UpdateDistanceToCamera()
+        public override void UpdateBeforeSimulation100()
         {
             if (MyAPIGateway.Utilities.IsDedicated)
                 return;
 
-            var dist = Vector3D.Distance(_myRudder.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
-            _distToCamera = (float)dist;
+            var dist = Vector3D.Distance(Rudder.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
+            DistanceToCamera = (float)dist;
         }
 
-        private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)
+        private void AlignToGravity(float yawInput)
         {
-            sb.AppendLine($"Angle: {_currentAngle:F2} degrees");
+            if (RudderShipController == null || RudderGrid == null || RudderGrid.Physics.IsStatic || !RudderShipController.IsWorking) 
+                return;
+
+            Vector3D gravity = RudderShipController.GetNaturalGravity();
+            if (gravity.LengthSquared() < 0.001) 
+                return;
+
+            Vector3D gravityDir = Vector3D.Normalize(gravity);
+            Vector3D shipDown = RudderShipController.WorldMatrix.Down;
+
+            Vector3D cross = shipDown.Cross(-gravityDir);
+
+            MatrixD worldToLocal = MatrixD.Transpose(RudderShipController.WorldMatrix);
+            Vector3 localError = Vector3.TransformNormal((Vector3)cross, worldToLocal);
+
+            double rollAngle = Math.Asin(localError.X);
+            double pitchAngle = Math.Asin(localError.Z);
+
+            Vector3 localAngleVel = Vector3.TransformNormal(RudderGrid.Physics.AngularVelocity, worldToLocal);
+
+            double rollTorque = ComputeRestore(rollAngle) - localAngleVel.X * 6;
+            double pitchTorque = ComputeRestore(pitchAngle) - localAngleVel.Z * 6;
+
+            double speed = RudderGrid.Physics.LinearVelocity.Length();
+            double speedFactor = MathHelper.Clamp(speed / 15.0, 0, 1.0);
+
+            rollTorque *= speedFactor;
+            pitchTorque *= speedFactor;
+
+            float radToRPM = MathHelper.RadiansPerSecondToRPM;
+
+            float rollRPM = (float)(rollTorque * radToRPM);
+            float pitchRPM = (float)(pitchTorque * radToRPM);
+
+            rollRPM = MathHelper.Clamp(rollRPM, -5f, 5f);
+            pitchRPM = MathHelper.Clamp(pitchRPM, -5f, 5f);
+
+            RudderGyro.Roll = -pitchRPM * 0.33f;
+            RudderGyro.Pitch = -rollRPM * 0.33f;
+
+            float manualYaw = yawInput * 0.33f * (float)speedFactor;
+            float autoYaw = AutoYawReturn() * 0.22f * (float)speedFactor;
+
+            RudderGyro.Yaw = manualYaw + autoYaw;
         }
 
-        private static void CreateControls()
+        private double ComputeRestore(double angle)
         {
-            if (_controlsInit) return;
-            _controlsInit = true;
+            double sign = Math.Sign(angle);
+            double abs = Math.Abs(angle);
 
+            if (abs < InnerZone)
             {
-                var centeringToggle =
-                    MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyTerminalBlock>("NPSRudderCenterToggleControl");
-                centeringToggle.Title = MyStringId.GetOrCompute("Auto-Center");
-                centeringToggle.Tooltip = MyStringId.GetOrCompute("");
-                centeringToggle.Getter = (block) =>
-                    block.GameLogic.GetAs<RudderLogic>()?._isAutoCenterSync.Value ?? true;
-                centeringToggle.Setter = (block, value) =>
+                return -angle * 1.5;
+            }
+            else
+            {
+                double excess = abs - InnerZone;
+
+                double soft = InnerZone * 1.5 + excess * 0.75;
+
+                return -sign * soft;
+            }
+        }
+
+        private float AutoYawReturn()
+        {
+            Vector3D gravityDir = Vector3D.Normalize(RudderShipController.GetNaturalGravity());
+            Vector3D planeNormal = -gravityDir;
+            Vector3D shipForward = RudderShipController.WorldMatrix.Forward;
+            Vector3D velocityDir = Vector3D.Normalize(RudderGrid.Physics.LinearVelocity);
+
+            Vector3D fwdProj =
+                shipForward - planeNormal * shipForward.Dot(planeNormal);
+
+            Vector3D velProj =
+                velocityDir - planeNormal * velocityDir.Dot(planeNormal);
+
+            double fwdLenSq = fwdProj.LengthSquared();
+            double velLenSq = velProj.LengthSquared();
+
+            if (fwdLenSq < 1e-6 || velLenSq < 1e-6)
+
+            fwdProj.Normalize();
+            velProj.Normalize();
+
+            double sinYaw = planeNormal.Dot(fwdProj.Cross(velProj));
+            double cosYaw = fwdProj.Dot(velProj);
+
+            double yawAngle = Math.Atan2(sinYaw, cosYaw);
+
+            return (float)-yawAngle;
+        }
+
+        private void RudderAnimation(float yawInput)
+        {
+            if (MyAPIGateway.Utilities.IsDedicated || RudderSubpart == null || DistanceToCamera >= 1000f)
+                return;
+
+            
+                if (Math.Abs(RudderTargetAngle) > 0.01f)
                 {
-                    var logic = block.GameLogic.GetAs<RudderLogic>();
-                    if (!value)
-                    {
-                        logic._isAutoCenterSync.Value = value;
-                    }
-                };
-                centeringToggle.OnText = MyStringId.GetOrCompute("On");
-                centeringToggle.OffText = MyStringId.GetOrCompute("Off");
+                    RudderTargetAngle = MathHelper.Lerp(RudderTargetAngle, 0f, 0.01f);
+                }
 
-                centeringToggle.Visible = block => 
-                    Config.RudderSubtypes.Contains(block.BlockDefinition.SubtypeId);
-                centeringToggle.Enabled = block => true;
-                centeringToggle.SupportsMultipleBlocks = true;
+            RudderTargetAngle = MathHelper.Clamp(RudderTargetAngle, -RudderMaxAngle, RudderMaxAngle);
 
-                MyAPIGateway.TerminalControls.AddControl<IMyTerminalBlock>(centeringToggle);
-            }
+            RudderCurrentAngle = MathHelper.Lerp(RudderCurrentAngle, RudderTargetAngle, 0.025f);
+
+            float targetAngle = yawInput * RudderMaxAngle;
+            RudderCurrentAngle = MathHelper.Lerp(RudderCurrentAngle, targetAngle, 0.025f);
+
+            Matrix rotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(RudderCurrentAngle));
+
+            Matrix finalMatrix = rotationMatrix * RudderSubpartMatrix;
+            RudderSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
         }
 
-        private static void CreateActions()
-        {
-            if (_actionsInit) return;
-            _actionsInit = true;
-            //Add action to toggle auto-centering
-        }
-
-        public override void OnRemovedFromScene()
-        {
-            base.OnRemovedFromScene();
-            if (_rudderGrid != null )
-            {
-                _rudderGrid.OnBlockAdded -= MarkForPropSearch;
-                _rudderGrid.OnBlockRemoved -= MarkForPropSearch;
-            }
-            if (_rudder != null) _rudder.AppendingCustomInfo -= AppendCustomInfo;
-        }
 
     }
 }

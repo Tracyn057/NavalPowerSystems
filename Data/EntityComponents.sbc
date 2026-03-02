@@ -49,44 +49,5 @@
                 <guid>ff61eeb4-2728-4deb-9a8e-76b0a8ca1f93</guid>
             </RegisteredStorageGuids>
         </EntityComponent>
-        <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
-            <Id>
-                <TypeId>Inventory</TypeId>
-                <SubtypeId>NPSDieselEngine500KW</SubtypeId>
-            </Id>
-            <Volume>0.2</Volume>
-            <InputConstraint Whitelist="true" Description="Engine Oil" Icon="Textures\GUI\Icons\FilterAmmo5.54mm.dds">
-                <Entry>
-                    <TypeId>Component</TypeId>
-                    <SubtypeId>EngineOil</SubtypeId>
-                </Entry>
-            </InputConstraint>
-        </EntityComponent>
-        <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
-            <Id>
-                <TypeId>Inventory</TypeId>
-                <SubtypeId>NPSDieselEngine15MW</SubtypeId>
-            </Id>
-            <Volume>0.2</Volume>
-            <InputConstraint Whitelist="true" Description="Engine Oil" Icon="Textures\GUI\Icons\FilterAmmo5.54mm.dds">
-                <Entry>
-                    <TypeId>Component</TypeId>
-                    <SubtypeId>EngineOil</SubtypeId>
-                </Entry>
-            </InputConstraint>
-        </EntityComponent>
-        <EntityComponent xsi:type="MyObjectBuilder_InventoryComponentDefinition">
-            <Id>
-                <TypeId>Inventory</TypeId>
-                <SubtypeId>NPSDieselEngine25MW</SubtypeId>
-            </Id>
-            <Volume>0.2</Volume>
-            <InputConstraint Whitelist="true" Description="Engine Oil" Icon="Textures\GUI\Icons\FilterAmmo5.54mm.dds">
-                <Entry>
-                    <TypeId>Component</TypeId>
-                    <SubtypeId>EngineOil</SubtypeId>
-                </Entry>
-            </InputConstraint>
-        </EntityComponent>
     </EntityComponents>
 </Definitions>

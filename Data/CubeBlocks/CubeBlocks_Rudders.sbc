@@ -2,28 +2,29 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<CubeBlocks>
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>Gyro</TypeId>
 				<SubtypeId>NPSDrivetrainRudderSmallCenteredV1</SubtypeId>
 			</Id>
-			<DisplayName>Rudder, Small Centered</DisplayName>
+			<DisplayName>Rudder, Small Centered V1</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV1.dds</Icon>
-			<Description>Description_ProductivityModule</Description>
+			<Description>Description_Gyroscope</Description>
 			<CubeSize>Large</CubeSize>
 			<BlockTopology>TriangleMesh</BlockTopology>
 			<Size x="1" y="2" z="2"/>
-			<ModelOffset x="0" y="0" z="0" />
+			<ModelOffset x="0" y="0" z="0"/>
 			<Model>Models\Cubes\large\NPSDrivetrainRudderSmallCenteredV1.mwm</Model>
 			<Components>
-				<Component Subtype="SteelPlate" Count="80" />
+				<Component Subtype="SteelPlate" Count="500" />
 				<Component Subtype="Construction" Count="40" />
-				<Component Subtype="SmallTube" Count="20" />
-				<Component Subtype="Computer" Count="60" />
+				<Component Subtype="LargeTube" Count="4" />
+				<Component Subtype="MetalGrid" Count="50" />
 				<Component Subtype="Motor" Count="4" />
-				<Component Subtype="SteelPlate" Count="20" />
+				<Component Subtype="Computer" Count="5" />
+				<Component Subtype="SteelPlate" Count="100" />
 			</Components>
-			<CriticalComponent Subtype="Motor" Index="0" />
+			<CriticalComponent Subtype="Computer" Index="0" />
 			<MountPoints>
 				<MountPoint Side="Top" StartX="0.25" StartY="1.00" EndX="0.75" EndY="2.00"/>
 			</MountPoints>
@@ -36,13 +37,19 @@
 			<MirroringY>Z</MirroringY>
 			<MirroringZ>Y</MirroringZ>
 			<EdgeType>Light</EdgeType>
-			<PrimarySound>BlockModuleProductivity</PrimarySound>
-			<DamageEffectName>Damage_Electrical_Damaged</DamageEffectName>
-			<DamagedSound>ParticleElectrical</DamagedSound>
-			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<BuildTimeSeconds>40</BuildTimeSeconds>
+			<PrimarySound>BlockGyroscope</PrimarySound>
+
+			<ResourceSinkGroup>Gyro</ResourceSinkGroup>
+			<ForceMagnitude>5.04E+07</ForceMagnitude>
+			<RequiredPowerInput>0.01</RequiredPowerInput>
+
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<EmissiveColorPreset>Extended</EmissiveColorPreset>
 			<DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
 			<DestroySound>WepSmallWarheadExpl</DestroySound>
-			<PCU>1</PCU>
+			<PCU>50</PCU>
 			<IsAirTight>false</IsAirTight>
 			<TargetingGroups>
 				<string>Propulsion</string>

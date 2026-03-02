@@ -67,8 +67,16 @@ namespace NavalPowerSystems.Common
                 subtype == "NPSProductionCrudeInput" ||
                 subtype == "NPSProductionFuelInput";
         }
+
+        public static bool ShouldRemoveGyroControls(IMyTerminalBlock block)
+        {
+            if (block == null) return false;
+            string subtype = block.BlockDefinition.SubtypeName;
+
+            return Config.RudderSubtypes.Contains(subtype);
+        }
         //Utility method to remove or hide terminal controls for gas tanks based on block subtype, used to prevent player interaction with certain tanks
-        public static void RemoveControls()
+        public static void RemoveControlsTanks()
         {
             List<IMyTerminalControl> controls;
             MyAPIGateway.TerminalControls.GetControls<IMyGasTank>(out controls);
@@ -86,11 +94,31 @@ namespace NavalPowerSystems.Common
                 }
             }
         }
+
+        public static void RemoveControlsGyros()
+        {
+            List<IMyTerminalControl> controls;
+            MyAPIGateway.TerminalControls.GetControls<IMyGyro>(out controls);
+
+            foreach (IMyTerminalControl control in controls)
+            {
+                switch (control.Id)
+                {
+                    case "Override":
+                    case "Power":
+                    case "Pitch":
+                    case "Roll":
+                    case "Yaw":
+                        control.Visible = (block) => !ShouldRemoveGyroControls(block);
+                        break;
+                }
+            }
+        }
         //Utility method to remove or hide terminal actions for gas tanks based on block subtype, used to prevent player interaction with certain tanks
-        public static void RemoveActions()
+        public static void RemoveActionsTanks()
         {
             List<IMyTerminalAction> actions;
-            MyAPIGateway.TerminalControls.GetActions<IMyGasTank>(out actions);
+            MyAPIGateway.TerminalControls.GetActions<IMyGyro>(out actions);
 
             foreach (IMyTerminalAction action in actions)
             {
@@ -103,6 +131,28 @@ namespace NavalPowerSystems.Common
                     case "Auto-Refill":
                         {
                             action.Enabled = (block) => !ShouldRemoveTankControls(block);
+                            break;
+                        }
+                }
+            }
+        }
+
+        public static void RemoveActionsGyros()
+        {
+            List<IMyTerminalAction> actions;
+            MyAPIGateway.TerminalControls.GetActions<IMyGasTank>(out actions);
+
+            foreach (IMyTerminalAction action in actions)
+            {
+                switch (action.Id)
+                {
+                    case "Override":
+                    case "Power":
+                    case "Pitch":
+                    case "Roll":
+                    case "Yaw":
+                        {
+                            action.Enabled = (block) => !ShouldRemoveGyroControls(block);
                             break;
                         }
                 }

@@ -63,12 +63,17 @@ namespace NavalPowerSystems.Debug
 
         private void ExecuteFillTanks(IMyCubeGrid grid, string gasSubtype)
         {
+            if (grid == null)
+            {
+                MyAPIGateway.Utilities.ShowNotification($"NPS: I'm afraid I can't do that, Dave.", 3000, "Red");
+            }
             var blocks = new List<IMySlimBlock>();
             grid.GetBlocks(blocks, b => b.FatBlock is IMyGasTank);
             int filledCount = 0;
 
             foreach (var slim in blocks)
             {
+                if (slim == null) continue;
                 var tank = slim.FatBlock as IMyGasTank;
 
                 if (tank.BlockDefinition.SubtypeName.Contains(gasSubtype))

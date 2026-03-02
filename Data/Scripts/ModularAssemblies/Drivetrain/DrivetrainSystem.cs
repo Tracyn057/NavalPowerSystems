@@ -406,12 +406,12 @@ namespace NavalPowerSystems.Drivetrain
 
             Vector3D dragDirection = -Vector3D.Normalize(velocity);
 
-            float dragQuadCoeff = 0.00045f;
-            float dragLinearCoeff = 0.0003f;
-            float gridMass = (float)grid.Physics.Mass * 1.15f;
+            float dragQuadCoeff = 0.00155f;
+            float dragLinearCoeff = 0.00155f;
+            float gridMass = (float)grid.Physics.Mass * 1.25f;
 
             //Quadratic drag formula
-            double quadDrag = 0.5 * dragQuadCoeff * speed * speed * gridMass;
+            double quadDrag = 0.75 * dragQuadCoeff * speed * speed * gridMass;
             //Add a linear drag component
             double linearDrag = speed * dragLinearCoeff * gridMass;
             //Total drag force
