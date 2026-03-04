@@ -7,8 +7,8 @@ namespace NavalPowerSystems
     public static class Config
     {
         //Global variables
-        public const float globalFuelMult = 0.75f;          //Multiplier for fuel consumption
-        public const bool requiresMaintenance = true;    //Whether or not to apply wear and tear to engines and propellers, causing them to lose efficiency and eventually fail without repairs
+        public const float globalFuelMult = 0.66f;          //Multiplier for fuel consumption
+        public const bool requiresMaintenance = false;    //Whether or not to apply wear and tear to engines and propellers, causing them to lose efficiency and eventually fail without repairs
         public const float cavitationDmgMult = 0.1f;      //Multiplier for damage caused by cavitation, applied to propeller blocks
         public const float throttleVariance = 0.015f;    //Amount of random variance in throttle response
         public const float mnPerMW = 0.2f;             //MN produced per MW
@@ -46,6 +46,9 @@ namespace NavalPowerSystems
             "NPSDrivetrainProp34",
             "NPSDrivetrainProp44",
             "NPSDrivetrainProp54",
+            "NPSDrivetrainProp38",
+            "NPSDrivetrainProp48",
+            "NPSDrivetrainProp58"
         };
 
         public static readonly HashSet<string> DriveshaftSubtypes = new HashSet<string>
@@ -114,6 +117,9 @@ namespace NavalPowerSystems
             {"NPSDrivetrainProp34", new PropellerStats { MaxMW = 3.5f, SpoolTime = 20f } },
             {"NPSDrivetrainProp44", new PropellerStats { MaxMW = 4.6f, SpoolTime = 22f } },
             {"NPSDrivetrainProp54", new PropellerStats { MaxMW = 5.4f, SpoolTime = 24f } },
+            {"NPSDrivetrainProp38", new PropellerStats { MaxMW = 3.5f, SpoolTime = 32f } },
+            {"NPSDrivetrainProp48", new PropellerStats { MaxMW = 4.6f, SpoolTime = 36f } },
+            {"NPSDrivetrainProp58", new PropellerStats { MaxMW = 5.4f, SpoolTime = 40f } },
         };
 
         public static readonly Dictionary<string, GearboxStats> GearboxSettings = new Dictionary<string, GearboxStats>
@@ -129,6 +135,7 @@ namespace NavalPowerSystems
         public int RequiredReduction; //Required level of reduction to not damage propeller
         public float FuelRate;      //Fuel consumption at max output in liters/second - Multiplied by globalFuelMult for actual consumption
         public float SpoolTime;       //How fast the engine responds to throttle changes at low throttle
+        public int StartupTicks;    //Number of ticks to go from stopped to running
     }
 
     public class PropellerStats
