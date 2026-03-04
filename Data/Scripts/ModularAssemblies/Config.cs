@@ -51,15 +51,16 @@ namespace NavalPowerSystems
         public static readonly HashSet<string> DriveshaftSubtypes = new HashSet<string>
         {
             "NPSDrivetrainDriveshaft",
+            "NPSDrivetrainDriveshaftLong",
             "NPSDrivetrainLinearGearbox1",
             "NPSDrivetrainLinearGearbox2",
-            "NPSDrivetrainShaftTubeEndVertical",
-            "NPSDrivetrainShaftTubeEndL",
-            "NPSDrivetrainTubeSealEnclosed",
+            "NPSDrivetrainTubeSealEnclosed1",
             "NPSDrivetrainTubeSealSlope1",
             "NPSDrivetrainTubeSealSlope1Corner",
             "NPSDrivetrainTubeSealSlope2",
-            "NPSDrivetrainTubeSealSlope2Corner"
+            "NPSDrivetrainTubeSealSlope2Corner",
+            "NPSDrivetrainShaftTubeEndVertical",
+            "NPSDrivetrainShaftTubeEndL",
         };
 
         public static readonly HashSet<string> GearboxSubtypes = new HashSet<string>
