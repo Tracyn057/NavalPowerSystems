@@ -2,6 +2,7 @@
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
@@ -27,6 +28,7 @@ namespace NavalPowerSystems.Drivetrain
         private PropellerStats _propellerStats;
         private MyEntitySubpart _propellerSubpart;
         private Matrix _initialLocalMatrix;
+        private int _assemblyId = -1;
         public float _inputMW { get; set; }
         private float _outputMW = 0f;
         public float _outputMN { get; private set; } = 0f;
@@ -38,6 +40,7 @@ namespace NavalPowerSystems.Drivetrain
         public float _currentAngle { get; private set; } = 0f;
         private const float _maxRpm = 125;
         public bool _isPrime { get; set; } = false;
+        private Dictionary<MyEntitySubpart, Matrix> _driveshaftMatrices = new Dictionary<MyEntitySubpart, Matrix>();
 
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -58,6 +61,7 @@ namespace NavalPowerSystems.Drivetrain
             {
                 _initialLocalMatrix = _propellerSubpart.PositionComp.LocalMatrixRef;
             }
+            _assemblyId = ModularApi.GetContainingAssembly(_myPropeller, "Drivetrain_Definition");
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_10TH_FRAME;
@@ -67,6 +71,7 @@ namespace NavalPowerSystems.Drivetrain
         public override void UpdateAfterSimulation100()
         {
             UpdateDistanceToCamera();
+            UpdateAssemblyDriveshaftList();
             if (_propellerSubpart == null)
             {
                 Entity.TryGetSubpart("Propeller", out _propellerSubpart);
@@ -175,6 +180,18 @@ namespace NavalPowerSystems.Drivetrain
                 Matrix finalMatrix = rotationMatrix * _initialLocalMatrix;
                 _propellerSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);             
             }
+
+            if (_driveshaftMatrices.Count > 0)
+            {
+                foreach (var shaft in _driveshaftMatrices)
+                {
+                    var subpart = shaft.Key;
+                    var initialMatrix = shaft.Value;
+                    Matrix rotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(-_currentAngle));
+                    Matrix finalMatrix = rotationMatrix * initialMatrix;
+                    subpart.PositionComp.SetLocalMatrix(ref finalMatrix);
+                }
+            }
         }
 
         public void UpdateDistanceToCamera()
@@ -184,6 +201,28 @@ namespace NavalPowerSystems.Drivetrain
 
             var dist = Vector3D.Distance(_myPropeller.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
             _distToCamera = (float)dist;
+        }
+
+        private void UpdateAssemblyDriveshaftList()
+        {
+            if (_assemblyId == -1 || DrivetrainManager.Instance == null) return;
+
+            var system = DrivetrainManager.Instance.GetDrivetrainSystem(_assemblyId);
+            if (system == null) return;
+
+            foreach (var shaft in system.Driveshafts)
+            {
+                var fat = shaft.FatBlock as MyCubeBlock;
+                if ( fat == null)
+                    continue;
+
+                MyEntitySubpart subpart;
+
+                if (!fat.TryGetSubpart("Driveshaft", out subpart))
+                    continue;
+                if (!_driveshaftMatrices.ContainsKey(subpart))
+                    _driveshaftMatrices.Add(subpart, subpart.PositionComp.LocalMatrixRef);
+            }
         }
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder sb)

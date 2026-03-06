@@ -270,6 +270,7 @@ namespace NavalPowerSystems.Drivetrain
         public void UpdateClutches()
         {
             if (Inputs.Count == 0) return;
+            _highThrottle = 0f;
 
             foreach (var engine in Inputs)
             {

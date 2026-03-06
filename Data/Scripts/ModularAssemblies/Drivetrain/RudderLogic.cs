@@ -1,7 +1,6 @@
 ﻿using Sandbox.Common.ObjectBuilders;
 using Sandbox.ModAPI;
 using System;
-using System.Numerics;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
@@ -126,7 +125,7 @@ namespace NavalPowerSystems.Drivetrain
             double pitchTorque = ComputeRestore(pitchAngle) - localAngleVel.Z * 6;
 
             double speed = RudderGrid.Physics.LinearVelocity.Length();
-            double speedFactor = MathHelper.Clamp(speed / 15.0, 0, 1.0);
+            double speedFactor = MathHelper.Clamp(speed / 15.0, 0.0, 1.0);
 
             rollTorque *= speedFactor;
             pitchTorque *= speedFactor;
@@ -139,13 +138,21 @@ namespace NavalPowerSystems.Drivetrain
             rollRPM = MathHelper.Clamp(rollRPM, -5f, 5f);
             pitchRPM = MathHelper.Clamp(pitchRPM, -5f, 5f);
 
-            RudderGyro.Roll = -pitchRPM * 0.33f;
-            RudderGyro.Pitch = -rollRPM * 0.33f;
+            RudderGyro.Roll = -pitchRPM * 0.40f;
+            RudderGyro.Pitch = -rollRPM * 0.40f;
 
-            float manualYaw = yawInput * 0.33f * (float)speedFactor;
-            float autoYaw = AutoYawReturn() * 0.22f * (float)speedFactor;
+            float manualYaw = yawInput * 0.25f * (float)speedFactor;
+            float autoYaw = AutoYawReturn() * 0.15f * (float)speedFactor;
 
-            RudderGyro.Yaw = manualYaw + autoYaw;
+            if (Math.Abs(speed) > 2)
+            {
+                RudderGyro.Yaw = manualYaw + autoYaw;
+            }
+            else
+            {
+                RudderGyro.Yaw = manualYaw;
+            }
+            
         }
 
         private double ComputeRestore(double angle)

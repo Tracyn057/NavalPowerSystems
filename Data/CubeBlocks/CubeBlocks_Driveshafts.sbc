@@ -109,6 +109,7 @@
 			<BlockTopology>TriangleMesh</BlockTopology>
 			<Size x="1" y="2" z="1" />
 			<ModelOffset x="0" y="0" z="0" />
+			<Center x="0" y="0" z="0" />
 			<Model>Models\Cubes\Large\NPSDrivetrainLinearGearbox1.mwm</Model>
 			<Components>
 				<Component Subtype="SteelPlate" Count="75" />
@@ -162,6 +163,7 @@
 			<BlockTopology>TriangleMesh</BlockTopology>
 			<Size x="1" y="3" z="1" />
 			<ModelOffset x="0" y="0" z="0" />
+			<Center x="0" y="0" z="0" />
 			<Model>Models\Cubes\Large\NPSDrivetrainLinearGearbox2.mwm</Model>
 			<Components>
 				<Component Subtype="SteelPlate" Count="75" />
@@ -170,12 +172,18 @@
 			</Components>
 			<CriticalComponent Subtype="LargeTube" Index="0" />
 			<MountPoints>
-				<MountPoint Side="Front" StartX="0.25" StartY="1.25" EndX="0.75" EndY="1.75"/>
 				<MountPoint Side="Front" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
-				<MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+				<MountPoint Side="Front" StartX="0.00" StartY="1.00" EndX="1.00" EndY="2.00"/>
+				<MountPoint Side="Front" StartX="0.25" StartY="2.25" EndX="0.75" EndY="2.75"/>
+				<MountPoint Side="Back" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
 				<MountPoint Side="Back" StartX="0.00" StartY="1.00" EndX="1.00" EndY="2.00"/>
-				<MountPoint Side="Left" StartX="0.00" StartY="0.00" EndX="1.00" EndY="2.00"/>
-				<MountPoint Side="Right" StartX="0.00" StartY="0.00" EndX="1.00" EndY="2.00"/>
+				<MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+				<MountPoint Side="Left" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
+				<MountPoint Side="Left" StartX="0.00" StartY="1.00" EndX="1.00" EndY="2.00"/>
+				<MountPoint Side="Left" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Right" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
+				<MountPoint Side="Right" StartX="0.00" StartY="1.00" EndX="1.00" EndY="2.00"/>
+				<MountPoint Side="Right" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
 				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
 				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
 			</MountPoints>

@@ -16,8 +16,8 @@ namespace NavalPowerSystems.Drivetrain
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         public IEnumerable<DrivetrainSystem> GetAssemblies => DrivetrainSystems.Values;
         private Dictionary<int, DrivetrainSystem> DrivetrainSystems = new Dictionary<int, DrivetrainSystem>();
-        
-        
+
+
 
         public override void LoadData()
         {
@@ -108,6 +108,14 @@ namespace NavalPowerSystems.Drivetrain
             drivetrain.Unload();
             Instance.DrivetrainSystems.Remove(assemblyId);
             ModularApi.Log($"DrivetrainManager removed assembly {assemblyId}");
+        }
+
+        public DrivetrainSystem GetDrivetrainSystem(int assemblyId)
+        {
+            DrivetrainSystem drivetrain;
+            if (Instance == null || !Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
+                return null;
+            return drivetrain;
         }
     }
 }
