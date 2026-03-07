@@ -38,11 +38,10 @@
 			<MirroringZ>Y</MirroringZ>
 			<EdgeType>Light</EdgeType>
 			<BuildTimeSeconds>40</BuildTimeSeconds>
-			<PrimarySound>BlockGyroscope</PrimarySound>
 
 			<ResourceSinkGroup>Gyro</ResourceSinkGroup>
-			<ForceMagnitude>5.04E+07</ForceMagnitude>
-			<RequiredPowerInput>0.01</RequiredPowerInput>
+			<ForceMagnitude>2.5E+07</ForceMagnitude>
+			<RequiredPowerInput>0.25</RequiredPowerInput>
 
 			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
 			<DamagedSound>ParticleHeavyMech</DamagedSound>

@@ -13,7 +13,7 @@ using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems.Drivetrain
 {
-    internal class DrivetrainSystem
+    public class DrivetrainSystem
     {
         //Overhead Variables
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
@@ -33,6 +33,11 @@ namespace NavalPowerSystems.Drivetrain
         public float _highThrottle = 0f;
 
         //Gearbox Variables
+        public enum ShiftState { Forward, Neutral, Reverse, Braking, Engaging }
+        private ShiftState CurrentShiftState = ShiftState.Forward;
+        private float ShiftTimer = 0f;
+        public const float ShiftTransitionTime = 15f; //Time in seconds for the shift. Remember this runs on Update10
+        public bool TargetReverse = false;
 
         //Propeller Variables
 
@@ -346,12 +351,67 @@ namespace NavalPowerSystems.Drivetrain
                 return;
             float perPropMW = TotalInputMW / Outputs.Count;
 
+            perPropMW = UpdateShiftStatus(perPropMW);
+
             foreach (var prop in Outputs)
             {
                 var logic = prop.GameLogic?.GetAs<PropellerLogic>();
                 if (logic == null) continue;
                 logic._inputMW = perPropMW;
             }
+        }
+
+        public void StartShift()
+        {
+            ShiftTimer = ShiftTransitionTime;
+            CurrentShiftState = ShiftState.Braking;
+        }
+
+        public void SetShiftStateLoad(int state, float timer, bool targetReverse)
+        {
+            if (timer == -1f)
+            {
+                ShiftTimer = ShiftTransitionTime;
+            }
+            else
+            {
+                ShiftTimer = timer;
+            }
+            CurrentShiftState = (ShiftState)state;
+            TargetReverse = targetReverse;
+        }
+
+        private float UpdateShiftStatus(float output)
+        {
+            if (CurrentShiftState == ShiftState.Forward || CurrentShiftState == ShiftState.Reverse)
+            {
+                return TargetReverse ? -output : output;
+            }
+
+            ShiftTimer -= 0.1667f; //Update10 runs every 1/6th of a second
+
+            if(ShiftTimer > (ShiftTransitionTime * 0.6f))
+            {
+                CurrentShiftState = ShiftState.Braking;
+                float brakingFactor = (ShiftTimer - (ShiftTransitionTime * 0.6f)) / (ShiftTransitionTime * 0.4f);
+                return (!TargetReverse ? -output : output) * brakingFactor;
+            }
+
+            else if (ShiftTimer > (ShiftTransitionTime * 0.4f))
+            {
+                CurrentShiftState = ShiftState.Neutral;
+                return 0f;
+            }
+
+            else if (ShiftTimer > 0)
+            {
+                CurrentShiftState = ShiftState.Engaging;
+                float engageFactor = 1f - (ShiftTimer / (ShiftTransitionTime * 0.4f));
+                return (TargetReverse ? -output : output) * engageFactor;
+            }
+
+            CurrentShiftState = TargetReverse ? ShiftState.Reverse : ShiftState.Forward;
+            return TargetReverse ? -output : output;
         }
 
         private void UpdateGridLeader()
@@ -387,12 +447,6 @@ namespace NavalPowerSystems.Drivetrain
                     IsLeader = false;
                 }
             }
-        }
-
-        public void DrivetrainDebug10()
-        {
-            ModularApi.Log($"{AssemblyId} Output count is {Outputs.Count}.");
-            ModularApi.Log($"{AssemblyId} total input is {TotalInputMW}MW.");
         }
 
         private void ApplyDrag()

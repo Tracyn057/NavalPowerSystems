@@ -1,5 +1,4 @@
-﻿using EmptyKeys.UserInterface.Controls;
-using NavalPowerSystems.Communication;
+﻿using NavalPowerSystems.Communication;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
@@ -33,7 +32,6 @@ namespace NavalPowerSystems.Drivetrain
         public float _inputMW { get; set; }
         private float _outputMW = 0f;
         public float _outputMN { get; private set; } = 0f;
-        private float _rpmRatio = 0f;
         private float _inertia = 0f;
         private float _distToCamera = 0f;
         private float _currentRPM = 0f;
@@ -42,7 +40,6 @@ namespace NavalPowerSystems.Drivetrain
         private const float _maxRpm = 125;
         public bool _isPrime { get; set; } = false;
         private Dictionary<MyEntitySubpart, Matrix> _driveshaftMatrices = new Dictionary<MyEntitySubpart, Matrix>();
-        private static readonly Dictionary<long, long> AnimLeader = new Dictionary<long, long>();
 
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -135,7 +132,7 @@ namespace NavalPowerSystems.Drivetrain
             float adjustedThrust = _outputMN * cubicFactor * (float)efficiency;
             double finalThrust = limit * Math.Tanh(adjustedThrust / limit);
 
-            double waste = adjustedThrust - finalThrust;
+            double waste = Math.Abs(adjustedThrust) - Math.Abs(finalThrust);
             if (waste > (limit * 0.2)) // If wasting more than 20% of max capacity
             {
 
@@ -143,13 +140,18 @@ namespace NavalPowerSystems.Drivetrain
 
                 if (cavitationDmg > 0)
                 {
-                    _propeller.SlimBlock.DoDamage(cavitationDmg, MyDamageType.Deformation, true);
+                    _propeller.SlimBlock.DoDamage(cavitationDmg, MyDamageType.Destruction, true);
                 }
             }
 
-            finalThrust *= 1000000f; // Convert MN to N for physics application
+            finalThrust *= 1000000f; // Convert MN to N
 
-            if (finalThrust >100)
+            if (finalThrust < 0)
+            {
+                finalThrust *= 0.4f;
+            }
+
+            if (Math.Abs(finalThrust) >100)
             {
                 Vector3D thrustVector = _myPropeller.WorldMatrix.Backward * (float)finalThrust;
                 var BlockPos = _myPropeller.PositionComp.GetPosition();
@@ -170,7 +172,7 @@ namespace NavalPowerSystems.Drivetrain
             if (_propellerSubpart != null)
             {
                 float rawRPM = _maxRpm * (_inputMW / _propellerStats.MaxMW); // linear fraction of max
-                _targetRPM = MathHelper.Clamp(rawRPM, 0, _maxRpm);
+                _targetRPM = MathHelper.Clamp(rawRPM, -_maxRpm, _maxRpm);
 
                 _currentRPM = MathHelper.Lerp(_currentRPM, _targetRPM, 0.01f);
 
@@ -183,7 +185,7 @@ namespace NavalPowerSystems.Drivetrain
                 _propellerSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);             
             }
 
-            if (_driveshaftMatrices.Count > 0)
+            if (_isPrime)
             {
                 foreach (var shaft in _driveshaftMatrices)
                 {

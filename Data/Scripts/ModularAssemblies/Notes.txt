@@ -1,52 +1,3 @@
-X Clutch and direct drive inputs
-X Clutch is bool based on currentThrottle
-X Direct drive input is always on
-Direct drive only pairs to double reduction gearbox
-Clutch only pairs to main reduction gearbox
-Direct drive -> double reduction can maintain only single engine connection and single propeller connection -- Old technology
-X Clutch and main reduction gear has no real max inputs/outputs -- Arleigh Burke: 4 inputs, 2 outputs. Possibly max at 4 each?
-
-X Propeller will need RequestedOutput and CurrentOutput -> spool rate for response time.
-X Main reduction gearbox will need to maintain list of attached clutches and propellers. Sum all inputs based on IsEngaged bool, maintain authority of IsEngaged.
-X Gearboxes maintain list of clutches and propellers. Clutches decide if input power is 0 or current power. Gearbox sums all inputs, all the time. Divides inputs by current propellers. Opens up final output to propellers.
-X Propellers look at gearbox final output variable to set requested power. Knows where to look from assembly base block?
-X Any link knowledge would be updated OnPartAdd/Remove. Not at specific tick intervals.
-
-
-X Production and Extraction output logic change to utilize O2 Generators' push to conveyor network using AddItem intermediary to start output's conversion process. Maybe remove outputs alltogether and maintain 2-block assemblies. 
-Input being tank with Stockpile=On and converter itself being the O2 generator spawning items in it's own inventory to convert to "gas".
-X Items and blueprints+classes already made. Double check accuracy
-
-TO DO:
-Engine Oil Item
-Gear Lube Item
-High Pressure Grease Item
->>Oil Change/Maintenance Option
-
-More Propeller definitions
-
-Driveshaft Segments:
-
-Thrust bearing
-Shaft bearing
-Shaft tube
-
-Turbines 2, 5MW - 2x1x1     -LM500
-Turbines 12, 25MW - 3x1x1   -LM2500
-Turbine 40MW - 4x1x1?       -LM2500G4?
-
-Generators
-AG9160?
-
-Diesel Engines
-500KW - 1x1x1
-1.5MW - 2x1x1
-2.5MW - 3x1x1
-5MW
-10MW
-
-
-
 https://www.rolls-royce.com/products-and-services/defence/naval/gas-turbines.aspx
 https://www.geaerospace.com/sites/default/files/ge-aerospace-brochure.pdf
 https://www.geaerospace.com/military-defense/engines/lm2500
@@ -59,14 +10,16 @@ Phase 1 Release:
 X Diesel Engines - Vanilla blocks
 X Gas Turbine Engines - Partial custom blocks
 Diesel and Turbine Generators - Partial custom blocks
-Main Reduction Gearbox - Possibly custom block
-Propellers - Minimal Variants
-Driveshafts - Minimal
+X Main Reduction Gearbox - Possibly custom block
+X Propellers - Minimal Variants
+X Driveshafts - Minimal
 Shaft Tubes - Minimal
 Rudders - 2? Variants
 X Oil System with Vanilla blocks
+X Forward and Reverse gearbox modes
 
 Phase 2 Release:
+Engines require oxygen
 Electric Induction Motors
 Electric Drive Controllers/Converters
 Oil System with Custom blocks
@@ -74,6 +27,7 @@ Driveshaft Thrust Bearing requirement
 More custom blocks/variants
 Programmable blocks, batteries and button blocks?
 IO Compatability addon?
+Replace generator blocks with GenSet block addon for standard engines
 
 Phase 3 Release:
 Steam turbine system

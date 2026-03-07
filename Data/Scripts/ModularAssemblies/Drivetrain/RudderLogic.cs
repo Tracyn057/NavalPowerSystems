@@ -138,10 +138,10 @@ namespace NavalPowerSystems.Drivetrain
             rollRPM = MathHelper.Clamp(rollRPM, -5f, 5f);
             pitchRPM = MathHelper.Clamp(pitchRPM, -5f, 5f);
 
-            RudderGyro.Roll = -pitchRPM * 0.40f;
-            RudderGyro.Pitch = -rollRPM * 0.40f;
+            RudderGyro.Roll = -pitchRPM * 0.15f;
+            RudderGyro.Pitch = -rollRPM * 0.15f;
 
-            float manualYaw = yawInput * 0.25f * (float)speedFactor;
+            float manualYaw = yawInput * 0.15f * (float)speedFactor;
             float autoYaw = AutoYawReturn() * 0.15f * (float)speedFactor;
 
             if (Math.Abs(speed) > 2)
@@ -180,6 +180,8 @@ namespace NavalPowerSystems.Drivetrain
             Vector3D planeNormal = -gravityDir;
             Vector3D shipForward = RudderShipController.WorldMatrix.Forward;
             Vector3D velocityDir = Vector3D.Normalize(RudderGrid.Physics.LinearVelocity);
+            double forwardVelocity = shipForward.Dot(velocityDir);
+            bool movingBackwards = forwardVelocity < -0.1;
 
             Vector3D fwdProj =
                 shipForward - planeNormal * shipForward.Dot(planeNormal);
@@ -190,10 +192,15 @@ namespace NavalPowerSystems.Drivetrain
             double fwdLenSq = fwdProj.LengthSquared();
             double velLenSq = velProj.LengthSquared();
 
-            if (fwdLenSq < 1e-6 || velLenSq < 1e-6)
+            if (fwdLenSq < 1e-6 || velLenSq < 1e-6) return 0f;
 
             fwdProj.Normalize();
             velProj.Normalize();
+
+            if (movingBackwards)
+            {
+                fwdProj = -fwdProj;
+            }
 
             double sinYaw = planeNormal.Dot(fwdProj.Cross(velProj));
             double cosYaw = fwdProj.Dot(velProj);
@@ -216,17 +223,12 @@ namespace NavalPowerSystems.Drivetrain
 
             RudderTargetAngle = MathHelper.Clamp(RudderTargetAngle, -RudderMaxAngle, RudderMaxAngle);
 
-            RudderCurrentAngle = MathHelper.Lerp(RudderCurrentAngle, RudderTargetAngle, 0.025f);
-
-            float targetAngle = yawInput * RudderMaxAngle;
-            RudderCurrentAngle = MathHelper.Lerp(RudderCurrentAngle, targetAngle, 0.025f);
+            RudderCurrentAngle = MathHelper.Lerp(RudderCurrentAngle, yawInput * RudderMaxAngle, 0.025f);
 
             Matrix rotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(RudderCurrentAngle));
 
             Matrix finalMatrix = rotationMatrix * RudderSubpartMatrix;
             RudderSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
         }
-
-
     }
 }

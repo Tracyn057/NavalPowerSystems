@@ -54,15 +54,17 @@ namespace NavalPowerSystems.Drivetrain
         {
 
             _engine.Stockpile = true;
-            //_engine.Enabled = false;
-            _state = EngineState.Off;
 
-            LoadSettings();
-            _state = (EngineState)Settings.EngineState;
-            _engine.Enabled = Settings.Enabled;
-            _currentThrottle = Settings.CurrentThrottle;
-            SelectedThrottleIndexSync.Value = (int)Settings.ThrottleIndex;
-            RequestedThrottleSync.Value = Settings.RequestedThrottle;
+            if (LoadSettings())
+            {
+                _state = (EngineState)Settings.EngineState;
+                _currentThrottle = Settings.CurrentThrottle;
+            }
+            else
+            {
+                _state = EngineState.Off;
+                _engine.Enabled = false;
+            }
             SaveSettings();
 
             if (_engineStats.Type == EngineType.GasTurbine)
@@ -270,7 +272,6 @@ namespace NavalPowerSystems.Drivetrain
                 {
                     block.GameLogic.GetAs<CombustionEngineLogic>().SelectedThrottleIndexSync.Value = (int)key;
                     block.GameLogic.GetAs<CombustionEngineLogic>().SaveSettings();
-                    
                 };
                 throttleList.Visible = (block) =>
                     block.BlockDefinition.SubtypeName.Contains("NPSDieselTurbine") ||
@@ -449,6 +450,12 @@ namespace NavalPowerSystems.Drivetrain
         {   
             bool canWork = _engine != null && _engine.IsWorking;
 
+            if (!canWork && _state == EngineState.Running)
+            {
+                _status = "Shutting Down";
+                _state = EngineState.Stopping;
+            }
+
             switch (_state)
             {
                 case EngineState.Off:
@@ -571,12 +578,10 @@ namespace NavalPowerSystems.Drivetrain
 
                 if (loadedSettings != null)
                 {
-                    Settings.Enabled = loadedSettings.Enabled;
-                    Settings.EngineState = loadedSettings.EngineState;
-                    Settings.ThrottleIndex = loadedSettings.ThrottleIndex;
-                    Settings.CurrentThrottle = loadedSettings.CurrentThrottle;
-                    Settings.RequestedThrottle = loadedSettings.RequestedThrottle;
+                    Settings = loadedSettings;
 
+                    RequestedThrottleSync.Value = Settings.RequestedThrottle;
+                    SelectedThrottleIndexSync.Value = (int)Settings.ThrottleIndex;
                     return true;
                 }
             }
@@ -587,6 +592,7 @@ namespace NavalPowerSystems.Drivetrain
                 ModularApi.Log("Exception in loading Combustion Engine settings: " + e);
             }
 
+            LoadDefaultSettings();
             return false;
         }
 
