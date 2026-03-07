@@ -259,7 +259,7 @@ namespace NavalPowerSystems.Drivetrain
                 return toShaft || toGearbox;
 
             if (fromGearbox)
-                return toShaft || toGearbox || toProp;
+                return toShaft || toProp;
 
             if (fromShaft)
                 return toShaft || toGearbox || toProp;

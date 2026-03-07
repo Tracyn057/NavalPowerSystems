@@ -1,4 +1,5 @@
-﻿using NavalPowerSystems.Communication;
+﻿using EmptyKeys.UserInterface.Controls;
+using NavalPowerSystems.Communication;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
@@ -41,6 +42,7 @@ namespace NavalPowerSystems.Drivetrain
         private const float _maxRpm = 125;
         public bool _isPrime { get; set; } = false;
         private Dictionary<MyEntitySubpart, Matrix> _driveshaftMatrices = new Dictionary<MyEntitySubpart, Matrix>();
+        private static readonly Dictionary<long, long> AnimLeader = new Dictionary<long, long>();
 
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
@@ -206,9 +208,8 @@ namespace NavalPowerSystems.Drivetrain
         private void UpdateAssemblyDriveshaftList()
         {
             if (_assemblyId == -1 || DrivetrainManager.Instance == null) return;
-
             var system = DrivetrainManager.Instance.GetDrivetrainSystem(_assemblyId);
-            if (system == null) return;
+            if (system == null || system.Outputs.Count > 1) return;
 
             foreach (var shaft in system.Driveshafts)
             {
