@@ -52,7 +52,9 @@ namespace NavalPowerSystems
 
                 //Driveshafts
                 "NPSDrivetrainDriveshaft",
+                "NPSDrivetrainDriveshaftMarked",
                 "NPSDrivetrainDriveshaftLong",
+                "NPSDrivetrainDriveshaftLongMarked",
                 "NPSDrivetrainLinearGearbox1",
                 "NPSDrivetrainLinearGearbox2",
                 "NPSDrivetrainTubeSealEnclosed1",
@@ -60,8 +62,7 @@ namespace NavalPowerSystems
                 "NPSDrivetrainTubeSealSlope1Corner",
                 "NPSDrivetrainTubeSealSlope2",
                 "NPSDrivetrainTubeSealSlope2Corner",
-                "NPSDrivetrainShaftTubeEndVertical",
-                "NPSDrivetrainShaftTubeEndL",
+                "NPSDrivetrainEndTubeV1",
 
                 //Propellers
                 "NPSDrivetrainProp34",

@@ -41,14 +41,30 @@
 				 <string>CubeBlock/NPSExtractionDrillPipe</string>
 				 <string>TerminalBlock/NPSExtractionDrillHead</string>
 				 <string>OxygenTank/NPSExtractionCrudeOutput</string>
-				 <!-- Drivetrain -->
+				 <!-- Gearboxes -->
+				<string>TerminalBlock/NPSDrivetrainMRG</string>
+				<!-- Rudders -->
 				 <string>TerminalBlock/NPSDrivetrainRudderSmallCenteredV1</string>
-				 <string>TerminalBlock/NPSDrivetrainMRG</string>
+				 <!-- Driveshafts -->
 				 <string>CubeBlock/NPSDrivetrainDriveshaft</string>
-				 <string>CubeBlock/NPSDrivetrainShaftTubeEndVertical</string>
-				 <string>CubeBlock/NPSDrivetrainShaftTubeEndL</string>
-				 <string>CubeBlock/NPSDrivetrainPylonVertical</string>
-				 <string>CubeBlock/NPSDrivetrainPylonVerticalEnd</string>
+				 <string>CubeBlock/NPSDrivetrainDriveshaftMarked</string>
+				 <string>CubeBlock/NPSDrivetrainDriveshaftLong</string>
+				 <string>CubeBlock/NPSDrivetrainDriveshaftLongMarked</string>
+				<!-- Shaft tubes -->
+				<string>CubeBlock/NPSDrivetrainLinearGearbox1</string>
+				<string>CubeBlock/NPSDrivetrainLinearGearbox2</string>
+				<string>CubeBlock/NPSDrivetrainTubeSealEnclosed1</string>
+				<string>CubeBlock/NPSDrivetrainTubeSealSlope1</string>
+				<string>CubeBlock/NPSDrivetrainTubeSealSlope1Corner</string>
+				<string>CubeBlock/NPSDrivetrainTubeSealSlope2</string>
+				<string>CubeBlock/NPSDrivetrainTubeSealSlope2Corner</string>
+				<string>CubeBlock/NPSDrivetrainEndTubeV1</string>
+				<!-- Pylons -->
+				 <string>CubeBlock/NPSDrivetrainEndTubePylonVertical</string>
+				 <string>CubeBlock/NPSDrivetrainEndTubePylonVerticalSlope1</string>
+				 <string>CubeBlock/NPSDrivetrainEndTubePylonVerticalSlope2Base</string>
+				 <string>CubeBlock/NPSDrivetrainEndTubePylonVerticalSlope2Tip</string>
+				<!-- Propellers -->
 				 <string>TerminalBlock/NPSDrivetrainProp34</string>
 				 <string>TerminalBlock/NPSDrivetrainProp44</string>
 				 <string>TerminalBlock/NPSDrivetrainProp54</string>

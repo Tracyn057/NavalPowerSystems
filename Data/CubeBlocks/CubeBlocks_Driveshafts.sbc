@@ -52,6 +52,51 @@
 		<Definition>
 			<Id>
 				<TypeId>CubeBlock</TypeId>
+				<SubtypeId>NPSDrivetrainDriveshaftMarked</SubtypeId>
+			</Id>
+			<DisplayName>Driveshaft, Marked</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainDriveshaftMarked.dds</Icon>
+			<Description></Description>
+			<GuiVisible>false</GuiVisible>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="1" />
+			<ModelOffset x="0" y="0" z="0" />
+			<Model>Models\Cubes\Large\NPSDrivetrainDriveshaftMarked.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="75" />
+				<Component Subtype="LargeTube" Count="20" />
+				<Component Subtype="SteelPlate" Count="25" />
+			</Components>
+			<CriticalComponent Subtype="LargeTube" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+				<MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainDriveshaftMarked_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainDriveshaftMarked_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainDriveshaftMarked_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainDriveshaftMarked</BlockPairName>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>7</BuildTimeSeconds>
+			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<DestroyEffect>BlockDestroyed_Large</DestroyEffect>
+			<DestroySound>PoofExplosionCat3</DestroySound>
+			<PCU>10</PCU>
+			<DLC>HeavyIndustry</DLC>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition>
+			<Id>
+				<TypeId>CubeBlock</TypeId>
 				<SubtypeId>NPSDrivetrainDriveshaftLong</SubtypeId>
 			</Id>
 			<DisplayName>Driveshaft, Long</DisplayName>
@@ -81,6 +126,51 @@
 			<BlockPairName>NPSDrivetrainDriveshaftLong</BlockPairName>
 			<MirroringY>Z</MirroringY>
 			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>7</BuildTimeSeconds>
+			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<DestroyEffect>BlockDestroyed_Large</DestroyEffect>
+			<DestroySound>PoofExplosionCat3</DestroySound>
+			<PCU>10</PCU>
+			<DLC>HeavyIndustry</DLC>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition>
+			<Id>
+				<TypeId>CubeBlock</TypeId>
+				<SubtypeId>NPSDrivetrainDriveshaftLongMarked</SubtypeId>
+			</Id>
+			<DisplayName>Driveshaft, Long Marked</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainDriveshaftLongMarked.dds</Icon>
+			<Description></Description>
+			<GuiVisible>false</GuiVisible>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="2" />
+			<ModelOffset x="0" y="0" z="0" />
+			<Model>Models\Cubes\Large\NPSDrivetrainDriveshaftLongMarked.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="75" />
+				<Component Subtype="LargeTube" Count="20" />
+				<Component Subtype="SteelPlate" Count="25" />
+			</Components>
+			<CriticalComponent Subtype="LargeTube" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+				<MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainDriveshaftLongMarked_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainDriveshaftLongMarked_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainDriveshaftLongMarked_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainDriveshaftLongMarked</BlockPairName>
 			<EdgeType>Light</EdgeType>
 			<BuildTimeSeconds>7</BuildTimeSeconds>
 			<EmissiveColorPreset>Default</EmissiveColorPreset>
@@ -468,17 +558,17 @@
 		<Definition>
 			<Id>
 				<TypeId>CubeBlock</TypeId>
-				<SubtypeId>NPSDrivetrainShaftTubeEndVertical</SubtypeId>
+				<SubtypeId>NPSDrivetrainEndTubeV1</SubtypeId>
 			</Id>
 			<DisplayName>Driveshaft Tube with Pylon, Long Vertical</DisplayName>
-			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainPylonVerticalLong.dds</Icon>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainEndTubeV1.dds</Icon>
 			<Description></Description>
 			<GuiVisible>false</GuiVisible>
 			<CubeSize>Large</CubeSize>
 			<BlockTopology>TriangleMesh</BlockTopology>
 			<Size x="1" y="1" z="2"/>
 			<ModelOffset x="0" y="0" z="0"/>
-			<Model>Models\Cubes\large\NPSDrivetrainShaftTubeEndVertical.mwm</Model>
+			<Model>Models\Cubes\large\NPSDrivetrainEndTubeV1.mwm</Model>
 			<Components>
 				<Component Subtype="SteelPlate" Count="150"/>
 				<Component Subtype="LargeTube" Count="45" />
@@ -489,15 +579,15 @@
 			<CriticalComponent Subtype="Construction" Index="0"/>
 			<MountPoints>
 				<MountPoint Side="Front" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
-				<MountPoint Side="Back" StartX="0.35" StartY="0.35" EndX="0.65" EndY="0.65"/>
-				<MountPoint Side="Top" StartX="0.40" StartY="1.08" EndX="0.60" EndY="1.93"/>
+				<MountPoint Side="Back" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
+				<MountPoint Side="Top" StartX="0.25" StartY="1.00" EndX="0.75" EndY="2.00"/>
 			</MountPoints>
 			<BuildProgressModels>
-				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainShaftTubeEndVertical_BS1.mwm"/>
-				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainShaftTubeEndVertical_BS2.mwm"/>
-				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainShaftTubeEndVertical_BS3.mwm"/>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainEndTubeV1_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainEndTubeV1_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainEndTubeV1_BS3.mwm"/>
 			</BuildProgressModels>
-			<BlockPairName>NPSDrivetrainShaftTubeEndVertical</BlockPairName>
+			<BlockPairName>NPSDrivetrainEndTubeV1</BlockPairName>
 			<MirroringY>Z</MirroringY>
 			<MirroringZ>Y</MirroringZ>
 			<EdgeType>Light</EdgeType>
@@ -517,114 +607,17 @@
 		<Definition>
 			<Id>
 				<TypeId>CubeBlock</TypeId>
-				<SubtypeId>NPSDrivetrainShaftTubeEndL</SubtypeId>
-			</Id>
-			<DisplayName>Driveshaft Tube with Pylon, Long L</DisplayName>
-			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainShaftTubeEndL.dds</Icon>
-			<Description></Description>
-			<GuiVisible>false</GuiVisible>
-			<CubeSize>Large</CubeSize>
-			<BlockTopology>TriangleMesh</BlockTopology>
-			<Size x="1" y="1" z="2"/>
-			<ModelOffset x="0" y="0" z="0"/>
-			<Model>Models\Cubes\large\NPSDrivetrainShaftTubeEndL.mwm</Model>
-			<Components>
-				<Component Subtype="SteelPlate" Count="150"/>
-				<Component Subtype="LargeTube" Count="45" />
-				<Component Subtype="Construction" Count="25" />
-				<Component Subtype="MetalGrid" Count="25" />
-				<Component Subtype="SteelPlate" Count="50" />
-			</Components>
-			<CriticalComponent Subtype="Construction" Index="0"/>
-			<MountPoints>
-				<MountPoint Side="Front" StartX="0.25" StartY="0.25" EndX="0.75" EndY="0.75"/>
-				<MountPoint Side="Back" StartX="0.35" StartY="0.35" EndX="0.65" EndY="0.65"/>
-				<MountPoint Side="Right" StartX="1.08" StartY="0.40" EndX="1.92" EndY="0.60"/>
-				<MountPoint Side="Top" StartX="0.40" StartY="1.08" EndX="0.60" EndY="1.93"/>
-			</MountPoints>
-			<BuildProgressModels>
-				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainShaftTubeEndL_BS1.mwm"/>
-				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainShaftTubeEndL_BS2.mwm"/>
-				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainShaftTubeEndL_BS3.mwm"/>
-			</BuildProgressModels>
-			<BlockPairName>NPSDrivetrainShaftTubeEndL</BlockPairName>
-			<MirroringY>Z</MirroringY>
-			<MirroringZ>Y</MirroringZ>
-			<EdgeType>Light</EdgeType>
-			<BuildTimeSeconds>7</BuildTimeSeconds>
-			<EmissiveColorPreset>Default</EmissiveColorPreset>
-			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
-			<DamagedSound>ParticleHeavyMech</DamagedSound>
-			<DestroyEffect>BlockDestroyed_Large</DestroyEffect>
-			<DestroySound>PoofExplosionCat3</DestroySound>
-			<PCU>10</PCU>
-			<IsAirTight>false</IsAirTight>
-			<TargetingGroups>
-				<string>Propulsion</string>
-			</TargetingGroups>
-		</Definition>
-		
-		<Definition>
-			<Id>
-				<TypeId>CubeBlock</TypeId>
-				<SubtypeId>NPSDrivetrainPylonVerticalEnd</SubtypeId>
-			</Id>
-			<DisplayName>Driveshaft Tube Pylon End, Vertical</DisplayName>
-			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainPylonVerticalEnd.dds</Icon>
-			<Description></Description>
-			<GuiVisible>false</GuiVisible>
-			<CubeSize>Large</CubeSize>
-			<BlockTopology>TriangleMesh</BlockTopology>
-			<Size x="1" y="1" z="1"/>
-			<ModelOffset x="0" y="0" z="0"/>
-			<Model>Models\Cubes\large\NPSDrivetrainPylonVerticalEnd.mwm</Model>
-			<Components>
-				<Component Subtype="SteelPlate" Count="150"/>
-				<Component Subtype="LargeTube" Count="45" />
-				<Component Subtype="Construction" Count="25" />
-				<Component Subtype="MetalGrid" Count="25" />
-				<Component Subtype="SteelPlate" Count="50" />
-			</Components>
-			<CriticalComponent Subtype="Construction" Index="0"/>
-			<MountPoints>
-				<MountPoint Side="Top" StartX="0.40" StartY="0.08" EndX="0.60" EndY="0.93"/>
-				<MountPoint Side="Bottom" StartX="0.40" StartY="0.08" EndX="0.60" EndY="0.92"/>
-			</MountPoints>
-			<BuildProgressModels>
-				<Model BuildPercentUpperBound="0.50" File="Models\Cubes\large\NPSDrivetrainPylonVerticalEnd_BS1.mwm"/>
-				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainPylonVerticalEnd_BS2.mwm"/>
-			</BuildProgressModels>
-			<BlockPairName>NPSDrivetrainPylonVerticalEnd</BlockPairName>
-			<MirroringY>Z</MirroringY>
-			<MirroringZ>Y</MirroringZ>
-			<EdgeType>Light</EdgeType>
-			<BuildTimeSeconds>7</BuildTimeSeconds>
-			<EmissiveColorPreset>Default</EmissiveColorPreset>
-			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
-			<DamagedSound>ParticleHeavyMech</DamagedSound>
-			<DestroyEffect>BlockDestroyed_Large</DestroyEffect>
-			<DestroySound>PoofExplosionCat3</DestroySound>
-			<PCU>10</PCU>
-			<IsAirTight>false</IsAirTight>
-			<TargetingGroups>
-				<string>Propulsion</string>
-			</TargetingGroups>
-		</Definition>
-
-		<Definition>
-			<Id>
-				<TypeId>CubeBlock</TypeId>
-				<SubtypeId>NPSDrivetrainPylonVertical</SubtypeId>
+				<SubtypeId>NPSDrivetrainEndTubePylonVertical</SubtypeId>
 			</Id>
 			<DisplayName>Driveshaft Tube Pylon, Vertical</DisplayName>
-			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainPylonVertical.dds</Icon>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainEndTubePylonVertical.dds</Icon>
 			<Description></Description>
 			<GuiVisible>false</GuiVisible>
 			<CubeSize>Large</CubeSize>
 			<BlockTopology>TriangleMesh</BlockTopology>
 			<Size x="1" y="1" z="1"/>
 			<ModelOffset x="0" y="0" z="0"/>
-			<Model>Models\Cubes\large\NPSDrivetrainPylonVertical.mwm</Model>
+			<Model>Models\Cubes\large\NPSDrivetrainEndTubePylonVertical.mwm</Model>
 			<Components>
 				<Component Subtype="SteelPlate" Count="150"/>
 				<Component Subtype="LargeTube" Count="45" />
@@ -634,14 +627,168 @@
 			</Components>
 			<CriticalComponent Subtype="Construction" Index="0"/>
 			<MountPoints>
-				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
-				<MountPoint Side="Bottom" StartX="0.30" StartY="0.30" EndX="0.70" EndY="0.70"/>
+				<MountPoint Side="Top" StartX="0.25" StartY="0.00" EndX="0.75" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.25" StartY="0.00" EndX="0.75" EndY="1.00"/>
 			</MountPoints>
 			<BuildProgressModels>
-				<Model BuildPercentUpperBound="0.50" File="Models\Cubes\large\NPSDrivetrainPylonVertical_BS1.mwm"/>
-				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainPylonVertical_BS2.mwm"/>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVertical_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVertical_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVertical_BS3.mwm"/>
 			</BuildProgressModels>
-			<BlockPairName>NPSDrivetrainPylonVertical</BlockPairName>
+			<BlockPairName>NPSDrivetrainEndTubePylonVertical</BlockPairName>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>7</BuildTimeSeconds>
+			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<DestroyEffect>BlockDestroyed_Large</DestroyEffect>
+			<DestroySound>PoofExplosionCat3</DestroySound>
+			<PCU>10</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition>
+			<Id>
+				<TypeId>CubeBlock</TypeId>
+				<SubtypeId>NPSDrivetrainEndTubePylonVerticalSlope1</SubtypeId>
+			</Id>
+			<DisplayName>Driveshaft Tube Pylon, Slope</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainEndTubePylonVerticalSlope1.dds</Icon>
+			<Description></Description>
+			<GuiVisible>false</GuiVisible>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="1"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope1.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="150"/>
+				<Component Subtype="LargeTube" Count="45" />
+				<Component Subtype="Construction" Count="25" />
+				<Component Subtype="MetalGrid" Count="25" />
+				<Component Subtype="SteelPlate" Count="50" />
+			</Components>
+			<CriticalComponent Subtype="Construction" Index="0"/>
+			<MountPoints>
+				<MountPoint Side="Back" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Left" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Right" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.25" StartY="0.00" EndX="0.75" EndY="1.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope1_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope1_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope1_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainEndTubePylonVerticalSlope1</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>7</BuildTimeSeconds>
+			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<DestroyEffect>BlockDestroyed_Large</DestroyEffect>
+			<DestroySound>PoofExplosionCat3</DestroySound>
+			<PCU>10</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition>
+			<Id>
+				<TypeId>CubeBlock</TypeId>
+				<SubtypeId>NPSDrivetrainEndTubePylonVerticalSlope2Base</SubtypeId>
+			</Id>
+			<DisplayName>Driveshaft Tube Pylon, Slope 2 Base</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainEndTubePylonVerticalSlope2Base.dds</Icon>
+			<Description></Description>
+			<GuiVisible>false</GuiVisible>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="1"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope2Base.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="150"/>
+				<Component Subtype="LargeTube" Count="45" />
+				<Component Subtype="Construction" Count="25" />
+				<Component Subtype="MetalGrid" Count="25" />
+				<Component Subtype="SteelPlate" Count="50" />
+			</Components>
+			<CriticalComponent Subtype="Construction" Index="0"/>
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.00" StartY="0.50" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Back" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Left" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Right" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.25" StartY="0.00" EndX="0.75" EndY="1.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope2Base_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope2Base_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope2Base_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainEndTubePylonVerticalSlope2Base</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>7</BuildTimeSeconds>
+			<EmissiveColorPreset>Default</EmissiveColorPreset>
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<DestroyEffect>BlockDestroyed_Large</DestroyEffect>
+			<DestroySound>PoofExplosionCat3</DestroySound>
+			<PCU>10</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition>
+			<Id>
+				<TypeId>CubeBlock</TypeId>
+				<SubtypeId>NPSDrivetrainEndTubePylonVerticalSlope2Tip</SubtypeId>
+			</Id>
+			<DisplayName>Driveshaft Tube Pylon, Slope 2 Base</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainEndTubePylonVerticalSlope2Tip.dds</Icon>
+			<Description></Description>
+			<GuiVisible>false</GuiVisible>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="1"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope2Tip.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="150"/>
+				<Component Subtype="LargeTube" Count="45" />
+				<Component Subtype="Construction" Count="25" />
+				<Component Subtype="MetalGrid" Count="25" />
+				<Component Subtype="SteelPlate" Count="50" />
+			</Components>
+			<CriticalComponent Subtype="Construction" Index="0"/>
+			<MountPoints>
+				<MountPoint Side="Back" StartX="0.00" StartY="0.50" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Left" StartX="0.00" StartY="0.50" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Right" StartX="0.00" StartY="0.50" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.25" StartY="0.00" EndX="0.75" EndY="1.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope2Tip_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope2Tip_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainEndTubePylonVerticalSlope2Tip_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainEndTubePylonVerticalSlope2Tip</BlockPairName>
 			<MirroringY>Z</MirroringY>
 			<MirroringZ>Y</MirroringZ>
 			<EdgeType>Light</EdgeType>
