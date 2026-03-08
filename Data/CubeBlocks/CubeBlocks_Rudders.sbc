@@ -55,5 +55,274 @@
 			</TargetingGroups>
 		</Definition>
 
+		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+			<Id>
+				<TypeId>Gyro</TypeId>
+				<SubtypeId>NPSDrivetrainRudderSmallOffsetLeftV1</SubtypeId>
+			</Id>
+			<DisplayName>Rudder, Small Centered V1</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV1.dds</Icon>
+			<Description>Description_Gyroscope</Description>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="2" z="2"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\NPSDrivetrainRudderSmallOffsetLeftV1.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="500" />
+				<Component Subtype="Construction" Count="40" />
+				<Component Subtype="LargeTube" Count="4" />
+				<Component Subtype="MetalGrid" Count="50" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="Computer" Count="5" />
+				<Component Subtype="SteelPlate" Count="100" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Top" StartX="0.25" StartY="1.00" EndX="0.75" EndY="2.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetLeftV1_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetLeftV1_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetLeftV1_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainRudderSmallOffsetLeftV1</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>40</BuildTimeSeconds>
+
+			<ResourceSinkGroup>Gyro</ResourceSinkGroup>
+			<ForceMagnitude>2.5E+07</ForceMagnitude>
+			<RequiredPowerInput>0.25</RequiredPowerInput>
+
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<EmissiveColorPreset>Extended</EmissiveColorPreset>
+			<DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+			<DestroySound>WepSmallWarheadExpl</DestroySound>
+			<PCU>50</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+			<Id>
+				<TypeId>Gyro</TypeId>
+				<SubtypeId>NPSDrivetrainRudderSmallOffsetRightV1</SubtypeId>
+			</Id>
+			<DisplayName>Rudder, Small Centered V1</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV1.dds</Icon>
+			<Description>Description_Gyroscope</Description>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="2" z="2"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\NPSDrivetrainRudderSmallOffsetRightV1.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="500" />
+				<Component Subtype="Construction" Count="40" />
+				<Component Subtype="LargeTube" Count="4" />
+				<Component Subtype="MetalGrid" Count="50" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="Computer" Count="5" />
+				<Component Subtype="SteelPlate" Count="100" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Top" StartX="0.25" StartY="1.00" EndX="0.75" EndY="2.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetRightV1_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetRightV1_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetRightV1_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainRudderSmallOffsetRightV1</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>40</BuildTimeSeconds>
+
+			<ResourceSinkGroup>Gyro</ResourceSinkGroup>
+			<ForceMagnitude>2.5E+07</ForceMagnitude>
+			<RequiredPowerInput>0.25</RequiredPowerInput>
+
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<EmissiveColorPreset>Extended</EmissiveColorPreset>
+			<DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+			<DestroySound>WepSmallWarheadExpl</DestroySound>
+			<PCU>50</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+			<Id>
+				<TypeId>Gyro</TypeId>
+				<SubtypeId>NPSDrivetrainRudderSmallCenteredV2</SubtypeId>
+			</Id>
+			<DisplayName>Rudder, Small Centered V2</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV2.dds</Icon>
+			<Description>Description_Gyroscope</Description>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="2" z="2"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\NPSDrivetrainRudderSmallCenteredV2.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="500" />
+				<Component Subtype="Construction" Count="40" />
+				<Component Subtype="LargeTube" Count="4" />
+				<Component Subtype="MetalGrid" Count="50" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="Computer" Count="5" />
+				<Component Subtype="SteelPlate" Count="100" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Top" StartX="0.25" StartY="1.00" EndX="0.75" EndY="2.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainRudderSmallCenteredV2_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainRudderSmallCenteredV2_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainRudderSmallCenteredV2_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainRudderSmallCenteredV2</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>40</BuildTimeSeconds>
+
+			<ResourceSinkGroup>Gyro</ResourceSinkGroup>
+			<ForceMagnitude>2.5E+07</ForceMagnitude>
+			<RequiredPowerInput>0.25</RequiredPowerInput>
+
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<EmissiveColorPreset>Extended</EmissiveColorPreset>
+			<DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+			<DestroySound>WepSmallWarheadExpl</DestroySound>
+			<PCU>50</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+			<Id>
+				<TypeId>Gyro</TypeId>
+				<SubtypeId>NPSDrivetrainRudderSmallOffsetLeftV2</SubtypeId>
+			</Id>
+			<DisplayName>Rudder, Small Centered V2</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV2.dds</Icon>
+			<Description>Description_Gyroscope</Description>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="2" z="2"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\NPSDrivetrainRudderSmallOffsetLeftV2.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="500" />
+				<Component Subtype="Construction" Count="40" />
+				<Component Subtype="LargeTube" Count="4" />
+				<Component Subtype="MetalGrid" Count="50" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="Computer" Count="5" />
+				<Component Subtype="SteelPlate" Count="100" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Top" StartX="0.25" StartY="1.00" EndX="0.75" EndY="2.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetLeftV2_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetLeftV2_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetLeftV2_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainRudderSmallOffsetLeftV2</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>40</BuildTimeSeconds>
+
+			<ResourceSinkGroup>Gyro</ResourceSinkGroup>
+			<ForceMagnitude>2.5E+07</ForceMagnitude>
+			<RequiredPowerInput>0.25</RequiredPowerInput>
+
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<EmissiveColorPreset>Extended</EmissiveColorPreset>
+			<DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+			<DestroySound>WepSmallWarheadExpl</DestroySound>
+			<PCU>50</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
+		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+			<Id>
+				<TypeId>Gyro</TypeId>
+				<SubtypeId>NPSDrivetrainRudderSmallOffsetRightV2</SubtypeId>
+			</Id>
+			<DisplayName>Rudder, Small Centered V2</DisplayName>
+			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV2.dds</Icon>
+			<Description>Description_Gyroscope</Description>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="2" z="2"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\NPSDrivetrainRudderSmallOffsetRightV2.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="500" />
+				<Component Subtype="Construction" Count="40" />
+				<Component Subtype="LargeTube" Count="4" />
+				<Component Subtype="MetalGrid" Count="50" />
+				<Component Subtype="Motor" Count="4" />
+				<Component Subtype="Computer" Count="5" />
+				<Component Subtype="SteelPlate" Count="100" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Top" StartX="0.25" StartY="1.00" EndX="0.75" EndY="2.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="0.33" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetRightV2_BS1.mwm"/>
+				<Model BuildPercentUpperBound="0.67" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetRightV2_BS2.mwm"/>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\NPSDrivetrainRudderSmallOffsetRightV2_BS3.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSDrivetrainRudderSmallOffsetRightV2</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>40</BuildTimeSeconds>
+
+			<ResourceSinkGroup>Gyro</ResourceSinkGroup>
+			<ForceMagnitude>2.5E+07</ForceMagnitude>
+			<RequiredPowerInput>0.25</RequiredPowerInput>
+
+			<DamageEffectName>Damage_HeavyMech_Damaged</DamageEffectName>
+			<DamagedSound>ParticleHeavyMech</DamagedSound>
+			<EmissiveColorPreset>Extended</EmissiveColorPreset>
+			<DestroyEffect>BlockDestroyedExplosion_Large</DestroyEffect>
+			<DestroySound>WepSmallWarheadExpl</DestroySound>
+			<PCU>50</PCU>
+			<IsAirTight>false</IsAirTight>
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+		</Definition>
+
 	</CubeBlocks>
 </Definitions>

@@ -12,7 +12,12 @@ using Vector3 = VRageMath.Vector3;
 namespace NavalPowerSystems.Drivetrain
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_Gyro), false,
-        "NPSDrivetrainRudderSmallCenteredV1"
+        "NPSDrivetrainRudderSmallCenteredV1",
+        "NPSDrivetrainRudderSmallOffsetLeftV1",
+        "NPSDrivetrainRudderSmallOffsetRightV1",
+        "NPSDrivetrainRudderSmallCenteredV2",
+        "NPSDrivetrainRudderSmallOffsetLeftV2",
+        "NPSDrivetrainRudderSmallOffsetRightV2"
     )]
     internal class RudderLogic : MyGameLogicComponent
     {

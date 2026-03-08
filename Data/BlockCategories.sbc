@@ -45,6 +45,11 @@
 				<string>TerminalBlock/NPSDrivetrainMRG</string>
 				<!-- Rudders -->
 				 <string>TerminalBlock/NPSDrivetrainRudderSmallCenteredV1</string>
+				 <string>TerminalBlock/NPSDrivetrainRudderSmallOffsetLeftV1</string>
+				 <string>TerminalBlock/NPSDrivetrainRudderSmallOffsetRightV1</string>
+				 <string>TerminalBlock/NPSDrivetrainRudderSmallCenteredV2</string>
+				 <string>TerminalBlock/NPSDrivetrainRudderSmallOffsetLeftV2</string>
+				 <string>TerminalBlock/NPSDrivetrainRudderSmallOffsetRightV2</string>
 				 <!-- Driveshafts -->
 				 <string>CubeBlock/NPSDrivetrainDriveshaft</string>
 				 <string>CubeBlock/NPSDrivetrainDriveshaftMarked</string>
