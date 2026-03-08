@@ -47,9 +47,11 @@ Core components:
 - Propellers: Also these.
 
 The system is very much designed for a specific flow, while still being relatively modular. Two engines can connect to each Main Reduction Gear, with a single driveshaft output. More configurations will come later.
-![Alt text](
-![Alt text](
-![Alt text](
+![Alt text](https://github.com/Tracyn057/NavalPowerSystems/blob/main/Images/Gearbox1.png)
+![Alt text](https://github.com/Tracyn057/NavalPowerSystems/blob/main/Images/Gearbox2.png)
+
+The new Gas Turbines have a specific output port.
+![Alt text](https://github.com/Tracyn057/NavalPowerSystems/blob/main/Images/TurbineOutput.png)
 
 From the gearbox, you need driveshafts to connect to your propeller. There's a ton of different driveshafts to choose from even now. 
 
