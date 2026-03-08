@@ -57,3 +57,8 @@ From the gearbox, you need driveshafts to connect to your propeller. There's a t
 
 The other feature that I've included in this mod is the Rudder. Currently only the one variant at the moment. This block serves multiple purposes. It's a gyro with integrated, always active align to gravity. Ships generally tend to like to stay upright after all. The other use for the block is steering (obviously). You can use the A/D keys to turn your ship. Note: Due to water resistance, your ship will generally want to travel in a straight line and center itself to the direction of travel.
 
+
+Here's the Git: https://github.com/Tracyn057/NavalPowerSystems/tree/main
+
+Here's my current test setup. It's messy.
+![Alt text](https://github.com/Tracyn057/NavalPowerSystems/blob/main/Images/Test.png)
