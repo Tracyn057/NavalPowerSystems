@@ -196,7 +196,7 @@ namespace NavalPowerSystems.Extraction
         {
             var logic = _drillHead?.GameLogic?.GetAs<DrillHeadLogic>();
 
-            sb.AppendLine($"Assembly ID: {_assemblyId}");
+            //sb.AppendLine($"Assembly ID: {_assemblyId}");
             sb.AppendLine($"Status: {_status}");
             sb.AppendLine($"Location: {_location}");
             sb.AppendLine($"Drill Rods: {(_drillrods != null ? _drillrods.Count : 0)}");

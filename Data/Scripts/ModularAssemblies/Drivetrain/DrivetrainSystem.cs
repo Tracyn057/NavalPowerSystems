@@ -327,7 +327,7 @@ namespace NavalPowerSystems.Drivetrain
                 var logic = engine.GameLogic?.GetAs<NavalEngineLogicBase>();
                 if (logic == null)
                 {
-                    ModularApi.Log($"{AssemblyId} engine logic is null.");
+                    //ModularApi.Log($"{AssemblyId} engine logic is null.");
                     continue;
                 }
                 bool contributes = false;

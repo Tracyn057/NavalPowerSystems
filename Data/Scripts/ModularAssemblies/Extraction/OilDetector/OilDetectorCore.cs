@@ -1,5 +1,4 @@
-﻿using Draygo.BlockExtensionsAPI;
-using NavalPowerSystems.Extraction;
+﻿using NavalPowerSystems.Extraction;
 using Sandbox.ModAPI;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
@@ -11,25 +10,17 @@ namespace OilExtraction.Detector
     public class OilDetectorCore : MySessionComponentBase
     {
         public static OilDetectorCore Instance;
-        public DefinitionExtensionsAPI DefExtensions;
         public IMyModContext ModCtx;
 
         public OilDetectorCore()
         {
             Instance = this;
-
-            DefExtensions = new DefinitionExtensionsAPI(OnApiInit);
         }
 
         public override void BeforeStart()
         {
             ModCtx = base.ModContext;
             MyAPIGateway.Utilities.MessageEntered += OnMessageEntered;
-        }
-
-        private void OnApiInit()
-        {
-            MyLog.Default.WriteLineAndConsole("## OilDetector: DefAPI Handshake Successful.");
         }
 
         protected override void UnloadData()
