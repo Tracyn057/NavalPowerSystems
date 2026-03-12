@@ -38,6 +38,9 @@ namespace NavalPowerSystems.Drivetrain
         private static bool _controlsInit = false;
         private static bool _actionsInit = false;
         public bool _isLinkedToGenerator { get; set; } = false;
+        private MyResourceSinkComponent _fuelSink;
+        private static readonly MyDefinitionId FuelId = MyDefinitionId.Parse("MyObjectBuilder_GasProperties/DieselFuel");
+        private static readonly MyDefinitionId OxyId = MyDefinitionId.Parse("MyObjectBuilder_GasProperties/Oxygen");
 
         #endregion
 
@@ -83,6 +86,29 @@ namespace NavalPowerSystems.Drivetrain
                 CreateActions();
                 _actionsInit = true;
             }
+
+            _fuelSink = _engine.Components.Get<MyResourceSinkComponent>();
+            if (_fuelSink == null)
+            {
+                _fuelSink = new MyResourceSinkComponent();
+                _engine.Components.Add(_fuelSink);
+            }
+
+            var sinkInfoList = new List<MyResourceSinkInfo>
+            {
+                new MyResourceSinkInfo {
+                    ResourceTypeId = FuelId,
+                    MaxRequiredInput = _engineStats.FuelRate * 2.5f,
+                    RequiredInputFunc = () => _fuelBurn
+                },
+                new MyResourceSinkInfo {
+                    ResourceTypeId = OxyId,
+                    MaxRequiredInput = (_engineStats.FuelRate * 2.0f) * 2.5f,
+                    RequiredInputFunc = () => _oxyBurn
+                }
+            };
+
+            _sink.Init(MyStringId.GetOrCompute("Thrust"), sinkInfoList);
 
             _engine.AppendingCustomInfo += AppendCustomInfo;
         }
@@ -193,20 +219,58 @@ namespace NavalPowerSystems.Drivetrain
 
         private void UpdateFuel()
         {
-            if (!_engine.IsWorking) return;
-
-            float fuelMult = GetFuelMultiplier(_engineEfficiency, (float)_currentThrottle);
-            _fuelBurn = ((_engineStats.FuelRate * fuelMult) / 6 ) * Config.globalFuelMult;
-
-            if (_engine.FilledRatio <= 0.01f)
+            if (!_engine.IsWorking) 
             {
-                _currentThrottle = 0f;
                 _fuelBurn = 0f;
-                _status = "Out of Fuel";
+                _oxyBurn = 0f;
+                _fuelSink.Update();
                 return;
             }
-            Utilities.ChangeTankLevel(_engine, -_fuelBurn);
+
+            float fuelMult = GetFuelMultiplier(_engineEfficiency, (float)_currentThrottle);
+            
+            _fuelBurn = (_engineStats.FuelRate * fuelMult) * Config.globalFuelMult;
+
+            const float oxyRatio = 2.0f; 
+            _oxyBurn = _fuelBurn * oxyRatio;
+
+            float fuelProvided = _fuelSink.CurrentInputByType(FuelId);
+            float oxyProvided = _fuelSink.CurrentInputByType(OxyId);
+
+            if (fuelProvided < _fuelBurn || oxyProvided < _oxyBurn)
+            {
+                float fuelRatio = _fuelBurn > 0 ? fuelProvided / _fuelBurn : 1f;
+                float oxyRatioProvided = _oxyBurn > 0 ? oxyProvided / _oxyBurn : 1f;
+                
+                float limitingFactor = Math.Min(fuelRatio, oxyRatioProvided);
+                
+                _currentOutputMW *= limitingFactor;
+                _status = oxyRatioProvided < 1f ? "Oxygen Starved" : "Fuel Starved";
+            }
+            else 
+            {
+                _status = "Running";
+            }
+            
+            _fuelSink.Update();
         }
+
+        // private void UpdateFuel()
+        // {
+        //     if (!_engine.IsWorking) return;
+
+        //     float fuelMult = GetFuelMultiplier(_engineEfficiency, (float)_currentThrottle);
+        //     _fuelBurn = ((_engineStats.FuelRate * fuelMult) / 6 ) * Config.globalFuelMult;
+
+        //     if (_engine.FilledRatio <= 0.01f)
+        //     {
+        //         _currentThrottle = 0f;
+        //         _fuelBurn = 0f;
+        //         _status = "Out of Fuel";
+        //         return;
+        //     }
+        //     Utilities.ChangeTankLevel(_engine, -_fuelBurn);
+        // }
 
         private void UpdatePower()
         {
