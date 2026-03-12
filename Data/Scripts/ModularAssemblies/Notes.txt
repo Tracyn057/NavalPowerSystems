@@ -9,17 +9,17 @@ https://www.linquip.com/industrial-directories/21/marine-gas-turbine
 Phase 1 Release:
 X Diesel Engines - Vanilla blocks
 X Gas Turbine Engines - Partial custom blocks
-Diesel and Turbine Generators - Partial custom blocks
+X Diesel and Turbine Generators - Partial custom blocks
 X Main Reduction Gearbox - Possibly custom block
 X Propellers - Minimal Variants
 X Driveshafts - Minimal
-Shaft Tubes - Minimal
-Rudders - 2? Variants
+X Shaft Tubes - Minimal
+X Rudders - 2? Variants
 X Oil System with Vanilla blocks
 X Forward and Reverse gearbox modes
 
 Phase 2 Release:
-Engines require oxygen
+/ Engines require oxygen --Needs testing
 Electric Induction Motors
 Electric Drive Controllers/Converters
 Oil System with Custom blocks

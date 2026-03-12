@@ -251,8 +251,16 @@ namespace NavalPowerSystems.Drivetrain
         {
             string fromType = from.BlockDefinition.SubtypeId;
             string toType = to.BlockDefinition.SubtypeId;
+            EngineStats fromStats;
+            Config.EngineSettings.TryGetValue(fromType, out fromStats);
 
-            bool fromEngine = Config.EngineSubtypes.Contains(fromType);
+            bool fromEngine = {
+                fromStats != null && (fromStats.Type == EngineType.Diesel || fromStats.Type == EngineType.GasTurbine)
+            };
+            bool fromMotor =
+            {
+                fromStats != null && fromStats.Type == EngineType.Electric
+            };
             bool fromGearbox = Config.GearboxSubtypes.Contains(fromType);
             bool fromShaft = Config.DriveshaftSubtypes.Contains(fromType);
 
@@ -262,6 +270,9 @@ namespace NavalPowerSystems.Drivetrain
 
             if (fromEngine)
                 return toShaft || toGearbox;
+
+            if (fromMotor)
+                return toShaft || toGearbox || toProp;
 
             if (fromGearbox)
                 return toShaft || toProp;
