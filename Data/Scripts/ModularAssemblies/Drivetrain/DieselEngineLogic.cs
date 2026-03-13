@@ -2,12 +2,16 @@
 using NavalPowerSystems.Communication;
 using ProtoBuf;
 using Sandbox.Common.ObjectBuilders;
+using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
+using System.Collections.Generic;
 using System.Text;
+using VRage.Game;
 using VRage.Game.Components;
+using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.Utils;
 using static NavalPowerSystems.Config;
@@ -38,9 +42,8 @@ namespace NavalPowerSystems.Drivetrain
         private static bool _controlsInit = false;
         private static bool _actionsInit = false;
         public bool _isLinkedToGenerator { get; set; } = false;
-        private MyResourceSinkComponent _fuelSink;
-        private static readonly MyDefinitionId FuelId = MyDefinitionId.Parse("MyObjectBuilder_GasProperties/DieselFuel");
-        private static readonly MyDefinitionId OxyId = MyDefinitionId.Parse("MyObjectBuilder_GasProperties/Oxygen");
+        private MyResourceSinkComponent SinkFuel;
+        private MyResourceSinkComponent SinkOxy;
 
         #endregion
 
@@ -87,28 +90,7 @@ namespace NavalPowerSystems.Drivetrain
                 _actionsInit = true;
             }
 
-            _fuelSink = _engine.Components.Get<MyResourceSinkComponent>();
-            if (_fuelSink == null)
-            {
-                _fuelSink = new MyResourceSinkComponent();
-                _engine.Components.Add(_fuelSink);
-            }
-
-            var sinkInfoList = new List<MyResourceSinkInfo>
-            {
-                new MyResourceSinkInfo {
-                    ResourceTypeId = FuelId,
-                    MaxRequiredInput = _engineStats.FuelRate * 2.5f,
-                    RequiredInputFunc = () => _fuelBurn
-                },
-                new MyResourceSinkInfo {
-                    ResourceTypeId = OxyId,
-                    MaxRequiredInput = (_engineStats.FuelRate * 2.0f) * 2.5f,
-                    RequiredInputFunc = () => _oxyBurn
-                }
-            };
-
-            _sink.Init(MyStringId.GetOrCompute("Thrust"), sinkInfoList);
+            InitResourceSink();
 
             _engine.AppendingCustomInfo += AppendCustomInfo;
         }
@@ -135,10 +117,8 @@ namespace NavalPowerSystems.Drivetrain
             base.OnRequestedThrottleChanged(value);
         }
 
-        protected override void EngineUpdate10()
+        protected override void EngineUpdate()
         {
-            UpdateEngineState();
-
             if (_state == EngineState.Running)
             {
                 UpdateThrottle();
@@ -152,6 +132,62 @@ namespace NavalPowerSystems.Drivetrain
                 UpdateFuel();
                 _currentOutputMW = 0f;
             }
+        }
+
+        protected override void EngineUpdate10()
+        {
+            UpdateEngineState();
+        }
+
+        private bool InitResourceSink()
+        {
+            var sinkFuelInfo = new MyResourceSinkInfo()
+            {
+                MaxRequiredInput = _engineStats.FuelRate * 2f,
+                RequiredInputFunc = () => _fuelBurn,
+                ResourceTypeId = MyDefinitionId.Parse("MyObjectBuilder_GasProperties/DieselFuel"),
+            };
+            var sinkOxyInfo = new MyResourceSinkInfo()
+            {
+                MaxRequiredInput = _engineStats.FuelRate * 4f,
+                RequiredInputFunc = () => _oxyBurn,
+                ResourceTypeId = MyResourceDistributorComponent.OxygenId
+            };
+
+            var fakeController = new MyShipController() { SlimBlock = _engineCube.SlimBlock };
+
+            SinkFuel = _engineCube.Components?.Get<MyResourceSinkComponent>();
+            if (SinkFuel !=  null)
+            {
+                SinkFuel.AddType(ref sinkFuelInfo);
+            }
+            else
+            {
+                SinkFuel = new MyResourceSinkComponent();
+                SinkFuel.Init(MyStringHash.GetOrCompute("Thrust"), sinkFuelInfo);
+                _engineCube.Components?.Add(SinkFuel);
+            }
+
+            SinkOxy = _engineCube.Components?.Get<MyResourceSinkComponent>();
+            if (SinkOxy != null)
+            {
+                SinkOxy.AddType(ref sinkOxyInfo);
+            }
+            else
+            {
+                SinkOxy = new MyResourceSinkComponent();
+                SinkOxy.Init(MyStringHash.GetOrCompute("Thrust"), sinkOxyInfo);
+                _engineCube.Components?.Add(SinkOxy);
+            }
+
+            var distributor = fakeController.GridResourceDistributor;
+            if (distributor != null)
+            {
+                distributor.AddSink(SinkFuel);
+                distributor.AddSink(SinkOxy);
+                return true;
+            }
+            return false;
         }
 
         #endregion
@@ -223,7 +259,8 @@ namespace NavalPowerSystems.Drivetrain
             {
                 _fuelBurn = 0f;
                 _oxyBurn = 0f;
-                _fuelSink.Update();
+                SinkFuel.Update();
+                SinkOxy.Update();
                 return;
             }
 
@@ -234,8 +271,8 @@ namespace NavalPowerSystems.Drivetrain
             const float oxyRatio = 2.0f; 
             _oxyBurn = _fuelBurn * oxyRatio;
 
-            float fuelProvided = _fuelSink.CurrentInputByType(FuelId);
-            float oxyProvided = _fuelSink.CurrentInputByType(OxyId);
+            float fuelProvided = SinkFuel.CurrentInputByType(MyDefinitionId.Parse("MyObjectBuilder_GasProperties/DieselFuel"));
+            float oxyProvided = SinkOxy.CurrentInputByType(MyResourceDistributorComponent.OxygenId);
 
             if (fuelProvided < _fuelBurn || oxyProvided < _oxyBurn)
             {
@@ -252,7 +289,8 @@ namespace NavalPowerSystems.Drivetrain
                 _status = "Running";
             }
             
-            _fuelSink.Update();
+            SinkFuel.Update();
+            SinkOxy.Update();
         }
 
         // private void UpdateFuel()
