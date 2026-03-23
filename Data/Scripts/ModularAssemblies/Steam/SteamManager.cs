@@ -29,7 +29,7 @@ namespace NavalPowerSystems.Steam
         {
             foreach (var steamSystem in SteamSystems.Values)
             {
-                steamSystem.Unload();
+                //steamSystem.Unload();
             }
             Instance = null;
             ModularApi.Log("SteamManager closed.");
@@ -39,14 +39,14 @@ namespace NavalPowerSystems.Steam
         {
             foreach (var steamSystem in SteamSystems.Values)
             {
-                steamSystem.UpdateTick();
+                //steamSystem.UpdateTick();
             }
 
             if (_ticks % 10 == 0)
             {
                 foreach (var steamSystem in SteamSystems.Values)
                 {
-                    steamSystem.UpdateTick10();
+                    //steamSystem.UpdateTick10();
                 }
             }
 
@@ -69,14 +69,14 @@ namespace NavalPowerSystems.Steam
         {
             if (Instance == null) return;
 
-            steamSystem drivetrain;
+            SteamSystem steamSystem;
             if (!Instance.SteamSystems.TryGetValue(assemblyId, out steamSystem))
             {
-                steamSystem = new SteamSystem(assemblyId);
+                //steamSystem = new SteamSystem(assemblyId);
                 Instance.SteamSystems.Add(assemblyId, steamSystem);
             }
 
-            drivetrain.AddPart(block);
+            //steamSystem.AddPart(block);
         }
 
         public static void OnPartRemove(int assemblyId, IMyCubeBlock block, bool isBasePart)
@@ -85,7 +85,7 @@ namespace NavalPowerSystems.Steam
             if (Instance == null || !Instance.SteamSystems.TryGetValue(assemblyId, out steamSystem))
                 return;
 
-            steamSystem.RemovePart(block);
+            //steamSystem.RemovePart(block);
         }
 
         public static void OnPartDestroy(int assemblyId, IMyCubeBlock block, bool isBasePart)
@@ -101,7 +101,7 @@ namespace NavalPowerSystems.Steam
             if (Instance == null || !Instance.SteamSystems.TryGetValue(assemblyId, out steamSystem))
                 return;
 
-            steamSystem.Unload();
+            //steamSystem.Unload();
             Instance.SteamSystems.Remove(assemblyId);
             ModularApi.Log($"SteamManager removed assembly {assemblyId}");
         }
