@@ -82,7 +82,20 @@ namespace NavalPowerSystems
             "NPSDrivetrainRudderSmallOffsetRightV2"
         };
 
+        public static readonly HashSet<string> TransformerSubtypes = new HashSet<string>
+        {
+            
+        };
 
+        public static readonly HashSet<string> SwitchboardSubtypes = new HashSet<string>
+        {
+            
+        };
+
+        public static readonly HashSet<string> VFDSubtypes = new HashSet<string>
+        {
+            
+        };
 
         //Component stats definition
         public enum EngineType { Diesel, GasTurbine, SteamTurbine, Electric }
