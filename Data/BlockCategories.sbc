@@ -43,6 +43,7 @@
 				 <string>OxygenTank/NPSExtractionCrudeOutput</string>
 				 <!-- Gearboxes -->
 				<string>TerminalBlock/NPSDrivetrainMRG</string>
+				<string>TerminalBlock/NPSGearbox_DoublePlanetary</string>
 				<!-- Rudders -->
 				 <string>TerminalBlock/NPSDrivetrainRudderSmallCenteredV1</string>
 				 <string>TerminalBlock/NPSDrivetrainRudderSmallOffsetLeftV1</string>

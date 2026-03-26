@@ -20,10 +20,10 @@ namespace NavalPowerSystems.IntegratedElectrics
             Instance = this;
         }
 
-        public override void UnloadData()
-        {
-            Instance = null;
-        }
+        //public override void UnloadData()
+        //{
+        //    Instance = null;
+        //}
 
         public override void UpdateAfterSimulation()
         {
@@ -36,39 +36,39 @@ namespace NavalPowerSystems.IntegratedElectrics
             {
                 foreach (var system in ElectricalSystems.Values)
                 {
-                    system.UpdateTick10();
+                    //system.UpdateTick10();
                 }
             }
 
             if (Ticks % 100 == 0)
             {
-                Update100();
+                //Update100();
             }
             Ticks++;
         }
 
         public static void OnBlockAdded(IMyCubeBlock block)
         {
-            if (instance == null || block?.CubeGrid == null) return;
+            if (Instance == null || block?.CubeGrid == null) return;
 
-            long gridId = block.CubeGrid.EntityId;
+            int gridId = (int)block.CubeGrid.EntityId;
 
             if (!Instance.ElectricalSystems.ContainsKey(gridId))
             {
                 Instance.ElectricalSystems.Add(gridId, new ElectricalSystem(gridId));
             }
 
-            Instance.ElectricalSystems[gridId].AddBlock(block);
+            //Instance.ElectricalSystems[gridId].AddBlock(block);
         }
 
         public static void OnBlockRemoved(IMyCubeBlock block)
         {
-            Instance.ElectricalSystems[gridId].RemoveBlock(block);
+            //Instance.ElectricalSystems[gridId].RemoveBlock(block);
         }
 
         public static void OnBlockDestroyed(IMyCubeBlock block)
         {
-            Instance.ElectricalSystems[gridId].RemoveBlock(block);
+            //Instance.ElectricalSystems[gridId].RemoveBlock(block);
         }
     }
 }

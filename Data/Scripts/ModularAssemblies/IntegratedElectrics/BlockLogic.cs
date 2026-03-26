@@ -1,13 +1,17 @@
 using NavalPowerSystems.Communication;
 using Sandbox.Game.Entities;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
+using VRage.ObjectBuilders;
+using VRage.Utils;
 using VRageMath;
 using static NavalPowerSystems.Config;
 
@@ -62,10 +66,10 @@ namespace NavalPowerSystems.IntegratedElectrics
 
             Sink = new MyResourceSinkComponent();
 
-            Sink.Init(
-                MyStringHash.GetOrCompute("Electricity"),
-                () => CalculateRequiredPower()
-            );
+            //Sink.Init(
+            //    MyStringHash.GetOrCompute("Electricity"),
+            //    () => CalculateRequiredPower()
+            //);
 
             if (!Entity.Components.Contains(typeof(MyResourceSinkComponent)))
             {
@@ -84,9 +88,10 @@ namespace NavalPowerSystems.IntegratedElectrics
 
         private float CalculateRequiredPower()
         {
-            var system = ElectricalManager.Instance?.GetSystem(Block.CubeGrid.EntityId);
+            //var system = ElectricalManager.Instance?.GetSystem(Block.CubeGrid.EntityId);
 
-            return system != null ? (float)system.CurrentDemandMW : 0f;
+            //return system != null ? (float)system.CurrentDemandMW : 0f;
+            return 0f;
         }
     }
 }

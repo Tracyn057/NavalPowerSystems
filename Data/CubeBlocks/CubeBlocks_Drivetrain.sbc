@@ -50,6 +50,102 @@
             </TargetingGroups>
             <PCU>80</PCU>
         </Definition>
+		
+		<Definition>
+            <Id>
+                <TypeId>TerminalBlock</TypeId>
+                <SubtypeId>NPSDrivetrainMRG</SubtypeId>
+            </Id>
+            <DisplayName>Main Reduction Gear</DisplayName>
+            <Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainMRG.dds</Icon>
+            <Description>Heart of the modern drivetrain.</Description>
+            <CubeSize>Large</CubeSize>
+            <BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="3" y="2" z="2"/>
+            <Model>Models\Cubes\Large\NPSDrivetrainMRG.mwm</Model>
+            <Components>
+                <Component Subtype="SteelPlate" Count="1100" />
+                <Component Subtype="Construction" Count="40" />
+                <Component Subtype="LargeTube" Count="20" />
+                <Component Subtype="Motor" Count="16" />
+                <Component Subtype="MetalGrid" Count="20" />
+                <Component Subtype="Computer" Count="20" />
+                <Component Subtype="SteelPlate" Count="100" />
+            </Components>
+            <CriticalComponent Subtype="Computer" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Front" StartX="1.25" StartY="0.25" EndX="1.75" EndY="0.75"/>
+				<MountPoint Side="Back" StartX="0.25" StartY="1.25" EndX="0.75" EndY="1.75"/>
+				<MountPoint Side="Back" StartX="2.25" StartY="1.25" EndX="2.75" EndY="1.75"/>
+				<MountPoint Side="Left" StartX="0.00" StartY="1.00" EndX="2.00" EndY="2.00"/>
+				<MountPoint Side="Right" StartX="0.00" StartY="1.00" EndX="2.00" EndY="2.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="3.00" EndY="2.00"/>
+			</MountPoints>
+            <BuildProgressModels>
+                <Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\NPSDrivetrainMRG_BS1.mwm" />
+            </BuildProgressModels>
+            <BlockPairName>GearboxMRG</BlockPairName>
+            <MirroringY>X</MirroringY>
+            <MirroringX>Y</MirroringX>
+            <EdgeType>Light</EdgeType>
+            <BuildTimeSeconds>120</BuildTimeSeconds>
+            <DamageEffectName>Damage_Electrical_Prototech_JumpDrive_L</DamageEffectName>
+            <DamagedSound>ParticleElectrical</DamagedSound>
+            <DestroyEffect>Explosion_Warhead_30</DestroyEffect>
+            <DestroySound>WepLrgWarheadExpl</DestroySound>
+            
+            <TargetingGroups>
+                <string>Propulsion</string>
+            </TargetingGroups>
+            <PCU>80</PCU>
+        </Definition>
+
+		<Definition>
+			<Id>
+				<TypeId>TerminalBlock</TypeId>
+				<SubtypeId>NPSGearbox_DoublePlanetary</SubtypeId>
+			</Id>
+			<DisplayName>Double Planetary Reduction Gearbox</DisplayName>
+			<Description>Reduction Stages: 2</Description>
+			<Icon>Textures\GUI\Icons\Cubes\Gearbox_DoublePlanetary.dds</Icon>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="2"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\large\Gearbox_DoublePlanetary.mwm</Model>
+			<Components>
+				<Component Subtype="SteelPlate" Count="1100" />
+				<Component Subtype="Construction" Count="40" />
+				<Component Subtype="LargeTube" Count="20" />
+				<Component Subtype="Motor" Count="16" />
+				<Component Subtype="MetalGrid" Count="20" />
+				<Component Subtype="Computer" Count="20" />
+				<Component Subtype="SteelPlate" Count="100" />
+			</Components>
+			<CriticalComponent Subtype="Computer" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Back" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="2.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\large\Gearbox_DoublePlanetary_BS1.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPSGearbox_DoublePlanetary</BlockPairName>
+			<MirroringY>Z</MirroringY>
+			<MirroringZ>Y</MirroringZ>
+			<EdgeType>Light</EdgeType>
+			<BuildTimeSeconds>120</BuildTimeSeconds>
+			<DamageEffectName>Damage_Electrical_Prototech_JumpDrive_L</DamageEffectName>
+			<DamagedSound>ParticleElectrical</DamagedSound>
+			<DestroyEffect>Explosion_Warhead_30</DestroyEffect>
+			<DestroySound>WepLrgWarheadExpl</DestroySound>
+
+			<TargetingGroups>
+				<string>Propulsion</string>
+			</TargetingGroups>
+			<PCU>80</PCU>
+		</Definition>
 
         </CubeBlocks>
 </Definitions>

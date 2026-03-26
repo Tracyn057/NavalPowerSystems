@@ -41,6 +41,11 @@ namespace NavalPowerSystems
             "NPSDieselEngine25MW"
         };
 
+        public static readonly HashSet<string> MotorSubtypes = new HashSet<string>
+        {
+            
+        };
+
         public static readonly HashSet<string> PropellerSubtypes = new HashSet<string>
         {
             "NPSDrivetrainProp34",
@@ -69,7 +74,8 @@ namespace NavalPowerSystems
 
         public static readonly HashSet<string> GearboxSubtypes = new HashSet<string>
         {
-            "NPSDrivetrainMRG"
+            "NPSDrivetrainMRG",
+            "NPSGearbox_DoublePlanetary"
         };
 
         public static readonly HashSet<string> RudderSubtypes = new HashSet<string>
@@ -160,6 +166,7 @@ namespace NavalPowerSystems
         public static readonly Dictionary<string, GearboxStats> GearboxSettings = new Dictionary<string, GearboxStats>
         {
             {"NPSDrivetrainMRG", new GearboxStats { ReductionLevel = 2, IsClutched = true } },
+            {"NPSGearbox_DoublePlanetary", new GearboxStats { ReductionLevel = 2, IsClutched = true } },
         };
 
         public static readonly float[,] EnthalpyTable = new float[5, 5] {

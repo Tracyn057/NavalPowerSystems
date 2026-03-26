@@ -49,6 +49,7 @@ namespace NavalPowerSystems
 
                 //Gearboxes
                 "NPSDrivetrainMRG",
+                "NPSGearbox_DoublePlanetary",
 
                 //Driveshafts
                 "NPSDrivetrainDriveshaft",
