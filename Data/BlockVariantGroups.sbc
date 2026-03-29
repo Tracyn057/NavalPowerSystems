@@ -3,67 +3,37 @@
     <BlockVariantGroups>
 
         <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSDieselGeneratorGroup" />
-            <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
-            <DisplayName>MarineDieselGenerators</DisplayName>
-            <Description>Description_PowerGenerator</Description>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPS_Driveshaft_Group" />
+            <Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainDriveshaft.dds</Icon>
+            <DisplayName>Naval Driveshafts</DisplayName>
+            <Description>Group</Description>
             <Blocks>
-                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSDieselGenerator500KW" />
-                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSDieselGenerator15MW" />
-                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSDieselGenerator25MW" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainDriveshaft" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainDriveshaftMarked" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainDriveshaftLong" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainDriveshaftLongMarked" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainLinearGearbox1" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainLinearGearbox2" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainTubeSealEnclosed1" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainTubeSealSlope1" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainTubeSealSlope1Corner" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainTubeSealSlope2" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainTubeSealSlope2Corner" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainEndTubeV1" />
             </Blocks>
-        </BlockVariantGroup>   
+        </BlockVariantGroup>
 
         <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSMarineGasTurbineGeneratorGroup" />
-            <Icon>Textures\GUI\Icons\Cubes\NPSDieselTurbineLarge.dds</Icon>
-            <DisplayName>MarineGasTurbineGenerator</DisplayName>
-            <Description>Description_PowerGenerator</Description>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPS_Turbine_LM2500Group" />
+            <Icon>Textures\GUI\Icons\Cubes\NPS_Turbine_LM2500.dds</Icon>
+            <DisplayName>LM2500 Gas Turbine</DisplayName>
+            <Description>Group</Description>
             <Blocks>
-                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSMarineGasTurbineGen2MW" />
-                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSMarineGasTurbineGen5MW" />
-                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSMarineGasTurbineGen12MW" />
-                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSMarineGasTurbineGen25MW" />
-                <Block Type="MyObjectBuilder_HydrogenEngineDefinition" Subtype="NPSMarineGasTurbineGen40MW" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPS_Turbine_LM2500" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPS_Turbine_LM2500Plus" />
+                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPS_Turbine_LM2500PlusG4" />
             </Blocks>
-        </BlockVariantGroup>   
-
-        <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSDieselEngineGroup" />
-            <Icon>Textures\GUI\Icons\Cubes\HydrogenEngineLarge.dds</Icon>
-            <DisplayName>MarineDieselEngine</DisplayName>
-            <Description>Description_PowerGenerator</Description>
-            <Blocks>
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSDieselEngine500KW" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSDieselEngine15MW" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSDieselEngine25MW" />
-            </Blocks>
-        </BlockVariantGroup>   
-
-        <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSMarineGasTurbineEngineGroup" />
-            <Icon>Textures\GUI\Icons\Cubes\NPSDieselTurbineLarge.dds</Icon>
-            <DisplayName>MarineGasTurbineEngine</DisplayName>
-            <Description>Description_PowerGenerator</Description>
-            <Blocks>
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine2MW" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine5MW" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine12MW" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine25MW" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSMarineGasTurbineEngine40MW" />
-            </Blocks>
-        </BlockVariantGroup>   
-
-        <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPSProductionInputOutputGroup" />
-            <Icon>Textures\GUI\Icons\Cubes\largeHydrogenTankSmall.dds</Icon>
-            <DisplayName>OilRefineryInputOutput</DisplayName>
-            <Description>Description_PowerGenerator</Description>
-            <Blocks>
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionCrudeInput" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPSProductionFuelInput" />
-            </Blocks>
-        </BlockVariantGroup>   
+        </BlockVariantGroup>
 
     </BlockVariantGroups>
 </Definitions>

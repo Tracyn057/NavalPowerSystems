@@ -14,16 +14,17 @@ using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.Utils;
+using VRageMath;
 using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems.Drivetrain
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_OxygenTank), false,
-            "NPSDieselTurbine2MW",
-            "NPSDieselTurbine5MW",
-            "NPSDieselTurbine12MW",
-            "NPSDieselTurbine25MW",
-            "NPSDieselTurbine40MW",
+            "NPS_Turbine_MT7",
+            "NPS_Turbine_LM2500",
+            "NPS_Turbine_LM2500Plus",
+            "NPS_Turbine_LM2500PlusG4",
+            "NPS_Turbine_MT30",
             "NPSDieselEngine500KW",
             "NPSDieselEngine15MW",
             "NPSDieselEngine25MW"
@@ -33,7 +34,6 @@ namespace NavalPowerSystems.Drivetrain
         #region Variables
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         private IMyGasTank _engine;
-        private EfficiencyPoint[] _engineEfficiency;
         private string _status = "Idle";
         private float _requestedMS = 0f;
         private float _inertia = 0f;
@@ -72,15 +72,6 @@ namespace NavalPowerSystems.Drivetrain
                 _engine.Enabled = false;
             }
             SaveSettings();
-
-            if (_engineStats.Type == EngineType.GasTurbine)
-            {
-                _engineEfficiency = TurbineEngineConfigs.TurbineFuelTable;
-            }
-            else if (_engineStats.Type == EngineType.Diesel)
-            {
-                _engineEfficiency = DieselEngineConfigs.DieselFuelTable;
-            }
 
             if (!_controlsInit)
             {
@@ -194,29 +185,6 @@ namespace NavalPowerSystems.Drivetrain
 
         #region Fuel and Throttle
 
-
-        private static float GetFuelMultiplier(EfficiencyPoint[] table, float currentThrottle)
-        {
-            if (currentThrottle <= table[0].Throttle) return table[0].Multiplier;
-
-            if (currentThrottle >= table[table.Length - 1].Throttle)
-                return table[table.Length - 1].Multiplier;
-
-            for (int i = 0; i < table.Length - 1; i++)
-            {
-                if (currentThrottle <= table[i + 1].Throttle)
-                {
-                    EfficiencyPoint start = table[i];
-                    EfficiencyPoint end = table[i + 1];
-
-                    float percentage = (currentThrottle - start.Throttle) / (end.Throttle - start.Throttle);
-
-                    return start.Multiplier + (end.Multiplier - start.Multiplier) * percentage;
-                }
-            }
-            return 1.0f;
-        }
-
         private void Spool(float target)
         {
             float spoolStep = 1f / (_engineStats.SpoolTime * 6f);
@@ -264,9 +232,15 @@ namespace NavalPowerSystems.Drivetrain
                 return;
             }
 
-            float fuelMult = GetFuelMultiplier(_engineEfficiency, (float)_currentThrottle);
-            
-            _fuelBurn = (_engineStats.FuelRate * fuelMult) * Config.globalFuelMult;
+            FuelCurve activeCurve = _engineStats.Type == EngineType.GasTurbine ? EngineFuelConfigs.TurbineCurve : EngineFuelConfigs.DieselCurve;
+            float x = MathHelper.Clamp((float)_currentThrottle, 0f, 1.25f);
+
+            float fuelMult = activeCurve.Evaluate(x);
+
+            float outputKW = _engineStats.MaxMW * 1000f;
+            float maxFuelBurn = (_engineStats.FuelRate * outputKW) / (3600f * 1000f * 0.85f); //0.85 is diesel specific density
+
+            _fuelBurn = maxFuelBurn * fuelMult * Config.globalFuelMult;
 
             const float oxyRatio = 2.0f; 
             _oxyBurn = _fuelBurn * oxyRatio;
@@ -292,23 +266,6 @@ namespace NavalPowerSystems.Drivetrain
             SinkFuel.Update();
             SinkOxy.Update();
         }
-
-        // private void UpdateFuel()
-        // {
-        //     if (!_engine.IsWorking) return;
-
-        //     float fuelMult = GetFuelMultiplier(_engineEfficiency, (float)_currentThrottle);
-        //     _fuelBurn = ((_engineStats.FuelRate * fuelMult) / 6 ) * Config.globalFuelMult;
-
-        //     if (_engine.FilledRatio <= 0.01f)
-        //     {
-        //         _currentThrottle = 0f;
-        //         _fuelBurn = 0f;
-        //         _status = "Out of Fuel";
-        //         return;
-        //     }
-        //     Utilities.ChangeTankLevel(_engine, -_fuelBurn);
-        // }
 
         private void UpdatePower()
         {

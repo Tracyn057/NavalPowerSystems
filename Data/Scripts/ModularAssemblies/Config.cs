@@ -31,11 +31,11 @@ namespace NavalPowerSystems
         //Viable component lists
         public static readonly HashSet<string> EngineSubtypes = new HashSet<string>
         {
-            "NPSDieselTurbine2MW",
-            "NPSDieselTurbine5MW",
-            "NPSDieselTurbine12MW",
-            "NPSDieselTurbine25MW",
-            "NPSDieselTurbine40MW",
+            "NPS_Turbine_MT7",
+            "NPS_Turbine_LM2500",
+            "NPS_Turbine_LM2500Plus",
+            "NPS_Turbine_LM2500PlusG4",
+            "NPS_Turbine_MT30",
             "NPSDieselEngine500KW",
             "NPSDieselEngine15MW",
             "NPSDieselEngine25MW"
@@ -121,11 +121,11 @@ namespace NavalPowerSystems
         public static readonly Dictionary<string, EngineStats> EngineSettings = new Dictionary<string, EngineStats>
         {
             //Gas Turbines
-            {"NPSDieselTurbine2MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 2, RequiredReduction = 2, FuelRate = 19.5f, SpoolTime = 28 } },
-            {"NPSDieselTurbine5MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 5, RequiredReduction = 2, FuelRate = 48.75f, SpoolTime = 32 } },
-            {"NPSDieselTurbine12MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 12, RequiredReduction = 2, FuelRate = 117.0f, SpoolTime = 36 } },
-            {"NPSDieselTurbine25MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 25, RequiredReduction = 2, FuelRate = 243.75f, SpoolTime = 40 } },
-            {"NPSDieselTurbine40MW", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 40, RequiredReduction = 2, FuelRate = 390.0f, SpoolTime = 44 } },
+            {"NPS_Turbine_MT7", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 5, RequiredReduction = 2, FuelRate = 260f, SpoolTime = 36 } },
+            {"NPS_Turbine_LM2500", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 25, RequiredReduction = 2, FuelRate = 227f, SpoolTime = 40 } },
+            {"NPS_Turbine_LM2500Plus", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 30, RequiredReduction = 2, FuelRate = 215f, SpoolTime = 40 } },
+            {"NPS_Turbine_LM2500PlusG4", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 35, RequiredReduction = 2, FuelRate = 214f, SpoolTime = 40 } },
+            {"NPS_Turbine_MT30", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 40, RequiredReduction = 2, FuelRate = 207f, SpoolTime = 44 } },
             //Internal Combustion Diesel
             {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, RequiredReduction = 1, FuelRate = 3.75f, SpoolTime = 4f } },
             {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, RequiredReduction = 1, FuelRate = 11.25f, SpoolTime = 6f } },
@@ -183,9 +183,15 @@ namespace NavalPowerSystems
         public EngineType Type;
         public float MaxMW;         //Soft cap max output power - Mechanical only
         public int RequiredReduction; //Required level of reduction to not damage propeller
-        public float FuelRate;      //Fuel consumption at max output in liters/second - Multiplied by globalFuelMult for actual consumption
+        public float FuelRate;      //Fuel consumption at max output in grams per kilowatt-hour
         public float SpoolTime;       //How fast the engine responds to throttle changes at low throttle
         public int StartupTicks;    //Number of ticks to go from stopped to running
+    }
+
+    public static class EngineFuelConfigs
+    {
+        public static readonly FuelCurve DieselCurve = new FuelCurve(0.15f, 0.75f, 0.10f);
+        public static readonly FuelCurve TurbineCurve = new FuelCurve(0.4f, 0.1f, 0.25f);
     }
 
     public class SteamTurbineStats
@@ -216,24 +222,19 @@ namespace NavalPowerSystems
         public bool IsClutched;           //Whether or not the gearbox has a clutch, allowing it to disconnect the engine from the drivetrain
     }
 
-    public static class DieselEngineConfigs
+    public struct FuelCurve
     {
-        public static readonly EfficiencyPoint[] DieselFuelTable = {
-            new EfficiencyPoint(0.00f, 0.05f), // Idle
-            new EfficiencyPoint(0.40f, 0.35f), // Cruising
-            new EfficiencyPoint(1.00f, 1.00f), // Rated Max
-            new EfficiencyPoint(1.25f, 1.80f)  // Emergency
-            };
-    }
+        public float A;
+        public float B;
+        public float C;
 
-    public static class TurbineEngineConfigs
-    {
-        public static readonly EfficiencyPoint[] TurbineFuelTable = {
-            new EfficiencyPoint(0.00f, 0.20f), // Idle
-            new EfficiencyPoint(0.30f, 0.45f), // Low Power
-            new EfficiencyPoint(0.70f, 0.75f), // Cruising
-            new EfficiencyPoint(1.00f, 1.00f), // Rated Max
-            new EfficiencyPoint(1.25f, 2.25f)  // Emergency
-            };
+        public FuelCurve(float a, float b, float c)
+        {
+            A = a;
+            B = b;
+            C = c;
+        }
+
+        public float Evaluate(float x) => (A * x * x) + (B * x) + C;
     }
 }

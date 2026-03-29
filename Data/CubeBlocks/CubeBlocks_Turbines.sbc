@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <CubeBlocks>
+        
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
+            <Id>
+                <TypeId>OxygenTank</TypeId>
+				<SubtypeId>NPS_Turbine_LM2500</SubtypeId>
+			</Id>
+			<DisplayName>LM2500 Gas Turbine</DisplayName>
+			<Description>
+                Fuel: Diesel
+                Rated Output: 25,000kW
+                Specific Fuel Consumption:
+                227 g/kW-hr
+            </Description>
+			<Icon>Textures\GUI\Icons\Cubes\NPS_Turbine_LM2500.dds</Icon>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="3"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\Large\NPS_Turbine_LM2500.mwm</Model>
+			<Components>
+                <Component Subtype="SteelPlate" Count="80" />
+                <Component Subtype="Construction" Count="60" />
+                <Component Subtype="LargeTube" Count="12" />
+                <Component Subtype="SmallTube" Count="20" />
+                <Component Subtype="Motor" Count="12" />
+                <Component Subtype="Computer" Count="4" />
+                <Component Subtype="PowerCell" Count="1" />
+                <Component Subtype="Construction" Count="10" />
+                <Component Subtype="SteelPlate" Count="20" />
+            </Components>
+            <CriticalComponent Subtype="PowerCell" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\NPS_Turbine_LM2500_BS1.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPS_Turbine_LM2500</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>2500</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
+            <InventorySize>
+                <X>1</X>
+                <Y>1</Y> 
+                <Z>1</Z>
+            </InventorySize>
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
+            <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
+            <DamagedSound>ParticleWeapExpl</DamagedSound>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
+            <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
+            <TargetingGroups>
+                <string>Propulsion</string>
+            </TargetingGroups>
+		</Definition>
+
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
+            <Id>
+                <TypeId>OxygenTank</TypeId>
+				<SubtypeId>NPS_Turbine_LM2500Plus</SubtypeId>
+			</Id>
+			<DisplayName>LM2500+ Gas Turbine</DisplayName>
+			<Description>
+                Fuel: Diesel
+                Rated Output: 30,000kW
+                Specific Fuel Consumption:
+                215 g/kW-hr
+            </Description>
+			<Icon>Textures\GUI\Icons\Cubes\NPS_Turbine_LM2500.dds</Icon>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="3"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\Large\NPS_Turbine_LM2500.mwm</Model>
+			<Components>
+                <Component Subtype="SteelPlate" Count="80" />
+                <Component Subtype="Construction" Count="60" />
+                <Component Subtype="LargeTube" Count="12" />
+                <Component Subtype="SmallTube" Count="20" />
+                <Component Subtype="Motor" Count="12" />
+                <Component Subtype="Computer" Count="4" />
+                <Component Subtype="PowerCell" Count="1" />
+                <Component Subtype="Construction" Count="10" />
+                <Component Subtype="SteelPlate" Count="20" />
+            </Components>
+            <CriticalComponent Subtype="PowerCell" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\NPS_Turbine_LM2500_BS1.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPS_Turbine_LM2500Plus</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>2500</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
+            <InventorySize>
+                <X>1</X>
+                <Y>1</Y> 
+                <Z>1</Z>
+            </InventorySize>
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
+            <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
+            <DamagedSound>ParticleWeapExpl</DamagedSound>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
+            <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
+            <TargetingGroups>
+                <string>Propulsion</string>
+            </TargetingGroups>
+		</Definition>
+
+        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
+            <Id>
+                <TypeId>OxygenTank</TypeId>
+				<SubtypeId>NPS_Turbine_LM2500PlusG4</SubtypeId>
+			</Id>
+			<DisplayName>LM2500+G4 Gas Turbine</DisplayName>
+			<Description>
+                Fuel: Diesel
+                Rated Output: 35,000kW
+                Specific Fuel Consumption:
+                214 g/kW-hr
+            </Description>
+			<Icon>Textures\GUI\Icons\Cubes\NPS_Turbine_LM2500.dds</Icon>
+			<CubeSize>Large</CubeSize>
+			<BlockTopology>TriangleMesh</BlockTopology>
+			<Size x="1" y="1" z="3"/>
+			<ModelOffset x="0" y="0" z="0"/>
+			<Model>Models\Cubes\Large\NPS_Turbine_LM2500.mwm</Model>
+			<Components>
+                <Component Subtype="SteelPlate" Count="80" />
+                <Component Subtype="Construction" Count="60" />
+                <Component Subtype="LargeTube" Count="12" />
+                <Component Subtype="SmallTube" Count="20" />
+                <Component Subtype="Motor" Count="12" />
+                <Component Subtype="Computer" Count="4" />
+                <Component Subtype="PowerCell" Count="1" />
+                <Component Subtype="Construction" Count="10" />
+                <Component Subtype="SteelPlate" Count="20" />
+            </Components>
+            <CriticalComponent Subtype="PowerCell" Index="0" />
+			<MountPoints>
+				<MountPoint Side="Front" StartX="0.40" StartY="0.40" EndX="0.60" EndY="0.60" CouplingTag="NPSGearbox"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="2.00" EndX="1.00" EndY="3.00"/>
+				<MountPoint Side="Top" StartX="0.00" StartY="0.00" EndX="1.00" EndY="1.00"/>
+				<MountPoint Side="Bottom" StartX="0.00" StartY="0.00" EndX="1.00" EndY="3.00"/>
+			</MountPoints>
+			<BuildProgressModels>
+				<Model BuildPercentUpperBound="1.00" File="Models\Cubes\Large\NPS_Turbine_LM2500_BS1.mwm"/>
+			</BuildProgressModels>
+			<BlockPairName>NPS_Turbine_LM2500PlusG4</BlockPairName>
+            <MirroringY>Z</MirroringY>
+            <MirroringZ>Y</MirroringZ>
+            <EdgeType>Light</EdgeType>
+            <ResourceSourceGroup>Reactors</ResourceSourceGroup>
+            <ResourceSinkGroup>Factory</ResourceSinkGroup>
+            <OperationalPowerConsumption>0</OperationalPowerConsumption>
+            <StandbyPowerConsumption>0</StandbyPowerConsumption>
+            <Capacity>2500</Capacity>
+            <InventoryMaxVolume>0.75</InventoryMaxVolume>
+            <InventorySize>
+                <X>1</X>
+                <Y>1</Y> 
+                <Z>1</Z>
+            </InventorySize>
+            <StoredGasId>
+                <TypeId>GasProperties</TypeId>
+                <SubtypeId>DieselFuel</SubtypeId>
+            </StoredGasId>
+            <BuildTimeSeconds>32</BuildTimeSeconds>
+            <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
+            <DamagedSound>ParticleWeapExpl</DamagedSound>
+            <EmissiveColorPreset>Extended</EmissiveColorPreset>
+            <PCU>25</PCU>
+            <LeakPercent>0.005</LeakPercent>
+            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
+            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
+            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
+            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
+            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
+            <TieredUpdateTimes>
+                <unsignedInt>100</unsignedInt>
+                <unsignedInt>300</unsignedInt>
+                <unsignedInt>600</unsignedInt>
+            </TieredUpdateTimes>
+            <TargetingGroups>
+                <string>Propulsion</string>
+            </TargetingGroups>
+		</Definition>
+
+    </CubeBlocks>
+</Definitions>

@@ -38,11 +38,11 @@ namespace NavalPowerSystems
             AllowedBlockSubtypes = new[]
             {
                 //Engines
-                "NPSDieselTurbine2MW",
-                "NPSDieselTurbine5MW",
-                "NPSDieselTurbine12MW",
-                "NPSDieselTurbine25MW",
-                "NPSDieselTurbine40MW",
+                "NPS_Turbine_MT7",
+                "NPS_Turbine_LM2500",
+                "NPS_Turbine_LM2500Plus",
+                "NPS_Turbine_LM2500PlusG4",
+                "NPS_Turbine_MT30",
                 "NPSDieselEngine500KW",
                 "NPSDieselEngine15MW",
                 "NPSDieselEngine25MW",
