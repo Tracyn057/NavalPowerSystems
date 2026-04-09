@@ -8,6 +8,7 @@ namespace NavalPowerSystems
     {
         //Global variables
         public const float globalFuelMult = 0.66f;          //Multiplier for fuel consumption
+        public const double DieselEnergyDensity = 36295;    //KJ/Liter for diesel fuel, used for calculating fuel consumption
         public const bool requiresMaintenance = false;    //Whether or not to apply wear and tear to engines and propellers, causing them to lose efficiency and eventually fail without repairs
         public const float cavitationDmgMult = 0.1f;      //Multiplier for damage caused by cavitation, applied to propeller blocks
         public const float throttleVariance = 0.015f;    //Amount of random variance in throttle response
@@ -132,6 +133,18 @@ namespace NavalPowerSystems
             {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, RequiredReduction = 1, FuelRate = 18.75f, SpoolTime = 8f } },
         };
 
+        public static readonly Dictionary<string, NewEngineStats> NewEngineSettings = new Dictionary<string, NewEngineStats>
+        {
+            //Gas Turbines
+            {"NPS_Turbine_MT7", new NewEngineStats { PeakRPM = 12500, PeakTorque = 2160, PeakPower = 4600, HeatRate = 13846, SpecificFuelConsumption = 260f, PowerCurveConstant = 0.45f, SystemInertia = 250 } },
+            {"NPS_Turbine_LM2500", new NewEngineStats { PeakRPM = 3300, PeakTorque = 66459, PeakPower = 25000, HeatRate = 9705, SpecificFuelConsumption = 227f, PowerCurveConstant = 0.35f, SystemInertia = 425 } },
+            {"NPS_Turbine_LM2500Plus", new NewEngineStats { PeakRPM = 3300, PeakTorque = 80109, PeakPower = 30000, HeatRate = 9227, SpecificFuelConsumption = 215f, PowerCurveConstant = 0.325f, SystemInertia = 425 } },
+            {"NPS_Turbine_LM2500PlusG4", new NewEngineStats { PeakRPM = 3300, PeakTorque = 93698, PeakPower = 35000, HeatRate = 9150, SpecificFuelConsumption = 214f, PowerCurveConstant = 0.315f, SystemInertia = 425 } },
+            {"NPS_Turbine_MT30", new NewEngineStats { PeakRPM = 3300, PeakTorque = 106101, PeakPower = 40000, HeatRate = 9000, SpecificFuelConsumption = 207f, PowerCurveConstant = 0.3f, SystemInertia = 350 } },
+        
+            //Internal Combustion Diesel
+        };
+
         public static readonly Dictionary<string, SteamTurbineStats> SteamTurbineSettings = new Dictionary<string, SteamTurbineStats>
         {
             {"NPSSteamTurbineDestroyerHP", new SteamTurbineStats { MinFlow = 0.05f, MaxFlow = 0.6f } },
@@ -186,6 +199,22 @@ namespace NavalPowerSystems
         public float FuelRate;      //Fuel consumption at max output in grams per kilowatt-hour
         public float SpoolTime;       //How fast the engine responds to throttle changes at low throttle
         public int StartupTicks;    //Number of ticks to go from stopped to running
+    }
+
+    //Test stats for new engine simulation
+    public class NewEngineStats
+    {
+        // Torque Output in Nm = PeakTorque * ( 1 - PowerCurveConstant * ((CurrentRPM - PeakRPM) / PeakRPM)^2)
+        // Power Output in Watts = CurrentTorque * CurrentRPM / 9.5488
+        // Power Required in KJ/sec = PowerKw * HeatRate / 3600
+        // Fuel use in Liters/sec = (PowerRequired / DieselEnergyDensity) * globalFuelMult
+        public double PeakRPM; //Output shaft max RPM
+        public double PeakTorque; //Peak torque in Nm
+        public double PeakPower; //Peak power in KW
+        public double HeatRate; //KJ per kWh at peak power
+        public float SpecificFuelConsumption; //grams per kWh at peak power
+        public float PowerCurveConstant; //Constant to shape the power curve, higher values make it more peaky
+        public double SystemInertia; //Inertia of the engine system, affecting how quickly it responds to changes in load and throttle
     }
 
     public static class EngineFuelConfigs
