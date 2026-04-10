@@ -19,7 +19,7 @@ using VRage.Utils;
 using VRageMath;
 using static NavalPowerSystems.Config;
 
-namespace NavalPowerSystems.Drivetrain
+namespace NavalPowerSystems.Drivetrain_V2
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_OxygenTank), false,
             "NPS_Turbine_MT7",
@@ -31,25 +31,14 @@ namespace NavalPowerSystems.Drivetrain
             "NPSDieselEngine15MW",
             "NPSDieselEngine25MW"
     )]
-    public class NewEngineLogic : MyGameLogicComponent, IMyEventProxy
+    public class EngineLogic_V2 : MyGameLogicComponent, IMyEventProxy
     {
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         private IMyFunctionalBlock EngineBlock;
         private MyCubeBlock EngineCube;
         private IMyGasTank EngineTank;
-        private double PeakRPM;
-        private double PeakTorque;
-        private double HeatRate;
-        private float PowerCurveConstant;
-        private double SystemInertia;
+        private EngineNode Node;
         private int AssemblyId = -1;
-        public bool IsValid { get; set; } = false;
-        public double CurrentRPM { get; private set; } = 0;
-        public double CurrentTorque { get; private set; } = 0;
-        public double TorqueLoad { get; set; } = 0;
-        public double CurrentPower { get; private set; } = 0;
-        public double PowerLoad { get; set; } = 0;
-        private double RPMVarianceMult = 0.02;
         public float RequestedThrottle { get; set; } = 0f;
         private float CurrentFuelUse = 0f;
         private float CurrentO2Use = 0f;
@@ -73,19 +62,9 @@ namespace NavalPowerSystems.Drivetrain
         public override void UpdateOnceBeforeFrame()
         {
             base.UpdateOnceBeforeFrame();
-            if (EngineBlock == null || EngineCube == null || EngineTank == null)
+            if (EngineBlock == null || EngineCube == null || EngineTank == null || Node == null)
                 return;
 
-            if (!Config.NewEngineSettings.ContainsKey(EngineBlock.BlockDefinition.SubtypeName))
-                return;
-
-            AssemblyId = ModularApi.GetContainingAssembly(EngineBlock, "Drivetrain_Definition");
-            var EngineStats = Config.NewEngineSettings[EngineBlock.BlockDefinition.SubtypeName];
-            PeakRPM = EngineStats.PeakRPM;
-            PeakTorque = EngineStats.PeakTorque;
-            HeatRate = EngineStats.HeatRate;
-            PowerCurveConstant = EngineStats.PowerCurveConstant;
-            SystemInertia = EngineStats.SystemInertia;
             EngineTank.Stockpile = true;
             EngineTank.AppendingCustomInfo += AppendCustomInfo;
 
@@ -155,34 +134,16 @@ namespace NavalPowerSystems.Drivetrain
             }
         }
 
+        public void SetNode(EngineNode node)
+        {
+            Node = node;
+        }
+
         public override void UpdateBeforeSimulation()
         {
             base.UpdateBeforeSimulation();
             if (EngineBlock == null || EngineCube == null || EngineTank == null || !EngineBlock.IsWorking)
                 return;
-
-            if (RequestedThrottle == 0f)
-            {
-                RequestedThrottle = 0.08f;
-            }
-            // Induce engine RPM flutter
-            var variance = PeakRPM * RPMVarianceMult;
-            var targetRPM = (int)(RequestedThrottle * (PeakRPM * 1.15)) + VRage.Utils.MyUtils.GetRandomDouble(-variance, variance); // Allow for some overspeed
-
-            double deviation = (CurrentRPM - PeakRPM) / PeakRPM;
-            double availableTorque = PeakTorque * (1 - PowerCurveConstant * Math.Pow(deviation, 2));
-            availableTorque = Math.Max(availableTorque, 0);
-
-            double governorRange = PeakRPM * 0.075; // RPM range over which the governor will adjust torque to try to reach target RPM
-            double governorMult = (targetRPM - CurrentRPM) / governorRange;
-            governorMult = MathHelper.Clamp(governorMult, 0, 1);
-            CurrentTorque = availableTorque * governorMult;
-
-            TorqueLoad = 0; // Drivetrain Logic will set
-            var netTorque = CurrentTorque - TorqueLoad;
-            var angularAcceleration = netTorque / SystemInertia;
-            var changeInRPM = angularAcceleration * 9.5488 * (1f / 60f);
-            CurrentRPM += changeInRPM;
 
             CalculateResourceUse();
             SinkFuel.Update();

@@ -8,8 +8,6 @@ namespace NavalPowerSystems
     {
         //Global variables
         public const float globalFuelMult = 0.66f;          //Multiplier for fuel consumption
-        public const double DieselEnergyDensity = 36295;    //KJ/Liter for diesel fuel, used for calculating fuel consumption
-        public const double WaterDensity = 1030;             //Density of water in kg/m^3. 1030 is used to account for seawater
         public const bool requiresMaintenance = false;    //Whether or not to apply wear and tear to engines and propellers, causing them to lose efficiency and eventually fail without repairs
         public const float cavitationDmgMult = 0.1f;      //Multiplier for damage caused by cavitation, applied to propeller blocks
         public const float throttleVariance = 0.015f;    //Amount of random variance in throttle response
