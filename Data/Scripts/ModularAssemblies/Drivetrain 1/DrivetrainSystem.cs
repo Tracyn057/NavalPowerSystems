@@ -492,28 +492,6 @@ namespace NavalPowerSystems.Drivetrain
                 null
                 );
         }
-
-        struct TraceStep
-        {
-            public IMyCubeBlock Block;
-            public int CurrentReductionLevel;
-            public bool HasClutch;
-
-            public TraceStep(IMyCubeBlock block, int level, bool hasClutch)
-            {
-                Block = block;
-                CurrentReductionLevel = level;
-                HasClutch = hasClutch;
-            }
-        }
-
-        public struct CachedShaft
-        {
-            public IMySlimBlock Shaft;
-            public long ShaftId;
-            public MyEntitySubpart Subpart;
-            public Matrix InitialMatrix;
-        }
     }
 
     public class DrivetrainCircuit

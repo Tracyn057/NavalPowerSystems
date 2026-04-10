@@ -6,7 +6,7 @@
 		<Definition>
 			<Id>
 				<TypeId>TerminalBlock</TypeId>
-				<SubtypeId>NPSDrivetrainProp34</SubtypeId>
+				<SubtypeId>NPS_Propeller_4m3b</SubtypeId>
 			</Id>
 			<DisplayName>3 Blade Propeller, 4m</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainProp34.dds</Icon>
@@ -52,7 +52,7 @@
 		<Definition>
 			<Id>
 				<TypeId>TerminalBlock</TypeId>
-				<SubtypeId>NPSDrivetrainProp44</SubtypeId>
+				<SubtypeId>NPS_Propeller_4m4b</SubtypeId>
 			</Id>
 			<DisplayName>4 Blade Propeller, 4m</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainProp44.dds</Icon>
@@ -98,7 +98,7 @@
 		<Definition>
 			<Id>
 				<TypeId>TerminalBlock</TypeId>
-				<SubtypeId>NPSDrivetrainProp54</SubtypeId>
+				<SubtypeId>NPS_Propeller_4m5b</SubtypeId>
 			</Id>
 			<DisplayName>5 Blade Propeller, 4m</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainProp54.dds</Icon>

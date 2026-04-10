@@ -13,6 +13,8 @@ using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRage.Network;
+using VRage.ObjectBuilders;
 using VRage.Utils;
 using VRageMath;
 using static NavalPowerSystems.Config;
@@ -35,10 +37,9 @@ namespace NavalPowerSystems.Drivetrain
         private IMyFunctionalBlock EngineBlock;
         private MyCubeBlock EngineCube;
         private IMyGasTank EngineTank;
-        private int PeakRPM;
-        private int PeakTorque;
-        private int PeakPower;
-        private int HeatRate;
+        private double PeakRPM;
+        private double PeakTorque;
+        private double HeatRate;
         private float PowerCurveConstant;
         private double SystemInertia;
         private int AssemblyId = -1;
@@ -82,7 +83,6 @@ namespace NavalPowerSystems.Drivetrain
             var EngineStats = Config.NewEngineSettings[EngineBlock.BlockDefinition.SubtypeName];
             PeakRPM = EngineStats.PeakRPM;
             PeakTorque = EngineStats.PeakTorque;
-            PeakPower = EngineStats.PeakPower;
             HeatRate = EngineStats.HeatRate;
             PowerCurveConstant = EngineStats.PowerCurveConstant;
             SystemInertia = EngineStats.SystemInertia;
@@ -124,7 +124,7 @@ namespace NavalPowerSystems.Drivetrain
             var fakeController = new MyShipController() { SlimBlock = EngineCube.SlimBlock };
 
             SinkFuel = EngineCube.Components?.Get<MyResourceSinkComponent>();
-            if (SinkFuel !=  null)
+            if (SinkFuel != null)
             {
                 SinkFuel.AddType(ref sinkFuelInfo);
             }
@@ -152,9 +152,7 @@ namespace NavalPowerSystems.Drivetrain
             {
                 distributor.AddSink(SinkFuel);
                 distributor.AddSink(SinkO2);
-                return true;
-            }   
-            return false;
+            }
         }
 
         public override void UpdateBeforeSimulation()
@@ -163,18 +161,18 @@ namespace NavalPowerSystems.Drivetrain
             if (EngineBlock == null || EngineCube == null || EngineTank == null || !EngineBlock.IsWorking)
                 return;
 
-            if(RequestedThrottle == 0f)
+            if (RequestedThrottle == 0f)
             {
                 RequestedThrottle = 0.08f;
             }
             // Induce engine RPM flutter
             var variance = PeakRPM * RPMVarianceMult;
-            var targetRPM = (int)(RequestedThrottle * (PeakRPM*1.15)) + VRage.Utils.MyUtils.GetRandomDouble(-variance, variance); // Allow for some overspeed
+            var targetRPM = (int)(RequestedThrottle * (PeakRPM * 1.15)) + VRage.Utils.MyUtils.GetRandomDouble(-variance, variance); // Allow for some overspeed
 
             double deviation = (CurrentRPM - PeakRPM) / PeakRPM;
             double availableTorque = PeakTorque * (1 - PowerCurveConstant * Math.Pow(deviation, 2));
             availableTorque = Math.Max(availableTorque, 0);
-            
+
             double governorRange = PeakRPM * 0.075; // RPM range over which the governor will adjust torque to try to reach target RPM
             double governorMult = (targetRPM - CurrentRPM) / governorRange;
             governorMult = MathHelper.Clamp(governorMult, 0, 1);
@@ -183,7 +181,7 @@ namespace NavalPowerSystems.Drivetrain
             TorqueLoad = 0; // Drivetrain Logic will set
             var netTorque = CurrentTorque - TorqueLoad;
             var angularAcceleration = netTorque / SystemInertia;
-            var changeInRPM = angularAcceleration * 9.5488 * (1f/60f);
+            var changeInRPM = angularAcceleration * 9.5488 * (1f / 60f);
             CurrentRPM += changeInRPM;
 
             CalculateResourceUse();
@@ -193,7 +191,7 @@ namespace NavalPowerSystems.Drivetrain
 
         private void CalculateResourceUse()
         {
-            if(CurrentRPM <= 0 || CurrentTorque <= 0)
+            if (CurrentRPM <= 0 || CurrentTorque <= 0)
             {
                 CurrentFuelUse = 0;
                 CurrentO2Use = 0;
@@ -202,8 +200,27 @@ namespace NavalPowerSystems.Drivetrain
 
             double powerKw = CurrentTorque * CurrentRPM / 9.5488; // KW
             double requiredEnergy = powerKw * HeatRate / 3600; // Convert kW to kJ/s
-            CurrentFuelUse = requiredEnergy / DieselEnergyDensity * Config.GlobalFuelMultiplier;
-            CurrentO2Use = CurrentFuelUse * 3.5f; // Approximate O2 use based on fuel use, assuming diesel combustion
+            CurrentFuelUse = (float)(requiredEnergy / DieselEnergyDensity * Config.globalFuelMult);
+            CurrentO2Use = CurrentFuelUse * 3.5f; // Approximate O2 use based on fuel use
+        }
+
+        private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder info)
+        {
+            info.AppendLine($"RPM: {CurrentRPM:0}");
+            info.AppendLine($"Torque: {CurrentTorque:0}");
+            info.AppendLine($"Power: {CurrentPower:0}");
+            info.AppendLine($"Fuel Flow: {CurrentFuelUse:0.00} L/s");
+            info.AppendLine($"Mass Air Flow: {CurrentO2Use:0.00} L/s");
+        }
+
+        private void CreateControls()
+        {
+
+        }
+
+        private void CreateActions()
+        {
+
         }
     }
 }

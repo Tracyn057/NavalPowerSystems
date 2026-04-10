@@ -5,7 +5,7 @@
 		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
 			<Id>
 				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPSDrivetrainRudderSmallCenteredV1</SubtypeId>
+				<SubtypeId>NPS_Rudder_SmallCenteredV1</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Centered V1</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV1.dds</Icon>
@@ -58,7 +58,7 @@
 		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
 			<Id>
 				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPSDrivetrainRudderSmallOffsetLeftV1</SubtypeId>
+				<SubtypeId>NPS_Rudder_SmallLeftV1</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Centered V1</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV1.dds</Icon>
@@ -111,7 +111,7 @@
 		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
 			<Id>
 				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPSDrivetrainRudderSmallOffsetRightV1</SubtypeId>
+				<SubtypeId>NPS_Rudder_SmallRightV1</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Centered V1</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV1.dds</Icon>
@@ -166,7 +166,7 @@
 		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
 			<Id>
 				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPSDrivetrainRudderSmallCenteredV2</SubtypeId>
+				<SubtypeId>NPS_Rudder_SmallCenteredV2</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Centered V2</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV2.dds</Icon>
@@ -219,7 +219,7 @@
 		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
 			<Id>
 				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPSDrivetrainRudderSmallOffsetLeftV2</SubtypeId>
+				<SubtypeId>NPS_Rudder_SmallLeftV2</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Centered V2</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV2.dds</Icon>
@@ -272,7 +272,7 @@
 		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
 			<Id>
 				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPSDrivetrainRudderSmallOffsetRightV2</SubtypeId>
+				<SubtypeId>NPS_Rudder_SmallRightV2</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Centered V2</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV2.dds</Icon>
