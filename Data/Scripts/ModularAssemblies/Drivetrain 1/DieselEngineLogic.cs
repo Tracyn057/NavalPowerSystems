@@ -98,6 +98,7 @@ namespace NavalPowerSystems.Drivetrain
                 case 2: newTarget = 0.5f; break;
                 case 3: newTarget = 0.8f; break;
                 case 4: newTarget = 1.0f; break;
+                case 5: newTarget = 1.25f; break;
             }
             RequestedThrottleSync.Value = newTarget;
             SaveSettings();

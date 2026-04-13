@@ -1,12 +1,8 @@
-using EmptyKeys.UserInterface.Controls;
-using NavalPowerSystems.Drivetrain;
-using Sandbox.Common.ObjectBuilders;
-using Sandbox.Game.Entities;
+﻿using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using VRage.Game;
@@ -16,24 +12,19 @@ using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRageMath;
+using static Sandbox.Game.Components.MyRenderComponentThrust;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_FunctionalBlock), false,
             "placeholder"
     )]
-    public class PropellerLogic_V2 : MyGameLogicComponent
+    public class GearboxLogic_V2 : MyGameLogicComponent
     {
-        public IMyCubeBlock PropellerBlock;
-        public IMyFunctionalBlock PropellerFunctional;
-        public IMyTerminalBlock PropellerTerminal;
-        public MyEntitySubpart PropellerSubpart;
-        public IMyCubeGrid PropellerGrid;
-        public Matrix PropellerInitialMatrix;
-        public PropellerNode PropellerNode;
-        public PropellerStats_V2 PropellerStats;
-
-        public double IncomingThrust;
+        public IMyCubeBlock GearboxBlock;
+        public IMyFunctionalBlock GearboxFunctional;
+        public IMyTerminalBlock GearboxTerminal;
+        public GearboxNode GearboxNode;
 
         //Animation Information
         public bool ShaftListDirty = true;
@@ -44,37 +35,31 @@ namespace NavalPowerSystems.Drivetrain_V2
         public List<IMySlimBlock> Driveshafts = new List<IMySlimBlock>();
         public Dictionary<MyEntitySubpart, Matrix> DriveshaftMatrices = new Dictionary<MyEntitySubpart, Matrix>();
 
-        private bool IsCRP;
-        
         private bool ControlsInitialized = false;
         private bool ActionsInitialized = false;
 
-        public void SetNode(PropellerNode node)
+        public void SetNode(GearboxNode node)
         {
-            PropellerNode = node;
+            GearboxNode = node;
         }
+
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
-            PropellerFunctional = (IMyFunctionalBlock)Entity;
-            PropellerBlock = (MyCubeBlock)Entity;
-            PropellerTerminal = (IMyTerminalBlock)Entity;
+            GearboxFunctional = (IMyFunctionalBlock)Entity;
+            GearboxBlock = (MyCubeBlock)Entity;
+            GearboxTerminal = (IMyTerminalBlock)Entity;
 
-            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+            NeedsUpdate =
+                MyEntityUpdateEnum.BEFORE_NEXT_FRAME
+                | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
         public override void UpdateOnceBeforeFrame()
         {
-            PropellerGrid = PropellerBlock.CubeGrid;
-            Entity.TryGetSubpart("Propeller", out PropellerSubpart);
-            if (PropellerSubpart != null)
-            {
-                PropellerInitialMatrix = PropellerSubpart.PositionComp.LocalMatrixRef;
-            }
+            
 
-            NeedsUpdate = 
-                MyEntityUpdateEnum.EACH_FRAME
-                | MyEntityUpdateEnum.EACH_100TH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override void UpdateBeforeSimulation()
@@ -82,7 +67,6 @@ namespace NavalPowerSystems.Drivetrain_V2
             if (ShaftListDirty)
                 RebuildDriveshaftTree();
             UpdateAnimation();
-            ApplyThrust();
         }
 
         public override void UpdateAfterSimulation100()
@@ -100,13 +84,6 @@ namespace NavalPowerSystems.Drivetrain_V2
             if (!AnimCCW)
                 CurrentAngle = -CurrentAngle;
 
-            if (PropellerSubpart != null)
-            {
-                Matrix rotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(CurrentAngle));
-                Matrix finalMatrix = rotationMatrix * PropellerInitialMatrix;
-                PropellerSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
-            }
-
             foreach (var subShaft in DriveshaftMatrices)
             {
                 var subpart = subShaft.Key;
@@ -123,7 +100,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             if (MyAPIGateway.Utilities.IsDedicated)
                 return;
 
-            var dist = Vector3D.Distance(PropellerBlock.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
+            var dist = Vector3D.Distance(GearboxBlock.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
             DistanceToCamera = (float)dist;
         }
 
@@ -145,24 +122,6 @@ namespace NavalPowerSystems.Drivetrain_V2
                     DriveshaftMatrices.Add(subpart, subpart.PositionComp.LocalMatrixRef);
             }
             ShaftListDirty = false;
-        }
-
-        private void ApplyThrust()
-        {
-            var grid = PropellerGrid as MyCubeGrid;
-            if (grid.IsPreview || grid.Physics == null || !grid.Physics.Enabled || grid.Physics.IsStatic)
-                return;
-            if (!PropellerBlock.IsWorking || IncomingThrust < 1000) 
-                return;
-
-            Vector3D thrustVector = PropellerBlock.WorldMatrix.Backward * (float)IncomingThrust;
-            var BlockPos = PropellerBlock.PositionComp.GetPosition();
-            grid.Physics.AddForce(
-            MyPhysicsForceType.APPLY_WORLD_FORCE,
-            thrustVector,
-            BlockPos,
-            null
-            );
         }
     }
 }

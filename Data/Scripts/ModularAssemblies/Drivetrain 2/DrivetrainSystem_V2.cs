@@ -1,12 +1,7 @@
 ﻿using NavalPowerSystems.Communication;
-using Sandbox.ModAPI;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VRage.Game.ModAPI;
-using static NavalPowerSystems.Config;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
@@ -21,9 +16,9 @@ namespace NavalPowerSystems.Drivetrain_V2
         private List<IMyCubeBlock> Gearboxes = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Propellers = new List<IMyCubeBlock>();
         private List<IDrivetrainNode> Nodes = new List<IDrivetrainNode>();
-        private HashSet<EngineNode> EngineNodes = new HashSet<EngineNode>();
-        private HashSet<GearboxNode> GearboxNodes = new HashSet<GearboxNode>();
-        private HashSet<PropellerNode> PropellerNodes = new HashSet<PropellerNode>();
+        private List<EngineNode> EngineNodes = new List<EngineNode>();
+        private List<GearboxNode> GearboxNodes = new List<GearboxNode>();
+        private List<PropellerNode> PropellerNodes = new List<PropellerNode>();
         private List<IMySlimBlock> CWAnimList = new List<IMySlimBlock>();
         private List<IMySlimBlock> CCWAnimList = new List<IMySlimBlock>();
 
@@ -34,6 +29,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public void AddPart(IMyCubeBlock block)
         {
+            //Standard Housekeeping
             if (block == null) return;
 
             string subtype = block.BlockDefinition.SubtypeId;
@@ -56,6 +52,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public void RemovePart(IMyCubeBlock block)
         {
+            //Standard Housekeeping
             if (block == null) return;
 
             string subtype = block.BlockDefinition.SubtypeId;
@@ -78,51 +75,77 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public void UpdateTick()
         {
-            if (!TraceComplete)
-            {
-                RebuildDrivetrain();
-                TraceComplete = true;
-            }
-
+            if (!TraceComplete) RebuildDrivetrain();
             if (Nodes.Count < 2) return;
 
-            //Backwards trace to calculate loads (Propeller -> Engine)
-            for (int i = Nodes.Count - 1; i > 0; i--)
+            //Calculate propeller load first. Internal CalculateLoad calls will propagate through the system to calculate load and output for all nodes.
+            foreach (var prop in PropellerNodes)
             {
-                //No output for propellers
-                Nodes[i-1].CalculateLoad(Nodes[i].InputLoad); 
+                prop.CalculateLoad(0, 0);
             }
 
-            //Forwards trace to calculate outputs (Engine -> Propeller)
-            double runningTorque = 0;
-            double runningRPM = 0;
-
-            for (int i = 0; i < Nodes.Count; i++)
+            //Load should have reached engines at this point, so send torque and RPM back down the system to calculate output for all nodes.
+            foreach (var engine in EngineNodes)
             {
-                //No input load for engines
-                Nodes[i].CalculateOutput(runningTorque, runningRPM);
-                
-                runningTorque = Nodes[i].OutputTorque;
-                runningRPM = Nodes[i].OutputRPM;
+                engine.CalculateOutput(0, 0);
             }
         }
 
         private void RebuildDrivetrain()
         {
-            //Clean the slate
+            //Clear gearboxes from propellers
+            foreach (var node in PropellerNodes)
+                node.ConnectedGearboxNode = null;
+
+            //Clear connections on gearboxes and reset passthrough
+            foreach (var node in GearboxNodes)
+            {
+                node.ConnectedEngineNodes.Clear();
+                node.GearboxNodesTowardsEngines.Clear();
+                node.GearboxNodesTowardsPropellers.Clear();
+                node.ConnectedPropellerNodes.Clear();
+            }
+
+            //Clear connected gearboxes from engines
+            foreach (var node in EngineNodes)
+                node.ConnectedGearboxNode = null;
+
+            foreach (var engine in Engines)
+            {
+                var logic = engine.GameLogic?.GetAs<EngineLogic_V2>();
+                if (logic != null) logic.ConnectedGearbox = null;
+            }
+            //Clear each logic component of its animation lists
+            foreach (var gear in Gearboxes)
+            {
+                var logic = gear.GameLogic?.GetAs<GearboxLogic_V2>();
+                if (logic != null)
+                {
+                    logic.Driveshafts.Clear();
+                    logic.DriveshaftMatrices.Clear();
+                }
+            }
+            foreach (var prop in Propellers)
+            {
+                var logic = prop.GameLogic?.GetAs<PropellerLogic_V2>();
+                if (logic != null)
+                {
+                    logic.Driveshafts.Clear();
+                    logic.DriveshaftMatrices.Clear();
+                }
+            }
+
+            //Clear node lists
             Nodes.Clear();
             EngineNodes.Clear();
-            GearboxNodes.Clear(); //Do I need this?
-            PropellerNodes.Clear(); //Do I need this?
-            CWAnimList.Clear();
-            CCWAnimList.Clear();
+            GearboxNodes.Clear(); //Do I need this list in the first place?
+            PropellerNodes.Clear();
+
             TraceComplete = false; // Just in case, should already be false
 
             foreach (var engine in Engines)
             {
-                var currentLogicPath = new List<IDrivetrainNode>();
-                var currentShaftPath = new List<IMySLimBlock>();
-                TraceDirectional(engine, engine, new HashSet<IMyCubeBlock>(), currentLogicPath, currentShaftPath, 0);
+                TraceDirectional(engine, engine, new HashSet<IMyCubeBlock>(), new List<IDrivetrainNode>(), new List<IMySlimBlock>(), 0, null);
             }
         }
 
@@ -131,8 +154,9 @@ namespace NavalPowerSystems.Drivetrain_V2
             IMyCubeBlock startEngine, 
             HashSet<IMyCubeBlock> pathVisited, 
             List<IDrivetrainNode> currentLogicPath, 
-            List<IMySLimBlock> currentShaftPath,
-            double runningInertia)
+            List<IMySlimBlock> currentShaftPath,
+            double runningInertia,
+            IDrivetrainNode previousNode)
         {
             if (pathVisited.Contains(current))
                 return;
@@ -141,37 +165,119 @@ namespace NavalPowerSystems.Drivetrain_V2
             string subtype = current.BlockDefinition.SubtypeId;
             if (Config.DriveshaftSubtypes.Contains(subtype))
             {
-                var stats = Config.ShaftSettings_V2[subtype];
+                //Add inertia for each shaft in the line
+                var stats = Drivetrain_Config.ShaftSettings_V2[subtype];
                 runningInertia += stats.BlockLength * Drivetrain_Config.DriveshaftInertiaPerBlock;
-                currentShaftPath.Add(current.slimBlock);
+                currentShaftPath.Add(current.SlimBlock);
             }
             
             var node = CreateNodeFromBlock(current);
             if (node != null)
             {
                 currentLogicPath.Add(node);
+
+                if (previousNode != null)
+                {
+                    var previousNodeType = previousNode.GetType();
+                    var currentNodeType = node.GetType();
+                    if (previousNodeType == typeof(EngineNode) && currentNodeType == typeof(GearboxNode))
+                    {
+                        var previousN = previousNode as EngineNode;
+                        var currentNode = node as GearboxNode;
+                        previousN.ConnectedGearboxNode = currentNode;
+                        currentNode.ConnectedEngineNodes.Add(previousN);
+
+                        //Add to block logic for animations
+                        if (currentShaftPath.Count > 0)
+                        {
+                            var logic = current.GameLogic?.GetAs<GearboxLogic_V2>();
+                            logic.Driveshafts.AddRange(currentShaftPath);
+                            currentShaftPath.Clear();
+                        }
+                    }
+                    else if (previousNodeType == typeof(GearboxNode) && currentNodeType == typeof(GearboxNode))
+                    {
+                        var previousN = previousNode as GearboxNode;
+                        var currentNode = node as GearboxNode;
+                        var startLogic = startEngine.GameLogic?.GetAs<EngineLogic_V2>();
+                        var startNode = startLogic?.EngineNode;
+
+                        if (startNode.ConnectedGearboxNode != null)
+                             previousN.GearboxNodesTowardsPropellers.Add(currentNode);
+                        else
+                        {
+                            previousN.GearboxNodesTowardsPropellers.Add(currentNode);
+                            currentNode.GearboxNodesTowardsEngines.Add(previousN);
+                        }
+
+                        //Add to block logic for animations
+                        if (currentShaftPath.Count > 0)
+                        {
+                            var logic = current.GameLogic?.GetAs<GearboxLogic_V2>();
+                            logic.Driveshafts.AddRange(currentShaftPath);
+                            currentShaftPath.Clear();
+                        }
+                    }
+                    else if (previousNodeType == typeof(GearboxNode) && currentNodeType == typeof(PropellerNode))
+                    {
+                        var previousN = previousNode as GearboxNode;
+                        var currentNode = node as PropellerNode;
+                        var logic = current.GameLogic?.GetAs<PropellerLogic_V2>();
+                        currentNode.PropellerLogic = logic;
+                        currentNode.ConnectedGearboxNode = previousN;
+                        previousN.ConnectedPropellerNodes.Add(currentNode);
+
+                        //Add to block logic for animations
+                        if (currentShaftPath.Count > 0)
+                        {
+                            logic.Driveshafts.AddRange(currentShaftPath);
+                            logic.ShaftListDirty = true;
+                            currentShaftPath.Clear();
+                        }
+                    }
+                }
             }
 
+            //If a propeller is found, that is the end of this trace
             if (Config.PropellerSubtypes.Contains(subtype))
             {
-                bool isCCW = Config.PropellerSettings_V2[subtype].IsCCW;
-                runningInertia += Config.PropellerSettings_V2[subtype].Inertia;
-
-                var animTarget = isCCW ? CCWAnimList : CWAnimList;
-                animTarget.AddRange(currentShaftPath);
-                animTarget.Add(current.slimBlock);
-
-                foreach (var node in currentLogicPath)
+                //Running tally of nodes in the network
+                foreach (var pNode in currentLogicPath)
                 {
-                    if (!Nodes.Contains(node))
+                    if (!Nodes.Contains(pNode))
                     {
-                        Nodes.Add(node);
+                        Nodes.Add(pNode);
                     }
-                    if (node is EngineNode engineNode && !EngineNodes.Contains(engineNode)) EngineNodes.Add(engineNode);
-                    else if (node is GearboxNode gearboxNode && !GearboxNodes.Contains(gearboxNode)) GearboxNodes.Add(gearboxNode);
-                    else if (node is PropellerNode propellerNode && !PropellerNodes.Contains(propellerNode)) PropellerNodes.Add(propellerNode);
+                    if (pNode.GetType() == typeof(EngineNode) && !EngineNodes.Contains((EngineNode)pNode)) EngineNodes.Add((EngineNode)pNode);
+                    else if (pNode.GetType() == typeof(GearboxNode) && !GearboxNodes.Contains((GearboxNode)pNode)) GearboxNodes.Add((GearboxNode)pNode);
+                    else if (pNode.GetType() == typeof(PropellerNode) && !PropellerNodes.Contains((PropellerNode)pNode)) PropellerNodes.Add((PropellerNode)pNode);
                 }
 
+                //Determine if this propeller is CCW and if the gearbox preceeding it should be CCW as well.
+                var stats = Drivetrain_Config.PropellerSettings_V2[subtype];
+                if (stats != null && stats.IsCCW)
+                {
+                    var logic = current.GameLogic?.GetAs<PropellerLogic_V2>();
+                    var propNode = node as PropellerNode;
+                    if (logic != null)
+                    {
+                        logic.AnimCCW = true;
+                    }
+                    if (propNode != null && propNode.ConnectedGearboxNode != null)
+                    {
+                        var gearNode = propNode.ConnectedGearboxNode;
+                        var gearlogic = propNode.ConnectedGearboxNode.GearboxLogic;
+
+                        //If the previous gearbox is only connected to this propeller, make it CCW like the propeller.
+                        //Gearbox Logic initializes AnimCCW as false.
+                        if (gearNode != null && gearlogic != null && gearNode.ConnectedPropellerNodes.Count == 1)
+                        {
+                            gearlogic.AnimCCW = true;
+                        }
+                    }
+                }
+
+                //Add system inertia to the engine node
                 var startNode = currentLogicPath.FirstOrDefault() as EngineNode;
                 if (startNode != null) startNode.SystemInertia = runningInertia;
 
@@ -181,19 +287,22 @@ namespace NavalPowerSystems.Drivetrain_V2
 
             var neighbors = ModularApi.GetConnectedBlocks(current, "Drivetrain_Definition", false);
 
+            //Recursion
             foreach (var neighbor in neighbors)
             {
                 if (IsValidNext(current, neighbor))
                 {
-                    TraceDirectional(neighbor, startEngine, pathVisited, new List<IDrivetrainNode>(currentLogicPath), new List<IMySLimBlock>(currentShaftPath), runningInertia);
+                    TraceDirectional(neighbor, startEngine, pathVisited, new List<IDrivetrainNode>(currentLogicPath), new List<IMySlimBlock>(currentShaftPath), runningInertia, node ?? previousNode);
                 }
             }
 
             pathVisited.Remove(current);
+            TraceComplete = true;
         }
 
         private bool IsValidNext(IMyCubeBlock from, IMyCubeBlock to)
         {
+            //Define valid connections from and to each block type
             string fromType = from.BlockDefinition.SubtypeId;
             string toType = to.BlockDefinition.SubtypeId;
 
@@ -228,7 +337,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
             if (Config.EngineSubtypes.Contains(subtype))
             {
-                var stats = Config.EngineSettings_V2[subtype];
+                var stats = Drivetrain_Config.EngineSettings_V2[subtype];
                 var logic = block.GameLogic?.GetAs<EngineLogic_V2>();
                 var node = new EngineNode{
                     EngineBlock = block,
@@ -245,25 +354,33 @@ namespace NavalPowerSystems.Drivetrain_V2
                 
             if (Config.GearboxSubtypes.Contains(subtype))
             {
-                    var stats = Config.GearboxSettings_V2[subtype];
-                    return new GearboxNode{
-                        GearboxBlock = block,
-                        GearRatio = stats.GearRatio
-                    };
+                var stats = Drivetrain_Config.GearboxSettings_V2[subtype];
+                var logic = block.GameLogic?.GetAs<GearboxLogic_V2>();
+                var node = new GearboxNode
+                {
+                    GearboxBlock = block,
+                    GearboxLogic = logic,
+                    GearRatio = stats.GearRatio
+                };
+                logic.SetNode(node);
+                return node;
             }
             if (Config.PropellerSubtypes.Contains(subtype))
             {
-                    var stats = Config.PropellerSettings_V2[subtype];
-                    return new PropellerNode{
-                        PropellerBlock = block,
-                        PropellerGrid = block.CubeGrid,
-                        Diameter = stats.Diameter,
-                        Inertia = stats.Inertia,
-                        TorqueCoefficient = stats.TorqueCoefficient,
-                        ThrustCoefficient = stats.ThrustCoefficient,
-                        IsCRP = stats.IsCRP,
-                        PitchRatio = Drivetrain_Config.PitchRatio
-                    };
+                var stats = Drivetrain_Config.PropellerSettings_V2[subtype];
+                var logic = block.GameLogic?.GetAs<PropellerLogic_V2>();
+                var node = new PropellerNode{
+                    PropellerBlock = block,
+                    PropellerGrid = block.CubeGrid,
+                    Diameter = stats.Diameter,
+                    Inertia = stats.Inertia,
+                    TorqueCoefficient = stats.TorqueCoefficient,
+                    ThrustCoefficient = stats.ThrustCoefficient,
+                    IsCRP = stats.IsCRP,
+                    PitchRatio = Drivetrain_Config.PitchRatio
+                };
+                logic.SetNode(node);
+                return node;
             }
 
             return null;
