@@ -77,12 +77,12 @@ namespace NavalPowerSystems.Drivetrain_V2
                 | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
-        public override void UpdateBeforeSimulation()
+        public override void UpdateAfterSimularion()
         {
             if (ShaftListDirty)
                 RebuildDriveshaftTree();
-            UpdateAnimation();
             ApplyThrust();
+            UpdateAnimation();
         }
 
         public override void UpdateAfterSimulation100()
@@ -156,7 +156,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                 return;
 
             Vector3D thrustVector = PropellerBlock.WorldMatrix.Backward * (float)IncomingThrust;
-            var BlockPos = PropellerBlock.PositionComp.GetPosition();
+            var BlockPos = PropellerBlock.PositionComp.WorldVolume.Center;
             grid.Physics.AddForce(
             MyPhysicsForceType.APPLY_WORLD_FORCE,
             thrustVector,
