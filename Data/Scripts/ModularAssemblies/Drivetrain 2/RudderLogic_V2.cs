@@ -1,18 +1,22 @@
-﻿using EmptyKeys.UserInterface.Controls;
-using NavalPowerSystems.Communication;
-using Sandbox.Common.ObjectBuilders;
+﻿using NavalPowerSystems.Communication;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Localization;
 using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Network;
 using VRage.ModAPI;
+using VRage.Network;
 using VRage.ObjectBuilders;
+using VRage.Sync;
+using VRage.Utils;
 using VRageMath;
-using Vector3 = VRageMath.Vector3;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
@@ -89,9 +93,16 @@ namespace NavalPowerSystems.Drivetrain_V2
                 }
             }
 
+            UpdateSyncBeforeFrame();
+
+            if (!ActionsInitialized)
+                CreateActions();
+            if (!ControlsInitialized)
+                CreateControls();
+
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
-            RudderGrid.OnGridChanged += RudderGrid_OnGridChanged;
+            RudderMyGrid.OnGridChanged += RudderGrid_OnGridChanged;
         }
 
         
@@ -125,13 +136,13 @@ namespace NavalPowerSystems.Drivetrain_V2
             Terminal_BrakeLeft.ValueChanged += Terminal_BrakeLeft_ValueChanged;
         }
 
-        private void Terminal_BrakeRight_ValueChanged(MySync<bool, SyncDirection.FromServer> obj)
+        private void Terminal_BrakeRight_ValueChanged(MySync<bool, SyncDirection.BothWays> obj)
         {
             BrakeRight = obj.Value;
             UpdateControls();
         }
 
-        private void Terminal_BrakeLeft_ValueChanged(MySync<bool, SyncDirection.FromServer> obj)
+        private void Terminal_BrakeLeft_ValueChanged(MySync<bool, SyncDirection.BothWays> obj)
         {
             BrakeLeft = obj.Value;
             UpdateControls();
@@ -342,23 +353,62 @@ namespace NavalPowerSystems.Drivetrain_V2
             ControlsInitialized = true;
 
             {
-                var NPS_Rudder_BrakeRight = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyFunctionalBlock>("NPS_Rudder_TerminalControl_BrakeRight");
-                NPS_Rudder_BrakeRight.Title = MyStringId.GetOrCompute("Brake Right");
-                NPS_Rudder_BrakeRight.OnText = MyStringId.GetOrCompute("On");
-                NPS_Rudder_BrakeRight.OffText = MyStringId.GetOrCompute("Off");
-                NPS_Rudder_BrakeRight.Getter = (block) => BrakeRight;
-                NPS_Rudder_BrakeRight.Setter = (block, value) => BrakeRight = value;
-                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(NPS_Rudder_BrakeRight);
+                var Control_BrakeRight = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyFunctionalBlock>("NPS_Rudder_TerminalControl_BrakeRight");
+                Control_BrakeRight.Title = MyStringId.GetOrCompute("Brake Right");
+                Control_BrakeRight.Tooltip = MyStringId.GetOrCompute("Rudder tilt override full Right.");
+                Control_BrakeRight.OnText = MySpaceTexts.SwitchText_On;
+                Control_BrakeRight.OffText = MySpaceTexts.SwitchText_Off;
+                Control_BrakeRight.Visible = Control_Visible;
+                Control_BrakeRight.SupportsMultipleBlocks = true;
+                Control_BrakeRight.Getter = Control_Terminal_BrakeRight_Getter;
+                Control_BrakeRight.Setter = Control_Terminal_BrakeRight_Setter;
+                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_BrakeRight);
             }
             {
-                var NPS_Rudder_BrakeLeft = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyFunctionalBlock>("NPS_Rudder_TerminalControl_BrakeLeft");
-                NPS_Rudder_BrakeLeft.Title = MyStringId.GetOrCompute("Brake Left");
-                NPS_Rudder_BrakeLeft.OnText = MyStringId.GetOrCompute("On");
-                NPS_Rudder_BrakeLeft.OffText = MyStringId.GetOrCompute("Off");
-                NPS_Rudder_BrakeLeft.Getter = (block) => BrakeLeft;
-                NPS_Rudder_BrakeLeft.Setter = (block, value) => BrakeLeft = value;
-                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(NPS_Rudder_BrakeLeft);
+                var Control_BrakeLeft = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyFunctionalBlock>("NPS_Rudder_TerminalControl_BrakeLeft");
+                Control_BrakeLeft.Title = MyStringId.GetOrCompute("Brake Left");
+                Control_BrakeLeft.Tooltip = MyStringId.GetOrCompute("Rudder tilt override full Left.");
+                Control_BrakeLeft.OnText = MySpaceTexts.SwitchText_On;
+                Control_BrakeLeft.OffText = MySpaceTexts.SwitchText_Off;
+                Control_BrakeLeft.Visible = Control_Visible;
+                Control_BrakeLeft.SupportsMultipleBlocks= true;
+                Control_BrakeLeft.Getter = Control_Terminal_BrakeLeft_Getter;
+                Control_BrakeLeft.Setter = Control_Terminal_BrakeLeft_Setter;
+                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_BrakeLeft);
             }
+        }
+
+        static RudderLogic_V2 GetLogic(IMyTerminalBlock rudder) =>
+                rudder?.GameLogic?.GetAs<RudderLogic_V2>();
+        static bool Control_Visible(IMyTerminalBlock rudder)
+        {
+            return GetLogic(rudder) != null;
+        }
+
+        static bool Control_Terminal_BrakeRight_Getter(IMyTerminalBlock rudder)
+        {
+            var logic = GetLogic(rudder);
+            return (logic == null ? false : logic.Terminal_BrakeRight);
+        }
+
+        static void Control_Terminal_BrakeRight_Setter(IMyTerminalBlock rudder, bool value)
+        {
+            var logic = GetLogic(rudder);
+            if (logic != null)
+                logic.Terminal_BrakeRight.ValidateAndSet(value);
+        }
+
+        static bool Control_Terminal_BrakeLeft_Getter(IMyTerminalBlock rudder)
+        {
+            var logic = GetLogic(rudder);
+            return (logic == null ? false : logic.Terminal_BrakeLeft);
+        }
+
+        static void Control_Terminal_BrakeLeft_Setter(IMyTerminalBlock rudder, bool value)
+        {
+            var logic = GetLogic(rudder);
+            if (logic != null)
+                logic.Terminal_BrakeLeft.ValidateAndSet(value);
         }
 
         private void CreateActions()
@@ -368,17 +418,65 @@ namespace NavalPowerSystems.Drivetrain_V2
             ActionsInitialized = true;
 
             {
-                var NPS_Rudder_ToggleBrakeRight = MyAPIGateway.TerminalControls.CreateAction<IMyFunctionalBlock>("NPS_Rudder_TerminalAction_BrakeRight");
-                NPS_Rudder_ToggleBrakeRight.Name = MyStringId.GetOrCompute("Toggle Brake Right");
-                NPS_Rudder_ToggleBrakeRight.Action = (block) => BrakeRight = !BrakeRight;
-                MyAPIGateway.TerminalControls.AddAction<IMyFunctionalBlock>(NPS_Rudder_ToggleBrakeRight);
+                var Action_BrakeRight = MyAPIGateway.TerminalControls.CreateAction<IMyTerminalAction>("NPS_Rudder_TerminalAction_BrakeRight");
+                Action_BrakeRight.Name = new StringBuilder("Brake Right");
+                Action_BrakeRight.ValidForGroups = true;
+                Action_BrakeRight.Icon = @"Textures\GUI\Icons\Actions\Toggle.dds";
+                Action_BrakeRight.Action = Control_Terminal_BrakeRight_Action;
+                Action_BrakeRight.Writer = Control_Terminal_BrakeRight_Writer;
+                MyAPIGateway.TerminalControls.AddAction<IMyFunctionalBlock>(Action_BrakeRight);
             }
             {
-                var NPS_Rudder_ToggleBrakeLeft = MyAPIGateway.TerminalControls.CreateAction<IMyFunctionalBlock>("NPS_Rudder_TerminalAction_BrakeLeft");
-                NPS_Rudder_ToggleBrakeLeft.Name = MyStringId.GetOrCompute("Toggle Brake Left");
-                NPS_Rudder_ToggleBrakeLeft.Action = (block) => BrakeLeft = !BrakeLeft;
-                MyAPIGateway.TerminalControls.AddAction<IMyFunctionalBlock>(NPS_Rudder_ToggleBrakeLeft);
+                var Action_BrakeLeft = MyAPIGateway.TerminalControls.CreateAction<IMyFunctionalBlock>("NPS_Rudder_TerminalAction_BrakeLeft");
+                Action_BrakeLeft.Name = new StringBuilder("Brake Left");
+                Action_BrakeLeft.ValidForGroups = true;
+                Action_BrakeLeft.Icon = @"Textures\GUI\Icons\Actions\Toggle.dds";
+                Action_BrakeLeft.Action = Control_Terminal_BrakeLeft_Action;
+                Action_BrakeLeft.Writer = Control_Terminal_BrakeLeft_Writer;
+                MyAPIGateway.TerminalControls.AddAction<IMyFunctionalBlock>(Action_BrakeLeft);
             }
+        }
+
+        static void Control_Terminal_BrakeRight_Action(IMyTerminalBlock rudder)
+        {
+            var logic = GetLogic(rudder);
+            if (logic != null)
+                logic.Terminal_BrakeRight.ValidateAndSet(!logic.Terminal_BrakeRight.Value);
+        }
+
+        static void Control_Terminal_BrakeRight_Writer(IMyTerminalBlock rudder, StringBuilder writer)
+        {
+            var logic = GetLogic(rudder);
+            if (logic != null)
+                if (logic.Terminal_BrakeRight)
+                {
+                    writer.Append("Brake \nON");
+                }
+                else
+                {
+                    writer.Append("Brake \nOFF");
+                }
+        }
+
+        static void Control_Terminal_BrakeLeft_Action(IMyTerminalBlock rudder)
+        {
+            var logic = GetLogic(rudder);
+            if (logic != null)
+                logic.Terminal_BrakeLeft.ValidateAndSet(!logic.Terminal_BrakeLeft.Value);
+        }
+
+        static void Control_Terminal_BrakeLeft_Writer(IMyTerminalBlock rudder, StringBuilder writer)
+        {
+            var logic = GetLogic(rudder);
+            if (logic != null)
+                if (logic.Terminal_BrakeLeft)
+                {
+                    writer.Append("Brake \nON");
+                }
+                else
+                {
+                    writer.Append("Brake \nOFF");
+                }
         }
     }
 }

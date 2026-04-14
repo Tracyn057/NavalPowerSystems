@@ -77,7 +77,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                 | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
-        public override void UpdateAfterSimularion()
+        public override void UpdateAfterSimulation()
         {
             if (ShaftListDirty)
                 RebuildDriveshaftTree();
