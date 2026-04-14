@@ -1,6 +1,11 @@
-﻿using Sandbox.Common.ObjectBuilders;
+﻿using EmptyKeys.UserInterface.Controls;
+using NavalPowerSystems.Communication;
+using Sandbox.Common.ObjectBuilders;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
+using System.Collections.Generic;
+using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
@@ -9,7 +14,7 @@ using VRage.ObjectBuilders;
 using VRageMath;
 using Vector3 = VRageMath.Vector3;
 
-namespace NavalPowerSystems.Drivetrain_2
+namespace NavalPowerSystems.Drivetrain_V2
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_FunctionalBlock), false,
         "NPSDrivetrainRudderSmallCenteredV1",
@@ -19,8 +24,9 @@ namespace NavalPowerSystems.Drivetrain_2
         "NPSDrivetrainRudderSmallOffsetLeftV2",
         "NPSDrivetrainRudderSmallOffsetRightV2"
     )]
-    internal class RudderLogic_V2 : MyGameLogicComponent, MySync
+    internal class RudderLogic_V2 : MyGameLogicComponent
     {
+        private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         private IMyCubeBlock RudderBlock;
         private IMyFunctionalBlock RudderFunctional;
         private MyEntitySubpart RudderSubpart;
@@ -30,15 +36,14 @@ namespace NavalPowerSystems.Drivetrain_2
         private MyCubeGrid RudderMyGrid;
         private IMyCubeGrid RudderGrid;
         private IMyShipController RudderShipController;
+        private PropellerLogic_V2 NearestPropellerLogic;
 
         private float DistanceToCamera = 0f;
         private float RudderMaxAngle = 35f;
         private float RudderTargetAngle = 0f;
         private float RudderCurrentAngle = 0f;
-        private float RudderThrust = 0f;
         private float GridMass = 0f;
-        private Vector3 RotationInputVector = Vector3.Zero;
-        private const double InnerZone = 0.2094395;
+        private float YawInput = 0f;
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -76,44 +81,24 @@ namespace NavalPowerSystems.Drivetrain_2
                 }
             }
 
-            Terminal_ControlRotation.SetLocalValue(ControlRotation);
-            Terminal_ControlRotation.ValueChanged += Terminal_ControlRotation_ValueChanged;
-
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
+
+        
 
         public override void UpdateAfterSimulation()
         {
             if (!RudderFunctional.IsWorking || RudderMyGrid.Physics == null || RudderMyGrid.Physics.IsStatic) return;
 
-            RudderPosition = RudderBlock.PositionComp.WorldVolume.Center;
             RecalculateController();
-            UpdateControllerInput();
-            SoftRollGravityAlign();
-            ApplyDragForce();
+            RudderPosition = RudderBlock.PositionComp.WorldVolume.Center;
+            if (RudderShipController != null)
+                YawInput = MathHelper.Clamp(RudderShipController.RotationIndicator.X, -1, 1);
+            RudderTargetAngle = RudderMaxAngle * YawInput;
+            RudderAnimation();
             ApplyRotationalForce();
-        }
-
-        public void RecalculateController()
-        {
-            if (RudderShipController == null || !RudderShipController.IsWorking || !RudderShipController.IsMainCockpit)
-            {
-                var player = MyAPIGateway.Players.GetPlayerControllingEntity(RudderMyGrid);
-                IMyShipController RudderShipController = null;
-
-                if (player?.Controller?.ControlledEntity != null)
-                    RudderShipController = player.Controller.ControlledEntity as IMyShipController;
-
-                if (RudderShipController != null)
-                    var MatrixTransposeToCockpit = Matrix.Transpose(RudderShipController.LocalMatrix.GetOrientation());
-            }
-        }
-
-        private void UpdateControllerInput()
-        {
-                var rotateInput = Vector2.ClampToSphere(RudderShipController.RotationIndicator.X, 1f);
-                RotationInputVector = Vector3(rotateInput, 0f, 0f); // X yaw Y Pitch Z Roll
+            SoftRollGravityAlign();
         }
 
         public override void UpdateAfterSimulation100()
@@ -125,55 +110,125 @@ namespace NavalPowerSystems.Drivetrain_2
             }
         }
 
+        public void RecalculateController()
+        {
+            if (RudderShipController == null || !RudderShipController.IsWorking || !RudderShipController.IsMainCockpit)
+            {
+                var player = MyAPIGateway.Players.GetPlayerControllingEntity(RudderMyGrid);
+                IMyShipController RudderShipController = null;
+
+                if (player?.Controller?.ControlledEntity != null)
+                    RudderShipController = player.Controller.ControlledEntity as IMyShipController;
+            }
+        }
+
         public void UpdateDistanceToCamera()
         {
             if (MyAPIGateway.Utilities.IsDedicated)
                 return;
 
-            var dist = Vector3D.Distance(PropellerBlock.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
+            var dist = Vector3D.Distance(RudderBlock.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
             DistanceToCamera = (float)dist;
         }
 
         private void ApplyRotationalForce()
         {
-            Vector3D shipRight = RudderShipController.WorldMatrix.Right;
+            if (YawInput > 0.05f || YawInput < -0.05f)
+            {
+                Vector3D steeringVector = RudderSubpart.PositionComp.WorldMatrixRef.Backward * YawInput;
+                Vector3D dragCounterVector = RudderShipController.PositionComp.WorldMatrixRef.Forward * YawInput;
 
-            Vector3D forceToApply =
-            RudderMyGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, forceToApply, RudderPosition, null);
-        }
+                MatrixD subpartWorldMatrix = RudderSubpart.PositionComp.WorldMatrixRef;
+                var propWash = 0f; //Temp
+                var velocity = RudderGrid.Physics.LinearVelocity.Length();
+                var maxAuthorityVelocity = 25f;
+                double velocityAuthority;
 
-        private void ApplyDragForce()
-        {
-            Vector3D shipForward = RudderShipController.WorldMatrix.Forward;
+                if (velocity == 0)
+                    velocityAuthority = 0f;
+                else
+                    velocityAuthority = (Math.Pow(velocity, 2) / Math.Pow(maxAuthorityVelocity, 2));
 
-            Vector3D forceToApply =
-            RudderMyGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, forceToApply, RudderPosition, null);
+                var rudderLiftForce = 0.5 * 1024 * Math.Pow(MathHelper.Clamp((velocity + propWash), 0f, 25f), 2) * RudderStats.SufaceArea * Math.Sin(MathHelper.ToRadians(RudderCurrentAngle));
+            }
         }
 
         private void SoftRollGravityAlign()
         {
-                
-        }
-
-        private void RudderAnimation(float yawInput)
-        {
-            if (MyAPIGateway.Utilities.IsDedicated || RudderSubpart == null || DistanceToCamera >= 1000f)
+            var gridAngularVelocity = RudderGrid.Physics.AngularVelocity;
+            var dampenAggressiveness = 1.0f;
+            var gravity = RudderGrid.NaturalGravity;
+            if (gravity == Vector3.Zero || gravity == null || RudderGrid.Physics.IsStatic)
                 return;
 
+            var rollVector = Vector3.Zero;
 
-            if (Math.Abs(RudderTargetAngle) > 0.01f)
+            if (gridAngularVelocity.LengthSquared() > Math.Pow(dampenAggressiveness, 2) && rollVector == Vector3.Zero)
             {
-                RudderTargetAngle = MathHelper.Lerp(RudderTargetAngle, 0f, 0.01f);
+                var rollError = Vector3.Dot(RudderShipController.WorldMatrix.Right, -gravity);
+                var rollVelocity = Vector3.Dot(gridAngularVelocity, RudderShipController.WorldMatrix.Forward);
+                if (Math.Abs(rollVelocity) < dampenAggressiveness) rollVelocity = 0f;
+                rollVector = new Vector3(0f, 0f, rollVelocity);
+
+                var forceStrength = GridMass * 0.15f;
+                var forceDampen = GridMass * 0.05;
+
+                var forceMagnitude = (rollError * forceStrength) - (rollVelocity * forceDampen);
+                var forceToApply = RudderShipController.WorldMatrix.Right * forceMagnitude;
+
+                var applicationPoint = RudderMyGrid.Physics.CenterOfMassWorld + (RudderShipController.WorldMatrix.Down * 10);
+
+                RudderMyGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, forceToApply, applicationPoint, null);
             }
+        }
 
-            RudderTargetAngle = MathHelper.Clamp(RudderTargetAngle, -RudderMaxAngle, RudderMaxAngle);
+        private void RudderAnimation()
+        {
+            if (MyAPIGateway.Utilities.IsDedicated || RudderSubpart == null || DistanceToCamera >= 500f)
+                return;
 
-            RudderCurrentAngle = MathHelper.Lerp(RudderCurrentAngle, yawInput * RudderMaxAngle, 0.025f);
+            var angleStep = 0.1f;
 
+            if (YawInput > 0.05f)
+                RudderCurrentAngle += angleStep;
+            else if (YawInput < 0.05f)
+                RudderCurrentAngle -= angleStep;
+            else
+            {
+                var tempAngle = RudderCurrentAngle;
+                RudderCurrentAngle = MathHelper.Lerp(tempAngle, 0f, angleStep);
+            }
+                
+            RudderCurrentAngle = MathHelper.Clamp(RudderTargetAngle, -RudderMaxAngle, RudderMaxAngle);
             Matrix rotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(RudderCurrentAngle));
-
             Matrix finalMatrix = rotationMatrix * RudderSubpartMatrix;
             RudderSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
+        }
+
+        private void GetNearestProp()
+        {
+            BoundingSphereD propCheckSphere = new BoundingSphereD(RudderPosition, 10);
+            List<IMySlimBlock> blocksInSphere = new List<IMySlimBlock>();
+            List<PropellerLogic_V2> propsInSphere = new List<PropellerLogic_V2>();
+            blocksInSphere = RudderGrid.GetBlocksInsideSphere(ref propCheckSphere);
+
+            foreach (var block in blocksInSphere)
+            {
+                if (block.FatBlock != null)
+                {
+                    var subtype = block.FatBlock.BlockDefinition.SubtypeId;
+                    if (Config.PropellerSubtypes.Contains(subtype))
+                    {
+                        var logic = block.FatBlock.GameLogic?.GetAs<PropellerLogic_V2>();
+                        propsInSphere.Add(logic);
+                    }
+                }
+            }
+
+            if (propsInSphere.Count == 1)
+            {
+                NearestPropellerLogic = propsInSphere[0];
+            }
         }
     }
 }

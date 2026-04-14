@@ -64,12 +64,12 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public static readonly Dictionary<string, RudderStats_V2> RudderSettings_V2 = new Dictionary<string, RudderStats_V2>
         {
-            {"NPS_Rudder_Small_CenteredV1", new RudderStats_V2 { MaxAngle = 35f, TorqueCoefficient = 0.5f, SufaceArea = 4f } },
-            {"NPS_Rudder_Small_OffsetLeftV1", new RudderStats_V2 { MaxAngle = 35f, TorqueCoefficient = 0.5f, SufaceArea = 4f } },
-            {"NPS_Rudder_Small_OffsetRightV1", new RudderStats_V2 { MaxAngle = 35f, TorqueCoefficient = 0.5f, SufaceArea = 4f } },
-            {"NPS_Rudder_Small_CenteredV2", new RudderStats_V2 { MaxAngle = 35f, TorqueCoefficient = 0.5f, SufaceArea = 4f } },
-            {"NPS_Rudder_Small_OffsetLeftV2", new RudderStats_V2 { MaxAngle = 35f, TorqueCoefficient = 0.5f, SufaceArea = 4f } },
-            {"NPS_Rudder_Small_OffsetRightV2", new RudderStats_V2 { MaxAngle = 35f, TorqueCoefficient = 0.5f, SufaceArea = 4f } },
+            {"NPS_Rudder_Small_CenteredV1", new RudderStats_V2 { SufaceArea = 38.9f } },
+            {"NPS_Rudder_Small_OffsetLeftV1", new RudderStats_V2 { SufaceArea = 38.9f } },
+            {"NPS_Rudder_Small_OffsetRightV1", new RudderStats_V2 { SufaceArea = 38.9f } },
+            {"NPS_Rudder_Small_CenteredV2", new RudderStats_V2 { SufaceArea = 37.32f } },
+            {"NPS_Rudder_Small_OffsetLeftV2", new RudderStats_V2 { SufaceArea = 37.32f } },
+            {"NPS_Rudder_Small_OffsetRightV2", new RudderStats_V2 { SufaceArea = 37.32f } },
         };
 
     }
@@ -109,8 +109,6 @@ namespace NavalPowerSystems.Drivetrain_V2
 
     public class RudderStats_V2
     {
-        public float MaxAngle; // Maximum deflection angle of the rudder in degrees
-        public float TorqueCoefficient; // Coefficient for calculating torque based on water flow speed and rudder angle
         public float SufaceArea; // Surface area of the rudder in square meters, used for calculating thrust and torque
     }
 }
