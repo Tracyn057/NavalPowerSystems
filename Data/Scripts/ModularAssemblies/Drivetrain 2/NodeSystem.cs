@@ -131,6 +131,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         public HashSet<PropellerNode> ConnectedPropellerNodes = new HashSet<PropellerNode>();
         public double GearRatio;
         public bool ShaftBrake { get; set; } = true; //Start with brake applied. Gearbox Logic will handle enable and disable.
+        public float BrakeEngagement { get; set; } = 0;
 
         public double InputLoad { get; set; }
         public double InputRPM { get; set; }
@@ -144,7 +145,26 @@ namespace NavalPowerSystems.Drivetrain_V2
             this.InputRPM = downstreamRPM * GearRatio; //Increase RPM by gear ratio
             GearboxLogic.IncomingRPM = InputRPM;
 
-            //Pass it on towards the engines
+            if (ShaftBrake || BrakeEngagement > 0)
+            {
+                var brakeTorque = BrakeEngagement * GearboxLogic.GearboxStats.MaxBrakeTorque; //Calculate brake torque based on engagement and max brake torque
+                this.InputLoad += brakeTorque / GearRatio; //Add brake torque to load, which will reduce engine
+            }
+
+            if (GearboxNodesTowardsEngines.Count > 0 && ConnectedEngineNodes.Count > 0)
+            {
+                InputLoad = InputLoad / (GearboxNodesTowardsEngines.Count + ConnectedEngineNodes.Count); //Split load between multiple upstream gearboxes and engines
+            }
+             else if (GearboxNodesTowardsEngines.Count > 0)
+            {
+                InputLoad = InputLoad / GearboxNodesTowardsEngines.Count; //Split load between multiple upstream gearboxes
+            }
+            else if (ConnectedEngineNodes.Count > 0)
+            {
+                InputLoad = InputLoad / ConnectedEngineNodes.Count; //Split load between multiple engines
+            }
+
+            //Pass it on towards the engines or upstream gearboxes
             if (GearboxNodesTowardsEngines.Count > 0)
             {
                 foreach (var gearbox in GearboxNodesTowardsEngines)
@@ -163,6 +183,8 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public void CalculateOutput(double upstreamTorque, double upstreamRPM)
         {
+            double engineInputTorque = 0;
+            double gearboxInputTorque = 0;
             double totalInputTorque = 0;
 
             //Clutch logic.
@@ -182,7 +204,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                     if (engine.RequestedThrottle > 0f)
                         viscousClutch = 0.05; //Small amount of clutch engagement at low throttle to help ease into motion
                     engine.ClutchEngagement = Math.Max(engine.ClutchEngagement, viscousClutch);
-                    totalInputTorque += engine.OutputTorque * engine.ClutchEngagement;
+                    engineInputTorque += engine.OutputTorque * engine.ClutchEngagement;
                 }
             }
             //Collect from upstream gearboxes
@@ -190,26 +212,35 @@ namespace NavalPowerSystems.Drivetrain_V2
             {
                 foreach (var gearbox in GearboxNodesTowardsEngines)
                 {
-                    totalInputTorque += gearbox.OutputTorque;
+                    gearboxInputTorque += gearbox.OutputTorque;
                 }
             }
-            else if (ConnectedEngineNodes.Count == 0)
+
+            totalInputTorque = (engineInputTorque + gearboxInputTorque) * GearRatio; //Increase torque by gear ratio for output
+
+            if (ShaftBrake || BrakeEngagement > 0)
             {
-                totalInputTorque = upstreamTorque;
+                var brakeTorque = BrakeEngagement * GearboxLogic.GearboxStats.MaxBrakeTorque; //Calculate brake torque based on engagement and max brake torque
+                totalInputTorque -= brakeTorque; //Add brake torque to total input torque, which will reduce output torque
             }
 
-            this.OutputTorque = totalInputTorque * GearRatio; //Increase torque by gear ratio
-            if (upstreamRPM > 0) this.OutputRPM = upstreamRPM / GearRatio; //Decrease RPM by gear ratio
-            else this.OutputRPM = 0; //Divide by zero safety
+            this.OutputTorque = Math.Max(0, totalInputTorque)
+            ;
+            if (upstreamRPM > 0 || upstreamTorque > 0) 
+                this.OutputRPM = upstreamRPM / GearRatio; //Decrease RPM by gear ratio
+            else 
+                this.OutputRPM = 0; //Divide by zero safety
 
             //Pass it on down the line
+            var downstreamCount = GearboxNodesTowardsPropellers.Count + ConnectedPropellerNodes.Count;
+
             if (GearboxNodesTowardsPropellers.Count > 0)
                 foreach (var gearbox in GearboxNodesTowardsPropellers)
-                    gearbox.CalculateOutput(OutputTorque, OutputRPM);
+                    gearbox.CalculateOutput(OutputTorque / downstreamCount, OutputRPM);
 
             if (ConnectedPropellerNodes.Count > 0)
                 foreach (var propeller in ConnectedPropellerNodes)
-                    propeller.CalculateOutput(OutputTorque, OutputRPM);
+                    propeller.CalculateOutput(OutputTorque / downstreamCount, OutputRPM);
         }
     }
 

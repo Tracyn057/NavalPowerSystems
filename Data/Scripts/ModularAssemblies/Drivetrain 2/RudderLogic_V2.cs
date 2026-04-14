@@ -24,7 +24,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         "NPSDrivetrainRudderSmallOffsetLeftV2",
         "NPSDrivetrainRudderSmallOffsetRightV2"
     )]
-    internal class RudderLogic_V2 : MyGameLogicComponent
+    internal class RudderLogic_V2 : MyGameLogicComponent, IMyEventProxy
     {
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         private IMyCubeBlock RudderBlock;
@@ -37,10 +37,18 @@ namespace NavalPowerSystems.Drivetrain_V2
         private IMyCubeGrid RudderGrid;
         private IMyShipController RudderShipController;
         private PropellerLogic_V2 NearestPropellerLogic;
+        private List<IMySlimBlock> BlocksInSphere = new List<IMySlimBlock>();
+        private List<PropellerLogic_V2> PropsInSphere = new List<PropellerLogic_V2>();
+
+        private bool BrakeRight = false;
+        MySync<bool, SyncDirection.BothWays> Terminal_BrakeRight;
+        private bool BrakeLeft = false;
+        MySync<bool, SyncDirection.BothWays> Terminal_BrakeLeft;
+        private bool ControlsInitialized = false;
+        private bool ActionsInitialized = false;
 
         private float DistanceToCamera = 0f;
         private float RudderMaxAngle = 35f;
-        private float RudderTargetAngle = 0f;
         private float RudderCurrentAngle = 0f;
         private float GridMass = 0f;
         private float YawInput = 0f;
@@ -83,6 +91,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
             NeedsUpdate |= MyEntityUpdateEnum.EACH_100TH_FRAME;
+            RudderGrid.OnGridChanged += RudderGrid_OnGridChanged;
         }
 
         
@@ -92,10 +101,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             if (!RudderFunctional.IsWorking || RudderMyGrid.Physics == null || RudderMyGrid.Physics.IsStatic) return;
 
             RecalculateController();
-            RudderPosition = RudderBlock.PositionComp.WorldVolume.Center;
-            if (RudderShipController != null)
-                YawInput = MathHelper.Clamp(RudderShipController.RotationIndicator.X, -1, 1);
-            RudderTargetAngle = RudderMaxAngle * YawInput;
+            GetControlInput();
             RudderAnimation();
             ApplyRotationalForce();
             SoftRollGravityAlign();
@@ -110,16 +116,58 @@ namespace NavalPowerSystems.Drivetrain_V2
             }
         }
 
+        private void UpdateSyncBeforeFrame()
+        {
+            Terminal_BrakeRight.SetLocalValue(BrakeRight);
+            Terminal_BrakeRight.ValueChanged += Terminal_BrakeRight_ValueChanged;
+
+            Terminal_BrakeLeft.SetLocalValue(BrakeLeft);
+            Terminal_BrakeLeft.ValueChanged += Terminal_BrakeLeft_ValueChanged;
+        }
+
+        private void Terminal_BrakeRight_ValueChanged(MySync<bool, SyncDirection.FromServer> obj)
+        {
+            BrakeRight = obj.Value;
+            UpdateControls();
+        }
+
+        private void Terminal_BrakeLeft_ValueChanged(MySync<bool, SyncDirection.FromServer> obj)
+        {
+            BrakeLeft = obj.Value;
+            UpdateControls();
+        }
+
+        public static void UpdateControls()
+        {
+            List<IMyTerminalControl> controls;
+
+            MyAPIGateway.TerminalControls.GetControls<IMyFunctionalBlock>(out controls);
+
+            foreach (IMyTerminalControl control in controls)
+            {
+                switch (control.Id)
+                {
+                    case "NPS_Rudder_TerminalControl_BrakeRight":
+                    case "NPS_Rudder_TerminalControl_BrakeLeft":
+                        {
+                            control.UpdateVisual();
+                            break;
+                        }
+                }
+            }
+        }
+
         public void RecalculateController()
         {
             if (RudderShipController == null || !RudderShipController.IsWorking || !RudderShipController.IsMainCockpit)
             {
                 var player = MyAPIGateway.Players.GetPlayerControllingEntity(RudderMyGrid);
-                IMyShipController RudderShipController = null;
+                RudderShipController = null;
 
                 if (player?.Controller?.ControlledEntity != null)
                     RudderShipController = player.Controller.ControlledEntity as IMyShipController;
             }
+            RudderPosition = RudderBlock.PositionComp.WorldVolume.Center;
         }
 
         public void UpdateDistanceToCamera()
@@ -131,6 +179,24 @@ namespace NavalPowerSystems.Drivetrain_V2
             DistanceToCamera = (float)dist;
         }
 
+        private void GetControlInput()
+        {
+            if (RudderShipController == null) return;
+
+            if (BrakeLeft)
+            {
+                YawInput = -1f;
+                return;
+            }
+            else if (BrakeRight)
+            {
+                YawInput = 1f;
+                return;
+            }
+
+            YawInput = MathHelper.Clamp(RudderShipController.RotationIndicator.X, -1, 1);
+        }
+
         private void ApplyRotationalForce()
         {
             if (YawInput > 0.05f || YawInput < -0.05f)
@@ -139,7 +205,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                 Vector3D dragCounterVector = RudderShipController.PositionComp.WorldMatrixRef.Forward * YawInput;
 
                 MatrixD subpartWorldMatrix = RudderSubpart.PositionComp.WorldMatrixRef;
-                var propWash = 0f; //Temp
+                var propWash = GetPropWash();
                 var velocity = RudderGrid.Physics.LinearVelocity.Length();
                 var maxAuthorityVelocity = 25f;
                 double velocityAuthority;
@@ -147,9 +213,13 @@ namespace NavalPowerSystems.Drivetrain_V2
                 if (velocity == 0)
                     velocityAuthority = 0f;
                 else
-                    velocityAuthority = (Math.Pow(velocity, 2) / Math.Pow(maxAuthorityVelocity, 2));
+                    velocityAuthority = Math.Pow(velocity, 2) / Math.Pow(maxAuthorityVelocity, 2);
 
-                var rudderLiftForce = 0.5 * 1024 * Math.Pow(MathHelper.Clamp((velocity + propWash), 0f, 25f), 2) * RudderStats.SufaceArea * Math.Sin(MathHelper.ToRadians(RudderCurrentAngle));
+                var rudderLiftForce = 0.5 * 1024 * Math.Pow(MathHelper.Clamp(velocity + propWash, 0f, 25f), 2) * RudderStats.SufaceArea * Math.Sin(MathHelper.ToRadians(RudderCurrentAngle));
+                var rudderDragForce = Math.Abs(rudderLiftForce * Math.Sin(MathHelper.ToRadians(RudderCurrentAngle)));
+
+                RudderMyGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, steeringVector * rudderLiftForce * velocityAuthority, RudderPosition, null);
+                RudderMyGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, dragCounterVector * rudderDragForce * velocityAuthority, RudderGrid.Physics.CenterOfMassWorld, null);
             }
         }
 
@@ -179,6 +249,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                 var applicationPoint = RudderMyGrid.Physics.CenterOfMassWorld + (RudderShipController.WorldMatrix.Down * 10);
 
                 RudderMyGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, forceToApply, applicationPoint, null);
+                RudderMyGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, -forceToApply, RudderMyGrid.Physics.CenterOfMassWorld, null);
             }
         }
 
@@ -191,28 +262,36 @@ namespace NavalPowerSystems.Drivetrain_V2
 
             if (YawInput > 0.05f)
                 RudderCurrentAngle += angleStep;
-            else if (YawInput < 0.05f)
+            else if (YawInput < -0.05f)
                 RudderCurrentAngle -= angleStep;
             else
             {
                 var tempAngle = RudderCurrentAngle;
                 RudderCurrentAngle = MathHelper.Lerp(tempAngle, 0f, angleStep);
+
+                if (Math.Abs(RudderCurrentAngle) < 0.01f) 
+                    RudderCurrentAngle = 0f;
             }
                 
-            RudderCurrentAngle = MathHelper.Clamp(RudderTargetAngle, -RudderMaxAngle, RudderMaxAngle);
+            RudderCurrentAngle = MathHelper.Clamp(RudderCurrentAngle, -RudderMaxAngle, RudderMaxAngle);
             Matrix rotationMatrix = Matrix.CreateRotationY(MathHelper.ToRadians(RudderCurrentAngle));
             Matrix finalMatrix = rotationMatrix * RudderSubpartMatrix;
             RudderSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
         }
 
+        private void RudderGrid_OnGridChanged(MyCubeGrid obj)
+        {
+            GetNearestProp();
+        }
+
         private void GetNearestProp()
         {
+            PropsInSphere.Clear();
+            BlocksInSphere.Clear();
             BoundingSphereD propCheckSphere = new BoundingSphereD(RudderPosition, 10);
-            List<IMySlimBlock> blocksInSphere = new List<IMySlimBlock>();
-            List<PropellerLogic_V2> propsInSphere = new List<PropellerLogic_V2>();
-            blocksInSphere = RudderGrid.GetBlocksInsideSphere(ref propCheckSphere);
+            BlocksInSphere = RudderGrid.GetBlocksInsideSphere(ref propCheckSphere);
 
-            foreach (var block in blocksInSphere)
+            foreach (var block in BlocksInSphere)
             {
                 if (block.FatBlock != null)
                 {
@@ -220,14 +299,85 @@ namespace NavalPowerSystems.Drivetrain_V2
                     if (Config.PropellerSubtypes.Contains(subtype))
                     {
                         var logic = block.FatBlock.GameLogic?.GetAs<PropellerLogic_V2>();
-                        propsInSphere.Add(logic);
+                        PropsInSphere.Add(logic);
                     }
                 }
             }
 
-            if (propsInSphere.Count == 1)
+            if (PropsInSphere.Count == 1)
             {
-                NearestPropellerLogic = propsInSphere[0];
+                NearestPropellerLogic = PropsInSphere[0];
+            }
+            else if (PropsInSphere.Count > 1)
+            {
+                double closestDistance = double.MaxValue;
+                PropellerLogic_V2 closestProp = null;
+
+                foreach (var prop in PropsInSphere)
+                {
+                    var distance = Vector3D.Distance(RudderPosition, prop.PropellerBlock.PositionComp.WorldVolume.Center);
+                    if (distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        closestProp = prop;
+                    }
+                }
+
+                NearestPropellerLogic = closestProp;
+            }
+        }
+
+        private float GetPropWash()
+        {
+            float discArea = (float)(Math.PI * Math.Pow(NearestPropellerLogic.PropellerStats.Diameter/2, 2));
+            if (discArea <= 0 || NearestPropellerLogic.IncomingThrust <= 0) return 0f;
+
+            return (float)Math.Sqrt(2 * NearestPropellerLogic.IncomingThrust / (1024 * discArea));
+        }
+
+        private void CreateControls()
+        {
+            if (ControlsInitialized)
+                return;
+            ControlsInitialized = true;
+
+            {
+                var NPS_Rudder_BrakeRight = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyFunctionalBlock>("NPS_Rudder_TerminalControl_BrakeRight");
+                NPS_Rudder_BrakeRight.Title = MyStringId.GetOrCompute("Brake Right");
+                NPS_Rudder_BrakeRight.OnText = MyStringId.GetOrCompute("On");
+                NPS_Rudder_BrakeRight.OffText = MyStringId.GetOrCompute("Off");
+                NPS_Rudder_BrakeRight.Getter = (block) => BrakeRight;
+                NPS_Rudder_BrakeRight.Setter = (block, value) => BrakeRight = value;
+                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(NPS_Rudder_BrakeRight);
+            }
+            {
+                var NPS_Rudder_BrakeLeft = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyFunctionalBlock>("NPS_Rudder_TerminalControl_BrakeLeft");
+                NPS_Rudder_BrakeLeft.Title = MyStringId.GetOrCompute("Brake Left");
+                NPS_Rudder_BrakeLeft.OnText = MyStringId.GetOrCompute("On");
+                NPS_Rudder_BrakeLeft.OffText = MyStringId.GetOrCompute("Off");
+                NPS_Rudder_BrakeLeft.Getter = (block) => BrakeLeft;
+                NPS_Rudder_BrakeLeft.Setter = (block, value) => BrakeLeft = value;
+                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(NPS_Rudder_BrakeLeft);
+            }
+        }
+
+        private void CreateActions()
+        {  
+            if (ActionsInitialized)
+                return;
+            ActionsInitialized = true;
+
+            {
+                var NPS_Rudder_ToggleBrakeRight = MyAPIGateway.TerminalControls.CreateAction<IMyFunctionalBlock>("NPS_Rudder_TerminalAction_BrakeRight");
+                NPS_Rudder_ToggleBrakeRight.Name = MyStringId.GetOrCompute("Toggle Brake Right");
+                NPS_Rudder_ToggleBrakeRight.Action = (block) => BrakeRight = !BrakeRight;
+                MyAPIGateway.TerminalControls.AddAction<IMyFunctionalBlock>(NPS_Rudder_ToggleBrakeRight);
+            }
+            {
+                var NPS_Rudder_ToggleBrakeLeft = MyAPIGateway.TerminalControls.CreateAction<IMyFunctionalBlock>("NPS_Rudder_TerminalAction_BrakeLeft");
+                NPS_Rudder_ToggleBrakeLeft.Name = MyStringId.GetOrCompute("Toggle Brake Left");
+                NPS_Rudder_ToggleBrakeLeft.Action = (block) => BrakeLeft = !BrakeLeft;
+                MyAPIGateway.TerminalControls.AddAction<IMyFunctionalBlock>(NPS_Rudder_ToggleBrakeLeft);
             }
         }
     }

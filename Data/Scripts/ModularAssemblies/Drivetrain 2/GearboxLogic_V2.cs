@@ -24,6 +24,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         public IMyCubeBlock GearboxBlock;
         public IMyFunctionalBlock GearboxFunctional;
         public IMyTerminalBlock GearboxTerminal;
+        public GearboxStats_V2 GearboxStats;
         public GearboxNode GearboxNode;
 
         //Animation Information
@@ -122,6 +123,26 @@ namespace NavalPowerSystems.Drivetrain_V2
                     DriveshaftMatrices.Add(subpart, subpart.PositionComp.LocalMatrixRef);
             }
             ShaftListDirty = false;
+        }
+
+        private void CreateControls()
+        {
+            if (ControlsInitialized)
+                return;
+
+            ControlsInitialized = true;
+
+            //Clutch Lockout for each connected engine
+            //Shaft brake for each connected shaft
+            //Reverse select
+        }
+
+        private void CreateActions()
+        {
+            if (ActionsInitialized)
+                return;
+
+            ActionsInitialized = true;
         }
     }
 }
