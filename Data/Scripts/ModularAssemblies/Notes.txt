@@ -5,6 +5,16 @@ https://www.linquip.com/industrial-directories/21/marine-gas-turbine
 
 
 
+Idustrial Overhaul Oil Figures:
+> 100 Oil Sand
+|
+-> 50 Crude Oil (50%)
+||
+--> 22.5 Fuel Oil (45%)
+--> 5 Carbon (10%)
+--> 7.5 Sulfur (15%)
+--> 15 Polymer (30%)
+
 
 Phase 1 Release:
 X Diesel Engines - Vanilla blocks
