@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Sandbox.ModAPI;
 using VRageMath;
 using static NavalPowerSystems.Communication.DefinitionDefs;
+using NavalPowerSystems.Drivetrain_V2;
 
 namespace NavalPowerSystems
 {
@@ -15,21 +16,21 @@ namespace NavalPowerSystems
         private ModularPhysicalDefinition DrivetrainDefinition => new ModularPhysicalDefinition
         {
             // Unique name of the definition.
-            Name = "Drivetrain_Definition",
+            Name = "Drivetrain_Definition_V2",
 
             //Boop
             OnInit = null,
 
             // Triggers whenever a new part is added to an assembly.
-            OnPartAdd = DrivetrainManager.OnPartAdd,
+            OnPartAdd = DrivetrainManager_V2.OnPartAdd,
 
             // Triggers whenever a part is removed from an assembly.
-            OnPartRemove = DrivetrainManager.OnPartRemove,
+            OnPartRemove = DrivetrainManager_V2.OnPartRemove,
 
             // Triggers whenever a part is destroyed, just after OnPartRemove.
-            OnPartDestroy = DrivetrainManager.OnPartDestroy,
+            OnPartDestroy = DrivetrainManager_V2.OnPartDestroy,
 
-            OnAssemblyClose = DrivetrainManager.OnAssemblyClose,
+            OnAssemblyClose = DrivetrainManager_V2.OnAssemblyClose,
 
             // Optional - if this is set, an assembly will not be created until a baseblock exists.
             BaseBlockSubtype = null,
@@ -43,32 +44,29 @@ namespace NavalPowerSystems
                 "NPS_Turbine_LM2500Plus",
                 "NPS_Turbine_LM2500PlusG4",
                 "NPS_Turbine_MT30",
-                "NPSDieselEngine500KW",
-                "NPSDieselEngine15MW",
-                "NPSDieselEngine25MW",
 
                 //Gearboxes
-                "NPSDrivetrainMRG",
-                "NPSGearbox_DoublePlanetary",
+                "NPS_Gearbox_MRG",
+                "NPS_Gearbox_DoublePlanetary",
 
                 //Driveshafts
-                "NPSDrivetrainDriveshaft",
-                "NPSDrivetrainDriveshaftMarked",
-                "NPSDrivetrainDriveshaftLong",
-                "NPSDrivetrainDriveshaftLongMarked",
-                "NPSDrivetrainLinearGearbox1",
-                "NPSDrivetrainLinearGearbox2",
-                "NPSDrivetrainTubeSealEnclosed1",
-                "NPSDrivetrainTubeSealSlope1",
-                "NPSDrivetrainTubeSealSlope1Corner",
-                "NPSDrivetrainTubeSealSlope2",
-                "NPSDrivetrainTubeSealSlope2Corner",
-                "NPSDrivetrainEndTubeV1",
+                "NPS_Driveshaft",
+                "NPS_Driveshaft_Marked",
+                "NPS_Driveshaft_Long",
+                "NPS_Driveshaft_Long_Marked",
+                "NPS_Driveshaft_LinearGearbox1",
+                "NPS_Driveshaft_LinearGearbox2",
+                "NPS_Driveshaft_TubeSealEnclosed1",
+                "NPS_Driveshaft_TubeSealSlope1",
+                "NPS_Driveshaft_TubeSealSlope1Corner",
+                "NPS_Driveshaft_TubeSealSlope2",
+                "NPS_Driveshaft_TubeSealSlope2Corner",
+                "NPS_Driveshaft_EndTubeV1",
 
                 //Propellers
-                "NPSDrivetrainProp34",
-                "NPSDrivetrainProp44",
-                "NPSDrivetrainProp54",
+                "NPS_Propeller_4m3b",
+                "NPS_Propeller_4m4b",
+                "NPS_Propeller_4m5b"
 
             },
 

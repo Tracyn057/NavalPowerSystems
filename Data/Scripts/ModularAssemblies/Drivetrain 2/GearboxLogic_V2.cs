@@ -12,12 +12,12 @@ using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRageMath;
-using static Sandbox.Game.Components.MyRenderComponentThrust;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_FunctionalBlock), false,
-            "placeholder"
+            "NPS_Gearbox_MRG",
+            "NPS_Gearbox_DoublePlanetary"
     )]
     public class GearboxLogic_V2 : MyGameLogicComponent
     {

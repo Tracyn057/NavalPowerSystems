@@ -13,14 +13,19 @@ namespace NavalPowerSystems.Drivetrain_V2
         private int BlockCount = 0;
 
         private List<IMyCubeBlock> Engines = new List<IMyCubeBlock>();
+        private List<IMyCubeBlock> Motors = new List<IMyCubeBlock>();
+        private List<IMyCubeBlock> Generators = new List<IMyCubeBlock>();
+        private List<IMyCubeBlock> Turbines = new List<IMyCubeBlock>();
+
         private List<IMyCubeBlock> Gearboxes = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Propellers = new List<IMyCubeBlock>();
         private List<IDrivetrainNode> Nodes = new List<IDrivetrainNode>();
         private List<EngineNode> EngineNodes = new List<EngineNode>();
+        private List<TurbineNode> TurbineNodes = new List<TurbineNode>();
+        private List<MotorNode> MotorNodes = new List<MotorNode>();
+        private List<GeneratorNode> GeneratorNodes = new List<GeneratorNode>();
         private List<GearboxNode> GearboxNodes = new List<GearboxNode>();
         private List<PropellerNode> PropellerNodes = new List<PropellerNode>();
-        private List<IMySlimBlock> CWAnimList = new List<IMySlimBlock>();
-        private List<IMySlimBlock> CCWAnimList = new List<IMySlimBlock>();
 
         public NewDrivetrainSystem(int assemblyId)
         {

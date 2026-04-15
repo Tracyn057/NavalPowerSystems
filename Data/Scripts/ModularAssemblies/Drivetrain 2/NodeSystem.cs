@@ -329,4 +329,70 @@ namespace NavalPowerSystems.Drivetrain_V2
             return PitchRatio = Drivetrain_Config.PitchRatio;
         }
     }
+
+    public class TurbineNode : IDrivetrainNode
+    {
+        public double InputLoad { get; set; }
+        public double InputRPM { get; set; }
+        public double OutputTorque { get; private set; }
+        public double OutputRPM { get; private set; }
+
+        public void CalculateLoad(double downstreamDemand, double downstreamRPM)
+        {
+            //Turbines will operate similarly to engines, but using steam instead
+            InputLoad = downstreamDemand;
+            InputRPM = downstreamRPM;
+        }
+
+        public void CalculateOutput(double upstreamTorque, double upstreamRPM)
+        {
+            //Turbine output will be calculated based on a separate steam system that relays steam to the turbine based on demand
+            OutputTorque = upstreamTorque;
+            OutputRPM = upstreamRPM;
+        }
+    }
+
+    public class MotorNode : IDrivetrainNode
+    {
+        public double InputLoad { get; set; }
+        public double InputRPM { get; set; }
+        public double OutputTorque { get; private set; }
+        public double OutputRPM { get; private set; }
+
+        public void CalculateLoad(double downstreamDemand, double downstreamRPM)
+        {
+            //Motors will still use input torque and rpm to calculate their power usage
+            InputLoad = downstreamDemand;
+            InputRPM = downstreamRPM;
+        }
+
+        public void CalculateOutput(double upstreamTorque, double upstreamRPM)
+        {
+            //Motor output will need to be calculated based on electrical input and motor characteristics
+            OutputTorque = upstreamTorque;
+            OutputRPM = upstreamRPM;
+        }
+    }
+
+    public class GeneratorNode : IDrivetrainNode
+    {
+        public double InputLoad { get; set; }
+        public double InputRPM { get; set; }
+        public double OutputTorque { get; private set; }
+        public double OutputRPM { get; private set; }
+
+        public void CalculateLoad(double downstreamDemand, double downstreamRPM)
+        {
+            //Generators will take mechanical input and convert it to electrical output
+            InputLoad = downstreamDemand;
+            InputRPM = downstreamRPM;
+        }
+
+        public void CalculateOutput(double upstreamTorque, double upstreamRPM)
+        {
+            //Generator will operate similar to propeller nodes in that it's the end of the output line for torque and RPM, but will convert that to electrical output instead of thrust
+            OutputTorque = upstreamTorque;
+            OutputRPM = upstreamRPM;
+        }
+    }
 }

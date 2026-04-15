@@ -21,12 +21,12 @@ using VRageMath;
 namespace NavalPowerSystems.Drivetrain_V2
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_FunctionalBlock), false,
-        "NPSDrivetrainRudderSmallCenteredV1",
-        "NPSDrivetrainRudderSmallOffsetLeftV1",
-        "NPSDrivetrainRudderSmallOffsetRightV1",
-        "NPSDrivetrainRudderSmallCenteredV2",
-        "NPSDrivetrainRudderSmallOffsetLeftV2",
-        "NPSDrivetrainRudderSmallOffsetRightV2"
+        "NPS_Rudder_Small_CenteredV1",
+        "NPS_Rudder_Small_OffsetLeftV1",
+        "NPS_Rudder_Small_OffsetRightV1",
+        "NPS_Rudder_Small_CenteredV2",
+        "NPS_Rudder_Small_OffsetLeftV2",
+        "NPS_Rudder_Small_OffsetRightV2"
     )]
     internal class RudderLogic_V2 : MyGameLogicComponent, IMyEventProxy
     {

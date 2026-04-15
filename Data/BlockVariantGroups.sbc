@@ -8,30 +8,57 @@
             <DisplayName>Naval Driveshafts</DisplayName>
             <Description>Group</Description>
             <Blocks>
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainDriveshaft" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainDriveshaftMarked" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainDriveshaftLong" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainDriveshaftLongMarked" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainLinearGearbox1" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainLinearGearbox2" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainTubeSealEnclosed1" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainTubeSealSlope1" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainTubeSealSlope1Corner" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainTubeSealSlope2" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainTubeSealSlope2Corner" />
-                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPSDrivetrainEndTubeV1" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_Marked" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_Long" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_Long_Marked" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_LinearGearbox1" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_LinearGearbox2" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_TubeSealEnclosed1" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_TubeSealSlope1" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_TubeSealSlope1Corner" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_TubeSealSlope2" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_TubeSealSlope2Corner" />
+                <Block Type="MyObjectBuilder_CubeBlock" Subtype="NPS_Driveshaft_EndTubeV1" />
             </Blocks>
         </BlockVariantGroup>
 
         <BlockVariantGroup>
-            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPS_Turbine_LM2500Group" />
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPS_Turbine_LM2500_Group" />
             <Icon>Textures\GUI\Icons\Cubes\NPS_Turbine_LM2500.dds</Icon>
             <DisplayName>LM2500 Gas Turbine</DisplayName>
             <Description>Group</Description>
             <Blocks>
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPS_Turbine_LM2500" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPS_Turbine_LM2500Plus" />
-                <Block Type="MyObjectBuilder_GasTankDefinition" Subtype="NPS_Turbine_LM2500PlusG4" />
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Turbine_LM2500" />
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Turbine_LM2500Plus" />
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Turbine_LM2500PlusG4" />
+            </Blocks>
+        </BlockVariantGroup>
+
+        <BlockVariantGroup>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPS_Propeller_4m_Group" />
+            <Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainProp34.dds</Icon>
+            <DisplayName>4m Propellers</DisplayName>
+            <Description>Group</Description>
+            <Blocks>
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Propeller_4m3b" />
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Propeller_4m4b" />
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Propeller_4m5b" />
+            </Blocks>
+        </BlockVariantGroup>
+
+        <BlockVariantGroup>
+            <Id Type="MyObjectBuilder_BlockVariantGroup" Subtype="NPS_Rudder_Small_Group" />
+            <Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV1.dds</Icon>
+            <DisplayName>Small Rudders</DisplayName>
+            <Description>Group</Description>
+            <Blocks>
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_CenteredV1" />
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetLeftV1" />
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetRightV1" />
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_CenteredV2" />
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetLeftV2" />
+                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetRightV2" />
             </Blocks>
         </BlockVariantGroup>
 

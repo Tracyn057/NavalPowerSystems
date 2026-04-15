@@ -2,10 +2,10 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<CubeBlocks>
 
-		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+		<Definition>
 			<Id>
-				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPS_Rudder_SmallCenteredV1</SubtypeId>
+				<TypeId>TerminalBlock</TypeId>
+				<SubtypeId>NPS_Rudder_Small_CenteredV1</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Centered V1</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV1.dds</Icon>
@@ -55,12 +55,12 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+		<Definition>
 			<Id>
-				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPS_Rudder_SmallLeftV1</SubtypeId>
+				<TypeId>TerminalBlock</TypeId>
+				<SubtypeId>NPS_Rudder_Small_OffsetLeftV1</SubtypeId>
 			</Id>
-			<DisplayName>Rudder, Small Centered V1</DisplayName>
+			<DisplayName>Rudder, Small Offset Left V1</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV1.dds</Icon>
 			<Description>Description_Gyroscope</Description>
 			<CubeSize>Large</CubeSize>
@@ -108,12 +108,12 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+		<Definition>
 			<Id>
-				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPS_Rudder_SmallRightV1</SubtypeId>
+				<TypeId>TerminalBlock</TypeId>
+				<SubtypeId>NPS_Rudder_Small_OffsetRightV1</SubtypeId>
 			</Id>
-			<DisplayName>Rudder, Small Centered V1</DisplayName>
+			<DisplayName>Rudder, Small Offset Right V1</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV1.dds</Icon>
 			<Description>Description_Gyroscope</Description>
 			<CubeSize>Large</CubeSize>
@@ -163,10 +163,10 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+		<Definition>
 			<Id>
-				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPS_Rudder_SmallCenteredV2</SubtypeId>
+				<TypeId>TerminalBlock</TypeId>
+				<SubtypeId>NPS_Rudder_Small_CenteredV2</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Centered V2</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV2.dds</Icon>
@@ -216,12 +216,12 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+		<Definition>
 			<Id>
-				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPS_Rudder_SmallLeftV2</SubtypeId>
+				<TypeId>TerminalBlock</TypeId>
+				<SubtypeId>NPS_Rudder_Small_OffsetLeftV2</SubtypeId>
 			</Id>
-			<DisplayName>Rudder, Small Centered V2</DisplayName>
+			<DisplayName>Rudder, Small Offset Left V2</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV2.dds</Icon>
 			<Description>Description_Gyroscope</Description>
 			<CubeSize>Large</CubeSize>
@@ -269,12 +269,12 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition xsi:type="MyObjectBuilder_GyroDefinition">
+		<Definition>
 			<Id>
-				<TypeId>Gyro</TypeId>
-				<SubtypeId>NPS_Rudder_SmallRightV2</SubtypeId>
+				<TypeId>TerminalBlock</TypeId>
+				<SubtypeId>NPS_Rudder_Small_OffsetRightV2</SubtypeId>
 			</Id>
-			<DisplayName>Rudder, Small Centered V2</DisplayName>
+			<DisplayName>Rudder, Small Offset Right V2</DisplayName>
 			<Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainRudderSmallCenteredV2.dds</Icon>
 			<Description>Description_Gyroscope</Description>
 			<CubeSize>Large</CubeSize>

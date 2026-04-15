@@ -2,9 +2,9 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <CubeBlocks>
         
-        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
+        <Definition>
             <Id>
-                <TypeId>OxygenTank</TypeId>
+                <TypeId>TerminalBlock</TypeId>
 				<SubtypeId>NPS_Turbine_LM2500</SubtypeId>
 			</Id>
 			<DisplayName>LM2500 Gas Turbine</DisplayName>
@@ -45,45 +45,16 @@
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <ResourceSinkGroup>Factory</ResourceSinkGroup>
-            <OperationalPowerConsumption>0</OperationalPowerConsumption>
-            <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>2500</Capacity>
-            <InventoryMaxVolume>0.75</InventoryMaxVolume>
-            <InventorySize>
-                <X>1</X>
-                <Y>1</Y> 
-                <Z>1</Z>
-            </InventorySize>
-            <StoredGasId>
-                <TypeId>GasProperties</TypeId>
-                <SubtypeId>DieselFuel</SubtypeId>
-            </StoredGasId>
             <BuildTimeSeconds>32</BuildTimeSeconds>
-            <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
-            <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
-            <LeakPercent>0.005</LeakPercent>
-            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
-            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
-            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
-            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
-            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
-            <TieredUpdateTimes>
-                <unsignedInt>100</unsignedInt>
-                <unsignedInt>300</unsignedInt>
-                <unsignedInt>600</unsignedInt>
-            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>Propulsion</string>
+                <string>PowerSystems</string>
             </TargetingGroups>
 		</Definition>
 
-        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
+        <Definition>
             <Id>
-                <TypeId>OxygenTank</TypeId>
+                <TypeId>TerminalBlock</TypeId>
 				<SubtypeId>NPS_Turbine_LM2500Plus</SubtypeId>
 			</Id>
 			<DisplayName>LM2500+ Gas Turbine</DisplayName>
@@ -124,45 +95,16 @@
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <ResourceSinkGroup>Factory</ResourceSinkGroup>
-            <OperationalPowerConsumption>0</OperationalPowerConsumption>
-            <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>2500</Capacity>
-            <InventoryMaxVolume>0.75</InventoryMaxVolume>
-            <InventorySize>
-                <X>1</X>
-                <Y>1</Y> 
-                <Z>1</Z>
-            </InventorySize>
-            <StoredGasId>
-                <TypeId>GasProperties</TypeId>
-                <SubtypeId>DieselFuel</SubtypeId>
-            </StoredGasId>
             <BuildTimeSeconds>32</BuildTimeSeconds>
-            <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
-            <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
-            <LeakPercent>0.005</LeakPercent>
-            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
-            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
-            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
-            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
-            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
-            <TieredUpdateTimes>
-                <unsignedInt>100</unsignedInt>
-                <unsignedInt>300</unsignedInt>
-                <unsignedInt>600</unsignedInt>
-            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>Propulsion</string>
+                <string>PowerSystems</string>
             </TargetingGroups>
 		</Definition>
 
-        <Definition xsi:type="MyObjectBuilder_GasTankDefinition">
+        <Definition>
             <Id>
-                <TypeId>OxygenTank</TypeId>
+                <TypeId>TerminalBlock</TypeId>
 				<SubtypeId>NPS_Turbine_LM2500PlusG4</SubtypeId>
 			</Id>
 			<DisplayName>LM2500+G4 Gas Turbine</DisplayName>
@@ -203,39 +145,10 @@
             <MirroringY>Z</MirroringY>
             <MirroringZ>Y</MirroringZ>
             <EdgeType>Light</EdgeType>
-            <ResourceSourceGroup>Reactors</ResourceSourceGroup>
-            <ResourceSinkGroup>Factory</ResourceSinkGroup>
-            <OperationalPowerConsumption>0</OperationalPowerConsumption>
-            <StandbyPowerConsumption>0</StandbyPowerConsumption>
-            <Capacity>2500</Capacity>
-            <InventoryMaxVolume>0.75</InventoryMaxVolume>
-            <InventorySize>
-                <X>1</X>
-                <Y>1</Y> 
-                <Z>1</Z>
-            </InventorySize>
-            <StoredGasId>
-                <TypeId>GasProperties</TypeId>
-                <SubtypeId>DieselFuel</SubtypeId>
-            </StoredGasId>
             <BuildTimeSeconds>32</BuildTimeSeconds>
-            <DamageEffectName>Damage_WeapExpl_Damaged</DamageEffectName>
-            <DamagedSound>ParticleWeapExpl</DamagedSound>
-            <EmissiveColorPreset>Extended</EmissiveColorPreset>
             <PCU>25</PCU>
-            <LeakPercent>0.005</LeakPercent>
-            <GasExplosionMaxRadius>10</GasExplosionMaxRadius>
-            <GasExplosionNeededVolumeToReachMaxRadius>1000000</GasExplosionNeededVolumeToReachMaxRadius>
-            <GasExplosionDamageMultiplier>0.00015</GasExplosionDamageMultiplier>
-            <GasExplosionSound>HydrogenExplosion</GasExplosionSound>
-            <GasExplosionEffect>Explosion_Warhead_15</GasExplosionEffect>
-            <TieredUpdateTimes>
-                <unsignedInt>100</unsignedInt>
-                <unsignedInt>300</unsignedInt>
-                <unsignedInt>600</unsignedInt>
-            </TieredUpdateTimes>
             <TargetingGroups>
-                <string>Propulsion</string>
+                <string>PowerSystems</string>
             </TargetingGroups>
 		</Definition>
 

@@ -12,12 +12,9 @@
 			<StrictSearch>true</StrictSearch>
 			<ItemIds>
 				<!-- Engines -->
-				<string>OxygenTank/NPSDieselEngine500KW</string>
-				<string>OxygenTank/NPSDieselEngine15MW</string>
-				<string>OxygenTank/NPSDieselEngine25MW</string>
-				<string>OxygenTank/NPS_Turbine_LM2500</string>
-				<string>OxygenTank/NPS_Turbine_LM2500Plus</string>
-				<string>OxygenTank/NPS_Turbine_LM2500PlusG4</string>
+				<string>TerminalBlock/NPS_Turbine_LM2500</string>
+				<string>TerminalBlock/NPS_Turbine_LM2500Plus</string>
+				<string>TerminalBlock/NPS_Turbine_LM2500PlusG4</string>
 				<!-- Generators -->
 				 <!-- Production -->
 				 <string>OxygenTank/NPSProductionCrudeInput</string>
@@ -35,35 +32,35 @@
 				<string>TerminalBlock/NPS_Gearbox_MRG</string>
 				<string>TerminalBlock/NPS_Gearbox_DoublePlanetary</string>
 				<!-- Rudders -->
-				 <string>TerminalBlock/NPSDrivetrainRudderSmallCenteredV1</string>
-				 <string>TerminalBlock/NPSDrivetrainRudderSmallOffsetLeftV1</string>
-				 <string>TerminalBlock/NPSDrivetrainRudderSmallOffsetRightV1</string>
-				 <string>TerminalBlock/NPSDrivetrainRudderSmallCenteredV2</string>
-				 <string>TerminalBlock/NPSDrivetrainRudderSmallOffsetLeftV2</string>
-				 <string>TerminalBlock/NPSDrivetrainRudderSmallOffsetRightV2</string>
+				 <string>TerminalBlock/NPS_Rudder_Small_CenteredV1</string>
+				 <string>TerminalBlock/NPS_Rudder_Small_OffsetLeftV1</string>
+				 <string>TerminalBlock/NPS_Rudder_Small_OffsetRightV1</string>
+				 <string>TerminalBlock/NPS_Rudder_Small_CenteredV2</string>
+				 <string>TerminalBlock/NPS_Rudder_Small_OffsetLeftV2</string>
+				 <string>TerminalBlock/NPS_Rudder_Small_OffsetRightV2</string>
 				 <!-- Driveshafts -->
-				 <string>CubeBlock/NPSDrivetrainDriveshaft</string>
-				 <string>CubeBlock/NPSDrivetrainDriveshaftMarked</string>
-				 <string>CubeBlock/NPSDrivetrainDriveshaftLong</string>
-				 <string>CubeBlock/NPSDrivetrainDriveshaftLongMarked</string>
+				 <string>CubeBlock/NPS_Driveshaft</string>
+				 <string>CubeBlock/NPS_Driveshaft_Marked</string>
+				 <string>CubeBlock/NPS_Driveshaft_Long</string>
+				 <string>CubeBlock/NPS_Driveshaft_Long_Marked</string>
 				<!-- Shaft tubes -->
-				<string>CubeBlock/NPSDrivetrainLinearGearbox1</string>
-				<string>CubeBlock/NPSDrivetrainLinearGearbox2</string>
-				<string>CubeBlock/NPSDrivetrainTubeSealEnclosed1</string>
-				<string>CubeBlock/NPSDrivetrainTubeSealSlope1</string>
-				<string>CubeBlock/NPSDrivetrainTubeSealSlope1Corner</string>
-				<string>CubeBlock/NPSDrivetrainTubeSealSlope2</string>
-				<string>CubeBlock/NPSDrivetrainTubeSealSlope2Corner</string>
-				<string>CubeBlock/NPSDrivetrainEndTubeV1</string>
+				<string>CubeBlock/NPS_Driveshaft_LinearGearbox1</string>
+				<string>CubeBlock/NPS_Driveshaft_LinearGearbox2</string>
+				<string>CubeBlock/NPS_Driveshaft_TubeSealEnclosed1</string>
+				<string>CubeBlock/NPS_Driveshaft_TubeSealSlope1</string>
+				<string>CubeBlock/NPS_Driveshaft_TubeSealSlope1Corner</string>
+				<string>CubeBlock/NPS_Driveshaft_TubeSealSlope2</string>
+				<string>CubeBlock/NPS_Driveshaft_TubeSealSlope2Corner</string>
+				<string>CubeBlock/NPS_Driveshaft_EndTubeV1</string>
 				<!-- Pylons -->
 				 <string>CubeBlock/NPSDrivetrainEndTubePylonVertical</string>
 				 <string>CubeBlock/NPSDrivetrainEndTubePylonVerticalSlope1</string>
 				 <string>CubeBlock/NPSDrivetrainEndTubePylonVerticalSlope2Base</string>
 				 <string>CubeBlock/NPSDrivetrainEndTubePylonVerticalSlope2Tip</string>
 				<!-- Propellers -->
-				 <string>TerminalBlock/NPSDrivetrainProp34</string>
-				 <string>TerminalBlock/NPSDrivetrainProp44</string>
-				 <string>TerminalBlock/NPSDrivetrainProp54</string>
+				 <string>TerminalBlock/NPS_Propeller_4m3b</string>
+				 <string>TerminalBlock/NPS_Propeller_4m4b</string>
+				 <string>TerminalBlock/NPS_Propeller_4m5b</string>
 				 <!-- Fuel Tanks -->
 				 <string>OxygenTank/LargeDieselTank</string>
 				 <string>OxygenTank/LargeDieselTankSmall</string>

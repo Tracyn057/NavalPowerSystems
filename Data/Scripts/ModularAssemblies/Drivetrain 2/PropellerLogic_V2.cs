@@ -20,7 +20,9 @@ using VRageMath;
 namespace NavalPowerSystems.Drivetrain_V2
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_FunctionalBlock), false,
-            "placeholder"
+            "NPS_Propeller_4m3b",
+            "NPS_Propeller_4m4b",
+            "NPS_Propeller_4m5b"
     )]
     public class PropellerLogic_V2 : MyGameLogicComponent
     {

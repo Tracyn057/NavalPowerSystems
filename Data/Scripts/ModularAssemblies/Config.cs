@@ -33,10 +33,7 @@ namespace NavalPowerSystems
             "NPS_Turbine_LM2500",
             "NPS_Turbine_LM2500Plus",
             "NPS_Turbine_LM2500PlusG4",
-            "NPS_Turbine_MT30",
-            "NPSDieselEngine500KW",
-            "NPSDieselEngine15MW",
-            "NPSDieselEngine25MW"
+            "NPS_Turbine_MT30"
         };
 
         public static readonly HashSet<string> MotorSubtypes = new HashSet<string>
@@ -46,44 +43,41 @@ namespace NavalPowerSystems
 
         public static readonly HashSet<string> PropellerSubtypes = new HashSet<string>
         {
-            "NPSDrivetrainProp34",
-            "NPSDrivetrainProp44",
-            "NPSDrivetrainProp54",
-            "NPSDrivetrainProp38",
-            "NPSDrivetrainProp48",
-            "NPSDrivetrainProp58"
+            "NPS_Propeller_4m3b",
+            "NPS_Propeller_4m4b",
+            "NPS_Propeller_4m5b"
         };
 
         public static readonly HashSet<string> DriveshaftSubtypes = new HashSet<string>
         {
-            "NPSDrivetrainDriveshaft",
-            "NPSDrivetrainDriveshaftMarked",
-            "NPSDrivetrainDriveshaftLong",
-            "NPSDrivetrainDriveshaftLongMarked",
-            "NPSDrivetrainLinearGearbox1",
-            "NPSDrivetrainLinearGearbox2",
-            "NPSDrivetrainTubeSealEnclosed1",
-            "NPSDrivetrainTubeSealSlope1",
-            "NPSDrivetrainTubeSealSlope1Corner",
-            "NPSDrivetrainTubeSealSlope2",
-            "NPSDrivetrainTubeSealSlope2Corner",
-            "NPSDrivetrainEndTubeV1",
+            "NPS_Driveshaft",
+            "NPS_Driveshaft_Marked",
+            "NPS_Driveshaft_Long",
+            "NPS_Driveshaft_Long_Marked",
+            "NPS_Driveshaft_LinearGearbox1",
+            "NPS_Driveshaft_LinearGearbox2",
+            "NPS_Driveshaft_TubeSealEnclosed1",
+            "NPS_Driveshaft_TubeSealSlope1",
+            "NPS_Driveshaft_TubeSealSlope1Corner",
+            "NPS_Driveshaft_TubeSealSlope2",
+            "NPS_Driveshaft_TubeSealSlope2Corner",
+            "NPS_Driveshaft_EndTubeV1"
         };
 
         public static readonly HashSet<string> GearboxSubtypes = new HashSet<string>
         {
-            "NPSDrivetrainMRG",
-            "NPSGearbox_DoublePlanetary"
+            "NPS_Gearbox_MRG",
+            "NPS_Gearbox_DoublePlanetary"
         };
 
         public static readonly HashSet<string> RudderSubtypes = new HashSet<string>
         {
-            "NPSDrivetrainRudderSmallCenteredV1",
-            "NPSDrivetrainRudderSmallOffsetLeftV1",
-            "NPSDrivetrainRudderSmallOffsetRightV1",
-            "NPSDrivetrainRudderSmallCenteredV2",
-            "NPSDrivetrainRudderSmallOffsetLeftV2",
-            "NPSDrivetrainRudderSmallOffsetRightV2"
+            "NPS_Rudder_Small_CenteredV1",
+            "NPS_Rudder_Small_OffsetLeftV1",
+            "NPS_Rudder_Small_OffsetRightV1",
+            "NPS_Rudder_Small_CenteredV2",
+            "NPS_Rudder_Small_OffsetLeftV2",
+            "NPS_Rudder_Small_OffsetRightV2"
         };
 
         public static readonly HashSet<string> TransformerSubtypes = new HashSet<string>
@@ -101,36 +95,7 @@ namespace NavalPowerSystems
             
         };
 
-        //Component stats definition
-        public enum EngineType { Diesel, GasTurbine, SteamTurbine, Electric }
-        public struct EfficiencyPoint
-        {
-            public float Throttle;
-            public float Multiplier;
-
-            public EfficiencyPoint(float t, float m)
-            {
-                Throttle = t;
-                Multiplier = m;
-            }
-        }
-
-        //Engine stats assignment
-        public static readonly Dictionary<string, EngineStats> EngineSettings = new Dictionary<string, EngineStats>
-        {
-            //Gas Turbines
-            {"NPS_Turbine_MT7", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 5, RequiredReduction = 2, FuelRate = 260f, SpoolTime = 36 } },
-            {"NPS_Turbine_LM2500", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 25, RequiredReduction = 2, FuelRate = 227f, SpoolTime = 40 } },
-            {"NPS_Turbine_LM2500Plus", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 30, RequiredReduction = 2, FuelRate = 215f, SpoolTime = 40 } },
-            {"NPS_Turbine_LM2500PlusG4", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 35, RequiredReduction = 2, FuelRate = 214f, SpoolTime = 40 } },
-            {"NPS_Turbine_MT30", new EngineStats { Type = EngineType.GasTurbine, MaxMW = 40, RequiredReduction = 2, FuelRate = 207f, SpoolTime = 44 } },
-            //Internal Combustion Diesel
-            {"NPSDieselEngine500KW", new EngineStats { Type = EngineType.Diesel, MaxMW = 0.5f, RequiredReduction = 1, FuelRate = 3.75f, SpoolTime = 4f } },
-            {"NPSDieselEngine15MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 1.5f, RequiredReduction = 1, FuelRate = 11.25f, SpoolTime = 6f } },
-            {"NPSDieselEngine25MW", new EngineStats { Type = EngineType.Diesel, MaxMW = 2.5f, RequiredReduction = 1, FuelRate = 18.75f, SpoolTime = 8f } },
-        };
-
-        
+        //Component stats definition   
 
         public static readonly Dictionary<string, SteamTurbineStats> SteamTurbineSettings = new Dictionary<string, SteamTurbineStats>
         {
@@ -153,22 +118,6 @@ namespace NavalPowerSystems
             {"NPSBoilerKampon", new BoilerStats { OperatingBar = 39.4f, OperatingTemp = 673.2f, MassFlow = 0.3889f, FuelFlow = 0.0264f, ThermalMass = 243000f, Capacity = 4633f } },
         };
 
-        public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
-        {
-            {"NPSDrivetrainProp34", new PropellerStats { MaxMW = 3.5f, SpoolTime = 20f } },
-            {"NPSDrivetrainProp44", new PropellerStats { MaxMW = 4.6f, SpoolTime = 22f } },
-            {"NPSDrivetrainProp54", new PropellerStats { MaxMW = 5.4f, SpoolTime = 24f } },
-            {"NPSDrivetrainProp38", new PropellerStats { MaxMW = 3.5f, SpoolTime = 32f } },
-            {"NPSDrivetrainProp48", new PropellerStats { MaxMW = 4.6f, SpoolTime = 36f } },
-            {"NPSDrivetrainProp58", new PropellerStats { MaxMW = 5.4f, SpoolTime = 40f } },
-        };
-
-        public static readonly Dictionary<string, GearboxStats> GearboxSettings = new Dictionary<string, GearboxStats>
-        {
-            {"NPSDrivetrainMRG", new GearboxStats { ReductionLevel = 2, IsClutched = true } },
-            {"NPSGearbox_DoublePlanetary", new GearboxStats { ReductionLevel = 2, IsClutched = true } },
-        };
-
         public static readonly float[,] EnthalpyTable = new float[5, 5] {
             { 2733, 0, 0, 0, 0 },           // 400K
             { 2926, 2883, 2828, 0, 0 },      // 500K
@@ -176,22 +125,6 @@ namespace NavalPowerSystems
             { 3224, 3211, 3197, 3167, 3134 },// 700K
             { 3448, 3440, 3432, 3415, 3397 } // 800K
         };
-    }
-
-    public class EngineStats
-    {
-        public EngineType Type;
-        public float MaxMW;         //Soft cap max output power - Mechanical only
-        public int RequiredReduction; //Required level of reduction to not damage propeller
-        public float FuelRate;      //Fuel consumption at max output in grams per kilowatt-hour
-        public float SpoolTime;       //How fast the engine responds to throttle changes at low throttle
-        public int StartupTicks;    //Number of ticks to go from stopped to running
-    }
-
-    public static class EngineFuelConfigs
-    {
-        public static readonly FuelCurve DieselCurve = new FuelCurve(0.15f, 0.75f, 0.10f);
-        public static readonly FuelCurve TurbineCurve = new FuelCurve(0.4f, 0.1f, 0.25f);
     }
 
     public class SteamTurbineStats
@@ -208,33 +141,5 @@ namespace NavalPowerSystems
         public float FuelFlow; //Max fuel flow in liters/tick
         public float ThermalMass;   //Thermal mass of the boiler, affecting how quickly it heats up and cools down
         public float Capacity;  //Water capacity in liters. Internal use to not read from SBC
-    }
-
-    public class PropellerStats
-    {
-        public float MaxMW;         //Soft cap max input power
-        public float SpoolTime;       //Amount of time it takes to change output
-    }
-
-    public class GearboxStats
-    {
-        public int ReductionLevel;       //Number of reduction steps
-        public bool IsClutched;           //Whether or not the gearbox has a clutch, allowing it to disconnect the engine from the drivetrain
-    }
-
-    public struct FuelCurve
-    {
-        public float A;
-        public float B;
-        public float C;
-
-        public FuelCurve(float a, float b, float c)
-        {
-            A = a;
-            B = b;
-            C = c;
-        }
-
-        public float Evaluate(float x) => (A * x * x) + (B * x) + C;
     }
 }
