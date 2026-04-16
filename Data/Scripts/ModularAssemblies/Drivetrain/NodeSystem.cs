@@ -150,32 +150,44 @@ namespace NavalPowerSystems.Drivetrain_V2
                 this.InputLoad += brakeTorque / GearRatio; //Add brake torque to load, which will reduce engine
             }
 
-            if (GearboxNodesTowardsEngines.Count > 0 && ConnectedEngineNodes.Count > 0)
+            var activeEngines = 0;
+            var activeGearboxes = 0;
+
+            if (ConnectedEngineNodes.Count > 0)
             {
-                InputLoad = InputLoad / (GearboxNodesTowardsEngines.Count + ConnectedEngineNodes.Count); //Split load between multiple upstream gearboxes and engines
+                foreach (var engine in ConnectedEngineNodes)
+                {
+                    activeEngines += engine.ClutchEngagement > 0 ? 1 : 0;
+                }
             }
-             else if (GearboxNodesTowardsEngines.Count > 0)
+            if (GearboxNodesTowardsEngines.Count > 0)
             {
-                InputLoad = InputLoad / GearboxNodesTowardsEngines.Count; //Split load between multiple upstream gearboxes
+                foreach (var gearbox in GearboxNodesTowardsEngines)
+                {
+                    activeGearboxes += 1;
+                }
             }
-            else if (ConnectedEngineNodes.Count > 0)
-            {
-                InputLoad = InputLoad / ConnectedEngineNodes.Count; //Split load between multiple engines
-            }
+
+            var totalConnections = Math.Max(1, activeEngines + activeGearboxes);
+            var loadPerConnection = InputLoad / totalConnections;
 
             //Pass it on towards the engines or upstream gearboxes
             if (GearboxNodesTowardsEngines.Count > 0)
             {
                 foreach (var gearbox in GearboxNodesTowardsEngines)
                 {
-                    gearbox.CalculateLoad(InputLoad, InputRPM);
+                    gearbox.CalculateLoad(loadPerConnection, InputRPM);
                 }
             }
             if (ConnectedEngineNodes.Count > 0)
             {
                 foreach (var engine in ConnectedEngineNodes)
                 {
-                    engine.CalculateLoad(InputLoad, InputRPM);
+                    if (engine.ClutchLocked || engine.ClutchEngagement == 0) continue; 
+                    if (engine.ClutchEngagement > 0 && engine.ClutchEngagement < 1)
+                        engine.CalculateLoad(loadPerConnection * engine.ClutchEngagement, InputRPM);
+                    else 
+                        engine.CalculateLoad(loadPerConnection, InputRPM);
                 }
             }
         }
@@ -187,7 +199,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             double totalInputTorque = 0;
 
             //Clutch logic.
-            if (ConnectedEngineNodes.Count > 0)
+            if (ConnectedEngineNodes.Count > 1)
             {
                 double targetSyncRPM = this.InputRPM * GearRatio;
                 foreach (var engine in ConnectedEngineNodes)
@@ -206,6 +218,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                     engineInputTorque += engine.OutputTorque * engine.ClutchEngagement;
                 }
             }
+
             //Collect from upstream gearboxes
             if (GearboxNodesTowardsEngines.Count > 0)
             {

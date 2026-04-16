@@ -54,12 +54,16 @@ namespace NavalPowerSystems.Drivetrain_V2
         private bool SinkInitialized = false;
         private MyResourceSinkComponent SinkFuel;
         private MyResourceSinkComponent SinkO2;
+        private bool ClutchLocked = true;
+
+        private IMyShipController EngineShipController;
+        private MyCubeGrid EngineMyGrid;
 
         //Terminal and sync variables
         MySync<float, SyncDirection.BothWays> Terminal_Throttle;
         MySync<int, SyncDirection.BothWays> Terminal_ThrottleIndex;
         MySync<bool, SyncDirection.BothWays> Terminal_KeepThrottle;
-        MySync<bool, SyncDirection.BothWays> Terminal_ClutchEngaged;
+        MySync<bool, SyncDirection.BothWays> Terminal_ClutchLocked;
         MySync<bool, SyncDirection.FromServer> Sync_HasFuel;
 
         //Start machine state variables
@@ -71,10 +75,6 @@ namespace NavalPowerSystems.Drivetrain_V2
             Running,
             Stopping
         }
-
-        //Storage container for GearboxNode.
-        public bool ClutchEngaged = false; 
-        public bool ClutchLockOverride = true;
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -184,8 +184,8 @@ namespace NavalPowerSystems.Drivetrain_V2
             Terminal_KeepThrottle.SetLocalValue(KeepThrottle);
             Terminal_KeepThrottle.ValueChanged += Terminal_KeepThrottle_ValueChanged;
 
-            Terminal_ClutchEngaged.SetLocalValue(ClutchEngaged);
-            Terminal_ClutchEngaged.ValueChanged += Terminal_ClutchEngaged_ValueChanged;
+            Terminal_ClutchLocked.SetLocalValue(ClutchLocked);
+            Terminal_ClutchLocked.ValueChanged += Terminal_ClutchLocked_ValueChanged;
 
             Sync_HasFuel.SetLocalValue(HasFuel);
             Sync_HasFuel.ValueChanged += Sync_HasFuel_ValueChanged;
@@ -235,9 +235,11 @@ namespace NavalPowerSystems.Drivetrain_V2
             SaveEngineState(EngineTerminal);
         }
 
-        private void Terminal_ClutchEngaged_ValueChanged(MySync<bool, SyncDirection.BothWays> obj)
+        private void Terminal_ClutchLocked_ValueChanged(MySync<bool, SyncDirection.BothWays> obj)
         {
-            ClutchEngaged = obj.Value;
+            ClutchLocked = obj.Value;
+            if (EngineNode != null)
+                EngineNode.ClutchLocked = obj.Value;
             UpdateControls();
             SaveEngineState(EngineTerminal);
         }
@@ -254,11 +256,9 @@ namespace NavalPowerSystems.Drivetrain_V2
             if (EngineBlock == null || EngineCube == null)
                 return;
 
+            RecalculateController();
+            GetThrustInput();
             UpdateEngineState();
-            if (EngineBlock.IsWorking && (CurrentState != EngineState.Off || CurrentState != EngineState.Starting))
-            {
-                UpdateClutchState();
-            }
 
             //UpdateSoundEffects(); //TODO: Implement sound effects based on engine state and RPM
 
@@ -288,6 +288,45 @@ namespace NavalPowerSystems.Drivetrain_V2
                 Sync_HasFuel.ValidateAndSet(HasFuel);
         }
 
+        private void GetThrustInput()
+        {
+            if (!KeepThrottle) return;
+            var throttleStep = 0.025f;
+            var moveIndicator = Math.Clamp(-EngineShipController?.MoveIndicator.Z ?? 0f, -1f, 1f);
+            if (Math.Abs(moveIndicator) < 0.01f)
+                moveIndicator = 0f;
+            if (moveIndicator > 0.1f)
+            {
+                Terminal_Throttle.Value = Math.Min(Terminal_Throttle.Value + throttleStep, 1.25f);
+            }
+            else if (moveIndicator < -0.1f)
+            {
+                Terminal_Throttle.Value = Math.Max(Terminal_Throttle.Value - throttleStep, 0f);
+            }
+            else if (moveIndicator == 0)
+            {
+                //Gradually return to zero when no input is given
+                if (Terminal_Throttle.Value > 0.01f)
+                    Terminal_Throttle.Value = Math.Max(Terminal_Throttle.Value - throttleStep, 0f);
+                else if (Terminal_Throttle.Value < -0.01f)
+                    Terminal_Throttle.Value = Math.Min(Terminal_Throttle.Value + throttleStep, 0f);
+                else
+                    Terminal_Throttle.Value = 0f;
+            }
+        }
+
+        public void RecalculateController()
+        {
+            if (EngineShipController == null || !EngineShipController.IsWorking || !EngineShipController.IsMainCockpit)
+            {
+                var player = MyAPIGateway.Players.GetPlayerControllingEntity(EngineMyGrid);
+                EngineShipController = null;
+
+                if (player?.Controller?.ControlledEntity != null)
+                    EngineShipController = player.Controller.ControlledEntity as IMyShipController;
+            }
+        }
+
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder info)
         {
             info.AppendLine($"Status: {CurrentStatus}");
@@ -303,16 +342,16 @@ namespace NavalPowerSystems.Drivetrain_V2
             ControlsInitialized = true;
 
             {
-                var Control_ClutchEngaged = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyTerminalBlock>("NPS_Engine_TerminalControl_ClutchEngaged");
-                Control_ClutchEngaged.Title = MyStringId.GetOrCompute("Clutch Lockout");
-                Control_ClutchEngaged.Tooltip = MyStringId.GetOrCompute("Enables or Disables automatic clutch engagement.");
-                Control_ClutchEngaged.Visible = ClutchVisible;
-                Control_ClutchEngaged.SupportsMultipleBlocks = true;
-                Control_ClutchEngaged.OnText = MySpaceTexts.SwitchText_On;
-                Control_ClutchEngaged.OffText = MySpaceTexts.SwitchText_Off;
-                Control_ClutchEngaged.Getter = Control_Terminal_ClutchEngaged_Getter;
-                Control_ClutchEngaged.Setter = Control_Terminal_ClutchEngaged_Setter;
-                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_ClutchEngaged);
+                var Control_ClutchLocked = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyTerminalBlock>("NPS_Engine_TerminalControl_ClutchLocked");
+                Control_ClutchLocked.Title = MyStringId.GetOrCompute("Clutch Lockout");
+                Control_ClutchLocked.Tooltip = MyStringId.GetOrCompute("Enables or Disables automatic clutch engagement.");
+                Control_ClutchLocked.Visible = Control_Clutch_Visible;
+                Control_ClutchLocked.SupportsMultipleBlocks = true;
+                Control_ClutchLocked.OnText = MySpaceTexts.SwitchText_On;
+                Control_ClutchLocked.OffText = MySpaceTexts.SwitchText_Off;
+                Control_ClutchLocked.Getter = Control_Terminal_ClutchLocked_Getter;
+                Control_ClutchLocked.Setter = Control_Terminal_ClutchLocked_Setter;
+                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_ClutchLocked);
             }
 
             {
@@ -377,6 +416,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             {
                 switch (control.Id)
                 {
+                    case "NPS_Engine_TerminalControl_ClutchLocked":
                     case "NPS_Engine_TerminalControl_KeepThrottle":
                     case "NPS_Engine_TerminalControl_Throttle":
                     case "NPS_Engine_TerminalControl_ThrottleIndex":
@@ -469,30 +509,11 @@ namespace NavalPowerSystems.Drivetrain_V2
             }
         }
 
-        private void UpdateClutchState()
-        {
-            if (EngineNode == null) return;
-
-            double shaftRPM = EngineNode.OutputRPM;
-            double engineRPM = EngineNode.CurrentRPM;
-
-            if (!ClutchEngaged && engineRPM > (shaftRPM * 0.95) && engineRPM < (shaftRPM * 1.05))
-            {
-                ClutchEngaged = true;
-                SaveEngineState(EngineTerminal);
-            }
-            else if (ClutchEngaged && engineRPM < (shaftRPM * 0.95) || engineRPM > (shaftRPM * 1.05))
-            {
-                ClutchEngaged = false;
-                SaveEngineState(EngineTerminal);
-            }
-        }
-
         private void LoadSavedProperties()
         {
             EngineBlock.Enabled = ModularApi.GetAssemblyProperty<bool>(AssemblyId, EngineBlock.EntityId+"Enabled");
             CurrentState = ModularApi.GetAssemblyProperty<EngineState>(AssemblyId, EngineBlock.EntityId+"EngineState");
-            ClutchEngaged = ModularApi.GetAssemblyProperty<bool>(AssemblyId, EngineBlock.EntityId+"ClutchEngaged");
+            ClutchLocked = ModularApi.GetAssemblyProperty<bool>(AssemblyId, EngineBlock.EntityId+"ClutchLocked");
             RequestedThrottle = ModularApi.GetAssemblyProperty<float>(AssemblyId, EngineBlock.EntityId+"RequestedThrottle");
             RequestedThrottleIndex = ModularApi.GetAssemblyProperty<int>(AssemblyId, EngineBlock.EntityId+"RequestedThrottleIndex");
             CurrentRPM = ModularApi.GetAssemblyProperty<double>(AssemblyId, EngineBlock.EntityId+"CurrentRPM");
@@ -502,7 +523,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         {
             ModularApi.SetAssemblyProperty<bool>(AssemblyId, EngineBlock.EntityId+"Enabled", EngineBlock.Enabled);
             ModularApi.SetAssemblyProperty<EngineState>(AssemblyId, EngineBlock.EntityId+"EngineState", CurrentState);
-            ModularApi.SetAssemblyProperty<bool>(AssemblyId, EngineBlock.EntityId+"ClutchEngaged", ClutchEngaged);
+            ModularApi.SetAssemblyProperty<bool>(AssemblyId, EngineBlock.EntityId+"ClutchLocked", ClutchLocked);
             ModularApi.SetAssemblyProperty<float>(AssemblyId, EngineBlock.EntityId+"RequestedThrottle", RequestedThrottle);
             ModularApi.SetAssemblyProperty<int>(AssemblyId, EngineBlock.EntityId+"RequestedThrottleIndex", RequestedThrottleIndex);
             ModularApi.SetAssemblyProperty<double>(AssemblyId, EngineBlock.EntityId+"CurrentRPM", CurrentRPM);
@@ -516,10 +537,29 @@ namespace NavalPowerSystems.Drivetrain_V2
             return GetLogic(engine) != null;
         }
 
+        static bool Control_Clutch_Visible(IMyTerminalBlock engine)
+        {
+            var logic = GetLogic(engine);
+            return logic != null && logic.ConnectedGearbox != null;
+        }
+
+        static bool Control_Terminal_ClutchLocked_Getter(IMyTerminalBlock engine)
+        {
+            var logic = GetLogic(engine);
+            return logic == null ? false : logic.Terminal_ClutchLocked;
+        }
+
+        static void Control_Terminal_ClutchLocked_Setter(IMyTerminalBlock engine, bool value)
+        {
+            var logic = GetLogic(engine);
+            if (logic != null)
+                logic.Terminal_ClutchLocked.ValidateAndSet(value);
+        }
+
         static bool Control_Terminal_KeepThrottle_Getter(IMyTerminalBlock engine)
         {
             var logic = GetLogic(engine);
-            return (logic == null ? false : logic.Terminal_KeepThrottle);
+            return logic == null ? false : logic.Terminal_KeepThrottle;
         }
 
         static void Control_Terminal_KeepThrottle_Setter(IMyTerminalBlock engine, bool value)
@@ -539,7 +579,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         static float Control_Terminal_Throttle_Getter(IMyTerminalBlock engine)
         {
             var logic = GetLogic(engine);
-            return (logic == null ? 0.01f : logic.Terminal_Throttle);
+            return logic == null ? 0.01f : logic.Terminal_Throttle;
         }
 
         static void Control_Terminal_Throttle_Setter(IMyTerminalBlock engine, float value)
@@ -559,7 +599,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         static long Control_Terminal_ThrottleIndex_Getter(IMyTerminalBlock engine)
         {
             var logic = GetLogic(engine);
-            return (logic == null ? 0 : logic.Terminal_ThrottleIndex.Value);
+            return logic == null ? 0 : logic.Terminal_ThrottleIndex.Value;
         }
 
         static void Control_Terminal_ThrottleIndex_Setter(IMyTerminalBlock engine, long value)

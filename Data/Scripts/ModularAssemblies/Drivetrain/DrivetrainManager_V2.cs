@@ -16,6 +16,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         public IEnumerable<DrivetrainSystem_V2> GetAssemblies => DrivetrainSystems.Values;
         private Dictionary<int, DrivetrainSystem_V2> DrivetrainSystems = new Dictionary<int, DrivetrainSystem_V2>();
+        private Dictionary<IMyCubeGrid, NavalGridManager> GridManagers = new Dictionary<IMyCubeGrid, NavalGridManager>();
 
 
 
