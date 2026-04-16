@@ -5,7 +5,7 @@ https://www.linquip.com/industrial-directories/21/marine-gas-turbine
 
 
 
-Idustrial Overhaul Oil Figures:
+Idustrial Overhaul Oil Figures (Items):
 > 100 Oil Sand
 |
 -> 50 Crude Oil (50%)
@@ -14,6 +14,17 @@ Idustrial Overhaul Oil Figures:
 --> 5 Carbon (10%)
 --> 7.5 Sulfur (15%)
 --> 15 Polymer (30%)
+
+(Gasses)
+Fuel Oil
+-> 0.8 Gasoline
+-> 0.5 Rocket Fuel
+
+
+BlackGold Yields:
+Oil Derrick (Land): 40 l/s Crude Oil
+Well Head (Ocean): 100 l/s Crude Oil
+
 
 
 Phase 1 Release:

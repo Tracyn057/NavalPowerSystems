@@ -59,6 +59,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         MySync<float, SyncDirection.BothWays> Terminal_Throttle;
         MySync<int, SyncDirection.BothWays> Terminal_ThrottleIndex;
         MySync<bool, SyncDirection.BothWays> Terminal_KeepThrottle;
+        MySync<bool, SyncDirection.BothWays> Terminal_ClutchEngaged;
         MySync<bool, SyncDirection.FromServer> Sync_HasFuel;
 
         //Start machine state variables
@@ -183,6 +184,9 @@ namespace NavalPowerSystems.Drivetrain_V2
             Terminal_KeepThrottle.SetLocalValue(KeepThrottle);
             Terminal_KeepThrottle.ValueChanged += Terminal_KeepThrottle_ValueChanged;
 
+            Terminal_ClutchEngaged.SetLocalValue(ClutchEngaged);
+            Terminal_ClutchEngaged.ValueChanged += Terminal_ClutchEngaged_ValueChanged;
+
             Sync_HasFuel.SetLocalValue(HasFuel);
             Sync_HasFuel.ValueChanged += Sync_HasFuel_ValueChanged;
         }
@@ -227,6 +231,13 @@ namespace NavalPowerSystems.Drivetrain_V2
         private void Terminal_KeepThrottle_ValueChanged(MySync<bool, SyncDirection.BothWays> obj)
         {
             KeepThrottle = obj.Value;
+            UpdateControls();
+            SaveEngineState(EngineTerminal);
+        }
+
+        private void Terminal_ClutchEngaged_ValueChanged(MySync<bool, SyncDirection.BothWays> obj)
+        {
+            ClutchEngaged = obj.Value;
             UpdateControls();
             SaveEngineState(EngineTerminal);
         }
@@ -292,8 +303,21 @@ namespace NavalPowerSystems.Drivetrain_V2
             ControlsInitialized = true;
 
             {
+                var Control_ClutchEngaged = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyTerminalBlock>("NPS_Engine_TerminalControl_ClutchEngaged");
+                Control_ClutchEngaged.Title = MyStringId.GetOrCompute("Clutch Lockout");
+                Control_ClutchEngaged.Tooltip = MyStringId.GetOrCompute("Enables or Disables automatic clutch engagement.");
+                Control_ClutchEngaged.Visible = ClutchVisible;
+                Control_ClutchEngaged.SupportsMultipleBlocks = true;
+                Control_ClutchEngaged.OnText = MySpaceTexts.SwitchText_On;
+                Control_ClutchEngaged.OffText = MySpaceTexts.SwitchText_Off;
+                Control_ClutchEngaged.Getter = Control_Terminal_ClutchEngaged_Getter;
+                Control_ClutchEngaged.Setter = Control_Terminal_ClutchEngaged_Setter;
+                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_ClutchEngaged);
+            }
+
+            {
                 var Control_KeepThrottle = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlOnOffSwitch, IMyFunctionalBlock>("NPS_Engine_TerminalControl_KeepThrottle");
-                Control_KeepThrottle. Title = MyStringId.GetOrCompute("Keep Throttle");
+                Control_KeepThrottle.Title = MyStringId.GetOrCompute("Keep Throttle");
                 Control_KeepThrottle.Tooltip = MyStringId.GetOrCompute("Currently Unfinished");
                 Control_KeepThrottle.Visible = Control_Visible;
                 Control_KeepThrottle.SupportsMultipleBlocks = true;

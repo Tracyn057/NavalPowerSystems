@@ -42,8 +42,8 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public static readonly Dictionary<string, GearboxStats_V2> GearboxSettings_V2 = new Dictionary<string, GearboxStats_V2>
         {
-            {"NPS_Gearbox_MRG", new GearboxStats_V2 { GearRatio = 10f, HasShaftBrake = true, MaxBrakeTorque = 2000000 } },
-            {"NPS_Gearbox_DoublePlanetary", new GearboxStats_V2 { GearRatio = 10f, HasShaftBrake = true, MaxBrakeTorque = 750000 } },
+            {"NPS_Gearbox_MRG", new GearboxStats_V2 { GearRatio = 10f, MaxBrakeTorque = 2000000 } },
+            {"NPS_Gearbox_DoublePlanetary", new GearboxStats_V2 { GearRatio = 10f, MaxBrakeTorque = 750000 } },
         };
 
         public static readonly Dictionary<string, ShaftStats_V2> ShaftSettings_V2 = new Dictionary<string, ShaftStats_V2>
@@ -100,7 +100,6 @@ namespace NavalPowerSystems.Drivetrain_V2
     public class GearboxStats_V2
     {
         public float GearRatio; //Obvious
-        public bool HasShaftBrake; // Whether the gearbox has a shaft brake, which can hold the output shaft stationary when the engine is running. Affects logic for applying brake force and calculating response.
         public double MaxBrakeTorque; // Maximum torque the shaft brake can hold, used for calculating how much braking force to apply based on engine output and current load. Should be set based on the strength of the brake components and the expected loads in the system.
     }
 

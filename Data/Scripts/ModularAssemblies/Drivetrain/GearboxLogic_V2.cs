@@ -1,5 +1,7 @@
-﻿using Sandbox.Game.Entities;
+﻿using NuGet.Packaging;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,9 @@ using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
+using VRage.Utils;
 using VRageMath;
+using VRageRender.Utils;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
@@ -26,6 +30,11 @@ namespace NavalPowerSystems.Drivetrain_V2
         public IMyTerminalBlock GearboxTerminal;
         public GearboxStats_V2 GearboxStats;
         public GearboxNode GearboxNode;
+
+        public HashSet<EngineNode> ConnectedEngineNodes = new HashSet<EngineNode>();
+        public HashSet<GearboxNode> GearboxNodesTowardsEngines = new HashSet<GearboxNode>();
+        public HashSet<GearboxNode> GearboxNodesTowardsPropellers = new HashSet<GearboxNode>();
+        public HashSet<PropellerNode> ConnectedPropellerNodes = new HashSet<PropellerNode>();
 
         //Animation Information
         public bool ShaftListDirty = true;
@@ -46,7 +55,6 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
-            base.Init(objectBuilder);
             GearboxFunctional = (IMyFunctionalBlock)Entity;
             GearboxBlock = (MyCubeBlock)Entity;
             GearboxTerminal = (IMyTerminalBlock)Entity;
@@ -54,19 +62,29 @@ namespace NavalPowerSystems.Drivetrain_V2
             NeedsUpdate =
                 MyEntityUpdateEnum.BEFORE_NEXT_FRAME
                 | MyEntityUpdateEnum.EACH_100TH_FRAME;
+
+
         }
 
         public override void UpdateOnceBeforeFrame()
         {
-            
+            GearboxStats = Drivetrain_Config.GearboxSettings_V2[GearboxBlock.BlockDefinition.SubtypeId];
 
+            if (!ControlsInitialized)
+                CreateControls();
+            if (!ActionsInitialized)
+                CreateActions();
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override void UpdateBeforeSimulation()
         {
             if (ShaftListDirty)
+            {
                 RebuildDriveshaftTree();
+                RebuildNodeLists();
+            }
+                
             UpdateAnimation();
         }
 
@@ -105,7 +123,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             DistanceToCamera = (float)dist;
         }
 
-        private void RebuildDriveshaftTree()
+        public void RebuildDriveshaftTree()
         {
             if (Driveshafts.Count == 0) return;
 
@@ -125,24 +143,59 @@ namespace NavalPowerSystems.Drivetrain_V2
             ShaftListDirty = false;
         }
 
+        public void RebuildNodeLists()
+        {
+            ConnectedEngineNodes.Clear();
+            GearboxNodesTowardsEngines.Clear();
+            GearboxNodesTowardsPropellers.Clear();
+            ConnectedPropellerNodes.Clear();
+
+            if (GearboxNode != null)
+            {
+                foreach (var engine in GearboxNode.ConnectedEngineNodes)
+                    ConnectedEngineNodes.Add(engine);
+                foreach (var box in GearboxNode.GearboxNodesTowardsEngines)
+                    GearboxNodesTowardsEngines.Add(box);
+                foreach (var box in GearboxNode.GearboxNodesTowardsPropellers)
+                    GearboxNodesTowardsPropellers.Add(box);
+                foreach (var prop in GearboxNode.ConnectedPropellerNodes)
+                    ConnectedPropellerNodes.Add(prop);
+            }
+        }
+
         private void CreateControls()
         {
-            if (ControlsInitialized)
-                return;
+            if (ControlsInitialized) return;
 
             ControlsInitialized = true;
 
-            //Clutch Lockout for each connected engine
+            {
+                
+            }
+
             //Shaft brake for each connected shaft
             //Reverse select
         }
 
         private void CreateActions()
         {
-            if (ActionsInitialized)
-                return;
+            if (ActionsInitialized) return;
 
             ActionsInitialized = true;
+        }
+
+        static GearboxLogic_V2 GetLogic(IMyTerminalBlock gearbox) =>
+                gearbox?.GameLogic?.GetAs<GearboxLogic_V2>();
+
+        static bool Control_ClutchLockout_Visible(IMyTerminalBlock gearbox)
+        {
+            return GetLogic(gearbox) != null;
+        }
+
+        static bool Control_ShaftBrake_Visible(IMyTerminalBlock gearbox)
+        {
+            var logic = GetLogic(gearbox);
+            return (logic == null ? false : logic.GearboxStats.MaxBrakeTorque > 0);
         }
     }
 }

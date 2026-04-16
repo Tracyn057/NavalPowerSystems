@@ -130,8 +130,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         public HashSet<GearboxNode> GearboxNodesTowardsPropellers = new HashSet<GearboxNode>();
         public HashSet<PropellerNode> ConnectedPropellerNodes = new HashSet<PropellerNode>();
         public double GearRatio;
-        public bool ShaftBrake { get; set; } = true; //Start with brake applied. Gearbox Logic will handle enable and disable.
-        public float BrakeEngagement { get; set; } = 0;
+        public float BrakeEngagement { get; set; } = 1f;
 
         public double InputLoad { get; set; }
         public double InputRPM { get; set; }
@@ -145,7 +144,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             this.InputRPM = downstreamRPM * GearRatio; //Increase RPM by gear ratio
             GearboxLogic.IncomingRPM = InputRPM;
 
-            if (ShaftBrake || BrakeEngagement > 0)
+            if (BrakeEngagement > 0f)
             {
                 var brakeTorque = BrakeEngagement * GearboxLogic.GearboxStats.MaxBrakeTorque; //Calculate brake torque based on engagement and max brake torque
                 this.InputLoad += brakeTorque / GearRatio; //Add brake torque to load, which will reduce engine
@@ -193,7 +192,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                 double targetSyncRPM = this.InputRPM * GearRatio;
                 foreach (var engine in ConnectedEngineNodes)
                 {
-                    if (!engine.EngineBlock.IsWorking || engine.ClutchLocked || ShaftBrake) continue;
+                    if (!engine.EngineBlock.IsWorking || engine.ClutchLocked) continue;
                     double rpmDifference = Math.Abs(engine.CurrentRPM - targetSyncRPM);
                     double engagementWindow = targetSyncRPM * 0.05; //RPM range within which clutch can engage
 
@@ -218,7 +217,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
             totalInputTorque = (engineInputTorque + gearboxInputTorque) * GearRatio; //Increase torque by gear ratio for output
 
-            if (ShaftBrake || BrakeEngagement > 0)
+            if (BrakeEngagement > 0f)
             {
                 var brakeTorque = BrakeEngagement * GearboxLogic.GearboxStats.MaxBrakeTorque; //Calculate brake torque based on engagement and max brake torque
                 totalInputTorque -= brakeTorque; //Add brake torque to total input torque, which will reduce output torque

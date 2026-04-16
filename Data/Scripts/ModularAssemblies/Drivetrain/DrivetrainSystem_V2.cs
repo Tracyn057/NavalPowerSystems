@@ -1,4 +1,6 @@
 ﻿using NavalPowerSystems.Communication;
+using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 using System.Collections.Generic;
 using System.Linq;
 using VRage.Game.ModAPI;
@@ -303,6 +305,19 @@ namespace NavalPowerSystems.Drivetrain_V2
 
             pathVisited.Remove(current);
             TraceComplete = true;
+            if (Gearboxes.Count > 0)
+            {
+                foreach (var box in Gearboxes)
+                {
+                    var terminal = box as IMyTerminalBlock;
+                    var logic = terminal.GameLogic.GetAs<GearboxLogic_V2>();
+                    if (logic != null)
+                    {
+                        logic.RebuildNodeLists();
+                        logic.RebuildDriveshaftTree();
+                    }
+                }
+            }
         }
 
         private bool IsValidNext(IMyCubeBlock from, IMyCubeBlock to)
