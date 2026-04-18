@@ -1,18 +1,20 @@
-using System.Collections.Generic;
+using System;
 using Sandbox.Game.Entities;
+using VRage.Game;
+using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRageMath;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
-    internal class NavalGridManager
+    public class NavalGridManager
     {
-        public IMyCubeGrid IGrid { get; private set; }
-        public MyCubeGrid Grid { get; private set; }
-        public float Update100Coefficient { get; private set; } = 1f;
-        private const float WaterDensity = 1024f; // kg/m^3
-        private const float Gravity = 9.81f; // m/s^2
-        private const float PhysicsStep = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS; // 1/60th of a second
+        public IMyCubeGrid IGrid;
+        public MyCubeGrid Grid;
+        public float Update100Coefficient = 1f;
+        private const float WaterDensity = 1024f;
+        private const float Gravity = 9.81f;
+        private const float PhysicsStep = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
 
         public NavalGridManager(IMyCubeGrid grid)
         {
@@ -20,19 +22,19 @@ namespace NavalPowerSystems.Drivetrain_V2
             Grid = grid as MyCubeGrid;
         }
 
-        public void Update()
+        public void UpdateTick()
         {
             if (Grid.Physics == null) return;
 
             float gridVelocity = Grid.Physics?.LinearVelocity.Length() ?? 0f;
             if (gridVelocity > 0.1f)
             {
-                float dragForce = Update100Coefficient * (gridVelocity * gridVelocity);
-                Grid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, -Grid.Physics.LinearVelocity * dragForce, null, null);
+                float dragForce = Update100Coefficient * (gridVelocity * gridVelocity) * -Math.Sign(gridVelocity);
+                Grid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, -Grid.Physics.LinearVelocity * dragForce, null, null);
             }
         }
 
-        public void Update100()
+        public void UpdateTick100()
         {
             if (Grid.Physics == null) return;
             Update100Coefficient = CalculateWaveCoefficient();
@@ -47,7 +49,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
             float hullLength = (Grid.Max.Z - Grid.Min.Z + 1) * Grid.GridSize;
             float frontArea = (Grid.Max.X - Grid.Min.X + 1) * (Grid.Max.Y - Grid.Min.Y + 1) * Grid.GridSize * Grid.GridSize;
-            float effectiveArea = frontArea * 0.5f; // Assume only half the front area contributes to wave drag, as a simplification
+            float effectiveArea = frontArea * 0.5f; // Assume only half the front area contributes to wave drag to avoid complex calculations
 
             float froude = velocityZ / (float)Math.Sqrt(Gravity * hullLength);
 

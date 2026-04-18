@@ -1,21 +1,13 @@
-﻿using NuGet.Packaging;
+﻿using NavalPowerSystems.Communication;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
-using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VRage.Game;
 using VRage.Game.Components;
-using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
-using VRage.Utils;
-using VRageMath;
-using VRageRender.Utils;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
@@ -25,33 +17,28 @@ namespace NavalPowerSystems.Drivetrain_V2
     )]
     public class GearboxLogic_V2 : MyGameLogicComponent
     {
-        public IMyCubeBlock GearboxBlock;
-        public IMyFunctionalBlock GearboxFunctional;
-        public IMyTerminalBlock GearboxTerminal;
-        public GearboxStats_V2 GearboxStats;
-        public GearboxNode GearboxNode;
+        private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
+        private IMyCubeBlock GearboxBlock;
+        private IMyFunctionalBlock GearboxFunctional;
+        private IMyTerminalBlock GearboxTerminal;
+        private GearboxStats_V2 GearboxStats;
+        private float BrakeEngagement = 1f;
 
-        public HashSet<EngineNode> ConnectedEngineNodes = new HashSet<EngineNode>();
-        public HashSet<GearboxNode> GearboxNodesTowardsEngines = new HashSet<GearboxNode>();
-        public HashSet<GearboxNode> GearboxNodesTowardsPropellers = new HashSet<GearboxNode>();
-        public HashSet<PropellerNode> ConnectedPropellerNodes = new HashSet<PropellerNode>();
-
-        //Animation Information
-        public bool ShaftListDirty = true;
-        public double IncomingRPM = 0;
-        public float CurrentAngle = 0f;
-        public bool AnimCCW = false;
-        public float DistanceToCamera = 0f;
-        public List<IMySlimBlock> Driveshafts = new List<IMySlimBlock>();
-        public Dictionary<MyEntitySubpart, Matrix> DriveshaftMatrices = new Dictionary<MyEntitySubpart, Matrix>();
+        private HashSet<IMyCubeBlock> ConnectedParts = new HashSet<IMyCubeBlock>();
+        private Dictionary<long, IDrivetrainNode> NodeLookup = new Dictionary<long, IDrivetrainNode>();
+        private HashSet<long> IncomingIds = new HashSet<long>(); //Load coming from downstream -- Send output information back
+        private HashSet<long> OutgoingIds = new HashSet<long>(); //Output coming from upstream -- Send load information back
+        private List<DrivetrainPacket> PacketInbox = new List<DrivetrainPacket>();
+        public void ReceivePacket(DrivetrainPacket packet) => PacketInbox.Add(packet);
+        public double GetLoadWeight() => 1;
+        private double InputLoad = 0;
+        private double InputRPM = 0;
+        private double OutputRPM = 0;
+        private double OutputTorque = 0;
+        static GearboxLogic_V2 GetLogic(IMyTerminalBlock gearbox) => gearbox?.GameLogic?.GetAs<GearboxLogic_V2>();
 
         private bool ControlsInitialized = false;
         private bool ActionsInitialized = false;
-
-        public void SetNode(GearboxNode node)
-        {
-            GearboxNode = node;
-        }
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -59,11 +46,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             GearboxBlock = (MyCubeBlock)Entity;
             GearboxTerminal = (IMyTerminalBlock)Entity;
 
-            NeedsUpdate =
-                MyEntityUpdateEnum.BEFORE_NEXT_FRAME
-                | MyEntityUpdateEnum.EACH_100TH_FRAME;
-
-
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
 
         public override void UpdateOnceBeforeFrame()
@@ -74,93 +57,138 @@ namespace NavalPowerSystems.Drivetrain_V2
                 CreateControls();
             if (!ActionsInitialized)
                 CreateActions();
+
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override void UpdateBeforeSimulation()
         {
-            if (ShaftListDirty)
+            //Clean slate before information gathering
+            InputLoad = 0;
+            OutputRPM = 0;
+            OutputTorque = 0;
+            IncomingIds.Clear();
+            OutgoingIds.Clear();
+
+            //Gather load information
+            if (PacketInbox.Count > 0)
             {
-                RebuildDriveshaftTree();
-                RebuildNodeLists();
+                int tickNow = MyAPIGateway.Session.GameplayFrameCounter;
+                double totalLoad = 0;
+                double wightedRPM = 0;
+                double totalTorque = 0;
+
+                for (int i = 0; i < PacketInbox.Count; i++)
+                {
+                    var packet = PacketInbox[i];
+                    if (packet.TickSent != tickNow) continue;
+
+                    if (IsLoadPacket(packet))
+                    {
+                        totalLoad += packet.DownstreamLoad;
+                        IncomingIds.Add(packet.SenderId);
+                        continue;
+                    }
+                    else if (IsOutputPacket(packet))
+                    {
+                        totalTorque += packet.UpstreamTorque;
+                        wightedRPM += packet.UpstreamRPM * packet.UpstreamTorque;
+                        OutgoingIds.Add(packet.SenderId);
+                        continue;
+                    }
+                }
+                PacketInbox.Clear();
+                InputLoad = totalLoad;
+                OutputRPM = totalTorque > 0 ? wightedRPM / totalTorque : 0;
+                OutputTorque = totalTorque;
             }
-                
-            UpdateAnimation();
-        }
 
-        public override void UpdateAfterSimulation100()
-        {
-            UpdateDistanceToCamera();
-        }
+            //Calculate total load
+            var gearedLoad = InputLoad / GearboxStats.GearRatio;
+            var gearedRPMIn = OutputRPM * GearboxStats.GearRatio; //To send to inputs for any clutch logic
+            var gearedRPMOut = OutputRPM / GearboxStats.GearRatio; //To send downstream
 
-        private void UpdateAnimation()
-        {
-            if (DistanceToCamera > 500f || IncomingRPM == 0 || DriveshaftMatrices.Count == 0) return;
-            float degreesPerTick = (float)IncomingRPM * 360f / 3600f; // convert RPM → degrees/tick at 60 Hz
-            CurrentAngle += degreesPerTick;
-            CurrentAngle %= 360f;
-
-            if (!AnimCCW)
-                CurrentAngle = -CurrentAngle;
-
-            foreach (var subShaft in DriveshaftMatrices)
+            if (BrakeEngagement > 0f)
             {
-                var subpart = subShaft.Key;
-                var initialMatrix = subShaft.Value;
-
-                Matrix rotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(CurrentAngle));
-                Matrix finalMatrix = rotationMatrix * initialMatrix;
-                subpart.PositionComp.SetLocalMatrix(ref finalMatrix);
+                var brakeTorque = GearboxStats.MaxBrakeTorque * BrakeEngagement;
+                gearedLoad += brakeTorque / GearboxStats.GearRatio;
             }
-        }
 
-        public void UpdateDistanceToCamera()
-        {
-            if (MyAPIGateway.Utilities.IsDedicated)
-                return;
+            InputLoad = gearedLoad;
 
-            var dist = Vector3D.Distance(GearboxBlock.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
-            DistanceToCamera = (float)dist;
-        }
-
-        public void RebuildDriveshaftTree()
-        {
-            if (Driveshafts.Count == 0) return;
-
-            foreach (var shaft in Driveshafts)
+            //Calculate and send per-input load
+            double totalWeight = 0;
+            foreach (var id in OutgoingIds)
             {
-                var fat = shaft.FatBlock as MyCubeBlock;
-                if (fat == null)
+                IDrivetrainNode node;
+                if (!NodeLookup.TryGetValue(id, out node))
+                {
+                    var clutch = node.GetLoadWeight();
+                    totalWeight += double.IsNaN(clutch) ? 1.0 : clutch;
+                }
+            }
+
+            foreach (var id in OutgoingIds)
+            {
+                IDrivetrainNode node;
+                if (!NodeLookup.TryGetValue(id, out node))
                     continue;
 
-                MyEntitySubpart subpart;
+                double clutch = node.GetLoadWeight();
+                double weight = double.IsNaN(clutch) ? 1.0 : clutch;
+                double individualLoad = totalWeight > 0 ? (weight / totalWeight) * InputLoad : 0;
 
-                if (!fat.TryGetSubpart("Driveshaft", out subpart))
-                    continue;
-                if (!DriveshaftMatrices.ContainsKey(subpart))
-                    DriveshaftMatrices.Add(subpart, subpart.PositionComp.LocalMatrixRef);
+                node.ReceivePacket(new DrivetrainPacket
+                {
+                    SenderId = GearboxBlock.EntityId,
+                    TickSent = MyAPIGateway.Session.GameplayFrameCounter,
+                    DownstreamLoad = individualLoad,
+                    UpstreamRPM = double.NaN,
+                    UpstreamTorque = double.NaN
+                });
             }
-            ShaftListDirty = false;
+
+            var accumulatedTorque = OutputTorque * GearboxStats.GearRatio;
+            var distributedTorque = accumulatedTorque / Math.Max(1, OutgoingIds.Count);
+            foreach (var id in IncomingIds)
+            {
+                IDrivetrainNode node;
+                if (!NodeLookup.TryGetValue(id, out node)) 
+                    continue;
+
+                node.ReceivePacket(new DrivetrainPacket
+                {
+                    SenderId = GearboxBlock.EntityId,
+                    TickSent = MyAPIGateway.Session.GameplayFrameCounter,
+                    DownstreamLoad = double.NaN,
+                    UpstreamTorque = distributedTorque,
+                    UpstreamRPM = gearedRPMOut
+                });
+            }
         }
 
-        public void RebuildNodeLists()
+        public void CleanAssembly()
         {
-            ConnectedEngineNodes.Clear();
-            GearboxNodesTowardsEngines.Clear();
-            GearboxNodesTowardsPropellers.Clear();
-            ConnectedPropellerNodes.Clear();
-
-            if (GearboxNode != null)
+            ConnectedParts.Clear();
+            NodeLookup.Clear();
+            foreach (IMyCubeBlock neighbor in ModularApi.GetConnectedBlocks(GearboxBlock, "Drivetrain_Definition_V2", false))
             {
-                foreach (var engine in GearboxNode.ConnectedEngineNodes)
-                    ConnectedEngineNodes.Add(engine);
-                foreach (var box in GearboxNode.GearboxNodesTowardsEngines)
-                    GearboxNodesTowardsEngines.Add(box);
-                foreach (var box in GearboxNode.GearboxNodesTowardsPropellers)
-                    GearboxNodesTowardsPropellers.Add(box);
-                foreach (var prop in GearboxNode.ConnectedPropellerNodes)
-                    ConnectedPropellerNodes.Add(prop);
+                ConnectedParts.Add(neighbor);
+
+                var logic = neighbor.GameLogic?.GetAs<IDrivetrainNode>();
+                if (logic != null)
+                    NodeLookup[neighbor.EntityId] = logic;
             }
+        }
+
+        private static bool IsLoadPacket(DrivetrainPacket p)
+        {
+            return double.IsNaN(p.UpstreamRPM) && double.IsNaN(p.UpstreamTorque);
+        }
+
+        private static bool IsOutputPacket(DrivetrainPacket p)
+        {
+            return double.IsNaN(p.DownstreamLoad);
         }
 
         private void CreateControls()
@@ -173,7 +201,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                 
             }
 
-            //Shaft brake for each connected shaft
+            //Shaft brake
             //Reverse select
         }
 
@@ -182,14 +210,13 @@ namespace NavalPowerSystems.Drivetrain_V2
             if (ActionsInitialized) return;
 
             ActionsInitialized = true;
-        }
 
-        static GearboxLogic_V2 GetLogic(IMyTerminalBlock gearbox) =>
-                gearbox?.GameLogic?.GetAs<GearboxLogic_V2>();
+            {
 
-        static bool Control_ClutchLockout_Visible(IMyTerminalBlock gearbox)
-        {
-            return GetLogic(gearbox) != null;
+            }
+
+            //Shaft brake
+            //Reverse select
         }
 
         static bool Control_ShaftBrake_Visible(IMyTerminalBlock gearbox)

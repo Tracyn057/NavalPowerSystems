@@ -21,12 +21,12 @@ using VRageMath;
 namespace NavalPowerSystems.Drivetrain_V2
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_FunctionalBlock), false,
-        "NPS_Rudder_Small_CenteredV1",
-        "NPS_Rudder_Small_OffsetLeftV1",
-        "NPS_Rudder_Small_OffsetRightV1",
-        "NPS_Rudder_Small_CenteredV2",
-        "NPS_Rudder_Small_OffsetLeftV2",
-        "NPS_Rudder_Small_OffsetRightV2"
+    "NPS_Rudder_Small_CenteredV1",
+    "NPS_Rudder_Small_OffsetLeftV1",
+    "NPS_Rudder_Small_OffsetRightV1",
+    "NPS_Rudder_Small_CenteredV2",
+    "NPS_Rudder_Small_OffsetLeftV2",
+    "NPS_Rudder_Small_OffsetRightV2"
     )]
     internal class RudderLogic_V2 : MyGameLogicComponent, IMyEventProxy
     {
@@ -341,9 +341,9 @@ namespace NavalPowerSystems.Drivetrain_V2
         private float GetPropWash()
         {
             float discArea = (float)(Math.PI * Math.Pow(NearestPropellerLogic.PropellerStats.Diameter/2, 2));
-            if (discArea <= 0 || NearestPropellerLogic.IncomingThrust <= 0) return 0f;
+            if (discArea <= 0 || NearestPropellerLogic.OutputThrust <= 0) return 0f;
 
-            return (float)Math.Sqrt(2 * NearestPropellerLogic.IncomingThrust / (1024 * discArea));
+            return (float)Math.Sqrt(2 * NearestPropellerLogic.OutputThrust / (1024 * discArea));
         }
 
         private void CreateControls()

@@ -1,5 +1,4 @@
 ﻿using NavalPowerSystems.Communication;
-using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ namespace NavalPowerSystems.Drivetrain_V2
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
     internal class DrivetrainManager_V2 : MySessionComponentBase
     {
-        private int _ticks;
+        private int Ticks;
         public static DrivetrainManager_V2 Instance { get; private set; } = null;
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         public IEnumerable<DrivetrainSystem_V2> GetAssemblies => DrivetrainSystems.Values;
@@ -28,34 +27,46 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         protected override void UnloadData()
         {
-            foreach (var drivtrain in DrivetrainSystems.Values)
-            {
-                drivtrain.Unload();
-            }
             Instance = null;
             ModularApi.Log("DrivetrainManager closed.");
         }
 
         public override void UpdateAfterSimulation()
         {
-            foreach (var drivetrain in DrivetrainSystems.Values)
+            foreach (var system in DrivetrainSystems.Values)
             {
-                drivetrain.UpdateTick();
+                //system.UpdateTick();
+            }
+            foreach (var grid in GridManagers.Values)
+            {
+                grid.UpdateTick();
             }
 
-            if (_ticks % 10 == 0)
+            if (Ticks % 10 == 0)
             {
-                foreach (var drivetrain in DrivetrainSystems.Values)
+                foreach (var system in DrivetrainSystems.Values)
                 {
-                    drivetrain.UpdateTick10();
+                    system.UpdateTick10();
                 }
+                //foreach (var grid in GridManagers.Values)
+                //{
+                //    grid.UpdateTick10();
+                //}
             }
 
-            if (_ticks % 100 == 0)
+            if (Ticks % 100 == 0)
             {
                 Update100();
+                foreach (var system in DrivetrainSystems.Values)
+                {
+                    system.UpdateTick100();
+                }
+                foreach (var grid in GridManagers.Values)
+                {
+                    grid.UpdateTick100();
+                }
             }
-            _ticks++;
+            Ticks++;
         }
 
         private void Update100()
@@ -65,6 +76,14 @@ namespace NavalPowerSystems.Drivetrain_V2
                 // Remove invalid systems
                 if (!systems.Contains(driveSystem.AssemblyId))
                     DrivetrainSystems.Remove(driveSystem.AssemblyId);
+
+            foreach (var grid in GridManagers.Values.ToList())
+            {
+                var iGrid = grid.IGrid;
+                var noAssemblies = ModularApi.GetGridAssemblies(iGrid).Any();
+                if (iGrid != null && noAssemblies)
+                        GridManagers.Remove(iGrid);
+            }
         }
 
         public static void OnPartAdd(int assemblyId, IMyCubeBlock block, bool isBasePart)
@@ -72,11 +91,20 @@ namespace NavalPowerSystems.Drivetrain_V2
             if (Instance == null) return;
 
             DrivetrainSystem_V2 drivetrain;
+            NavalGridManager navalGridManager;
+            IMyCubeGrid grid = null;
             if (!Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
             {
-                drivetrain = new DrivetrainSystem(assemblyId);
+                drivetrain = new DrivetrainSystem_V2(assemblyId);
                 Instance.DrivetrainSystems.Add(assemblyId, drivetrain);
                 //ModularApi.Log($"DrivetrainManager created new assembly {assemblyId}");
+
+                grid = ModularApi.GetAssemblyGrid(assemblyId);
+            }
+            if (grid != null && !Instance.GridManagers.TryGetValue(grid, out navalGridManager))
+            {
+                navalGridManager = new NavalGridManager(grid);
+                Instance.GridManagers.Add(grid, navalGridManager);
             }
 
             drivetrain.AddPart(block);
@@ -106,7 +134,6 @@ namespace NavalPowerSystems.Drivetrain_V2
             if (Instance == null || !Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
                 return;
 
-            drivetrain.Unload();
             Instance.DrivetrainSystems.Remove(assemblyId);
             ModularApi.Log($"DrivetrainManager removed assembly {assemblyId}");
         }

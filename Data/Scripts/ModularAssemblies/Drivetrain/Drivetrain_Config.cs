@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
     public static class Drivetrain_Config
     {
         // Torque Load = WaterDensity * Diameter^5 * PitchRatio * (RPM/60)^2
-        public const double PitchRatio = 1.1; // Ratio of propeller pitch to diameter, used for calculating advance speed and efficiency
         public const float GlobalFuelMult = 0.66f; //Multiplier for fuel consumption
         public const double DieselEnergyDensity = 38295; //KJ/Liter for diesel fuel, used for calculating fuel consumption
         private const double DriveshaftDensity_Reference = 8000; //Informationl only. Density of 316L stainless steel in kg/m^3, used for calculating driveshaft inertia based on length and diameter. Not directly used in code as of 2.0, but useful for reference when creating new shaft blocks with different materials or dimensions.
@@ -111,5 +106,22 @@ namespace NavalPowerSystems.Drivetrain_V2
     public class RudderStats_V2
     {
         public float SufaceArea; // Surface area of the rudder in square meters, used for calculating thrust and torque
+    }
+
+    public struct DrivetrainPacket
+    {
+        public long SenderId; //EntityId of the sending block
+        public int TickSent; //The tick counter number from when packet was created
+
+        public double DownstreamLoad; //Load requested from downstream consumers
+        public double UpstreamTorque; //Torque sent downstream from producers
+        public double UpstreamRPM; //Incoming RPM from torque source
+    }
+
+    public interface IDrivetrainNode
+    {
+        void ReceivePacket(DrivetrainPacket packet);
+        void CleanAssembly();
+        double GetLoadWeight();
     }
 }
