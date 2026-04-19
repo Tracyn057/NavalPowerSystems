@@ -12,9 +12,9 @@
 			<StrictSearch>true</StrictSearch>
 			<ItemIds>
 				<!-- Engines -->
-				<string>TerminalBlock/NPS_Turbine_LM2500</string>
-				<string>TerminalBlock/NPS_Turbine_LM2500Plus</string>
-				<string>TerminalBlock/NPS_Turbine_LM2500PlusG4</string>
+				<string>FunctionalBlock/NPS_Turbine_LM2500</string>
+				<string>FunctionalBlock/NPS_Turbine_LM2500Plus</string>
+				<string>FunctionalBlock/NPS_Turbine_LM2500PlusG4</string>
 				<!-- Generators -->
 				 <!-- Production -->
 				 <string>OxygenTank/NPSProductionCrudeInput</string>
@@ -29,15 +29,15 @@
 				 <string>TerminalBlock/NPSExtractionDrillHead</string>
 				 <string>OxygenTank/NPSExtractionCrudeOutput</string>
 				 <!-- Gearboxes -->
-				<string>TerminalBlock/NPS_Gearbox_MRG</string>
-				<string>TerminalBlock/NPS_Gearbox_DoublePlanetary</string>
+				<string>FunctionalBlock/NPS_Gearbox_MRG</string>
+				<string>FunctionalBlock/NPS_Gearbox_DoublePlanetary</string>
 				<!-- Rudders -->
-				 <string>TerminalBlock/NPS_Rudder_Small_CenteredV1</string>
-				 <string>TerminalBlock/NPS_Rudder_Small_OffsetLeftV1</string>
-				 <string>TerminalBlock/NPS_Rudder_Small_OffsetRightV1</string>
-				 <string>TerminalBlock/NPS_Rudder_Small_CenteredV2</string>
-				 <string>TerminalBlock/NPS_Rudder_Small_OffsetLeftV2</string>
-				 <string>TerminalBlock/NPS_Rudder_Small_OffsetRightV2</string>
+				 <string>FunctionalBlock/NPS_Rudder_Small_CenteredV1</string>
+				 <string>FunctionalBlock/NPS_Rudder_Small_OffsetLeftV1</string>
+				 <string>FunctionalBlock/NPS_Rudder_Small_OffsetRightV1</string>
+				 <string>FunctionalBlock/NPS_Rudder_Small_CenteredV2</string>
+				 <string>FunctionalBlock/NPS_Rudder_Small_OffsetLeftV2</string>
+				 <string>FunctionalBlock/NPS_Rudder_Small_OffsetRightV2</string>
 				 <!-- Driveshafts -->
 				 <string>CubeBlock/NPS_Driveshaft</string>
 				 <string>CubeBlock/NPS_Driveshaft_Marked</string>
@@ -58,9 +58,9 @@
 				 <string>CubeBlock/NPSDrivetrainEndTubePylonVerticalSlope2Base</string>
 				 <string>CubeBlock/NPSDrivetrainEndTubePylonVerticalSlope2Tip</string>
 				<!-- Propellers -->
-				 <string>TerminalBlock/NPS_Propeller_4m3b</string>
-				 <string>TerminalBlock/NPS_Propeller_4m4b</string>
-				 <string>TerminalBlock/NPS_Propeller_4m5b</string>
+				 <string>FunctionalBlock/NPS_Propeller_4m3b</string>
+				 <string>FunctionalBlock/NPS_Propeller_4m4b</string>
+				 <string>FunctionalBlock/NPS_Propeller_4m5b</string>
 				 <!-- Fuel Tanks -->
 				 <string>OxygenTank/LargeDieselTank</string>
 				 <string>OxygenTank/LargeDieselTankSmall</string>

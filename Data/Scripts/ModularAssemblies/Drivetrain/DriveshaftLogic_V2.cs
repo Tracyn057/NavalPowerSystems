@@ -1,12 +1,11 @@
 ﻿using NavalPowerSystems.Communication;
-using Sandbox.Game.Entities;
-using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRage.ModAPI;
+using VRage.ObjectBuilders;
 using VRageMath;
 
 namespace NavalPowerSystems.Drivetrain_V2
@@ -28,7 +27,8 @@ namespace NavalPowerSystems.Drivetrain_V2
     public class DriveshaftLogic_V2 : MyGameLogicComponent, IDrivetrainNode
     {
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
-        private MyCubeBlock ShaftBlock;
+        private IMyCubeBlock ShaftIBlock;
+        public IDrivetrainNode ShaftNode;
         private MyEntitySubpart ShaftSubpart;
         private Matrix ShaftSubpartInitialMatrix;
         private long ShaftId;
@@ -44,10 +44,10 @@ namespace NavalPowerSystems.Drivetrain_V2
         private double OutputRPM = 0;
         private double OutputTorque = 0;
 
-        public override void Init(MyComponentDefinitionBase definition)
+        public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
-            base.Init(definition);
-            ShaftBlock = (MyCubeBlock)Entity;
+            base.Init(objectBuilder);
+            ShaftIBlock = (IMyCubeBlock)Entity;
             ShaftId = Entity.EntityId;
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
@@ -55,7 +55,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public override void UpdateOnceBeforeFrame()
         {
-            if (ShaftBlock == null) return;
+            if (ShaftIBlock == null) return;
 
             Entity.TryGetSubpart("Driveshaft", out ShaftSubpart);
             if (ShaftSubpart != null)
@@ -64,78 +64,20 @@ namespace NavalPowerSystems.Drivetrain_V2
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
-        public override void UpdateAfterSimulation()
+        public override void UpdateBeforeSimulation()
         {
-            //Clean slate before information gathering
-            InputLoad = 0;
-            OutputRPM = 0;
-            OutputTorque = 0;
-            IncomingId = 0;
-            OutgoingId = 0;
-
-            //Grab information from inbox
-            if (PacketInbox.Count > 0)
+            foreach (var packet in PacketInbox)
             {
-                int tickNow = MyAPIGateway.Session.GameplayFrameCounter;
-
-                for (int i = 0; i < PacketInbox.Count; i++)
+                foreach (var neighbor in ConnectedParts)
                 {
-                    var packet = PacketInbox[i];
-                    if (packet.TickSent != tickNow) continue;
-                    {
-                        if (IsOutputPacket(packet))
-                        {
-                            OutputRPM = packet.UpstreamRPM;
-                            OutputTorque = packet.UpstreamTorque;
-                            OutgoingId = packet.SenderId;            
-                        }
-                        else if (IsLoadPacket(packet))
-                        {
-                            InputLoad = packet.DownstreamLoad;
-                            IncomingId = packet.SenderId;
-                        }
-                    }
-                }
-                PacketInbox.Clear();
-            }
+                    var logic = neighbor.GameLogic?.GetAs<IDrivetrainNode>();
+                    if (logic == null || neighbor.EntityId == packet.SenderId) continue;
 
-            
-            if (ConnectedParts.Count > 0)
-            {
-                //Gather load information
-                var loadPacket = new DrivetrainPacket
-                {
-                    SenderId = ShaftId,
-                    TickSent = MyAPIGateway.Session.GameplayFrameCounter,
-                    DownstreamLoad = InputLoad,
-                    UpstreamTorque = double.NaN,
-                    UpstreamRPM = double.NaN
-                };
-
-                //Then gather output information
-                var outputPacket = new DrivetrainPacket
-                {
-                    SenderId = ShaftId,
-                    TickSent = MyAPIGateway.Session.GameplayFrameCounter,
-                    DownstreamLoad = double.NaN,
-                    UpstreamTorque = OutputTorque,
-                    UpstreamRPM = OutputRPM
-                };
-
-                foreach (var part in ConnectedParts)
-                {
-                    var logic = part.GameLogic?.GetAs<IDrivetrainNode>();
-                    if (logic == null) continue;
-
-                    //Send load packet first
-                    if (part.EntityId == OutgoingId)
-                        logic.ReceivePacket(loadPacket);
-
-                    //Output packet after that
-                    if (part.EntityId == IncomingId)
-                        logic.ReceivePacket(outputPacket);
+                    logic.ReceivePacket(packet);
+                    OutputRPM = double.IsNaN(packet.UpstreamRPM) ? 0 : packet.UpstreamRPM;
                 }
             }
+            PacketInbox.Clear();
 
             //Animate
             if (ShaftSubpart != null && OutputRPM != 0 && ShouldAnimate)
@@ -153,20 +95,10 @@ namespace NavalPowerSystems.Drivetrain_V2
         public void CleanAssembly()
         {
             ConnectedParts.Clear();
-            foreach (IMyCubeBlock neighbor in ModularApi.GetConnectedBlocks(ShaftBlock, "Drivetrain_Definition_V2", false))
+            foreach (IMyCubeBlock neighbor in ModularApi.GetConnectedBlocks(ShaftIBlock, "Drivetrain_Definition_V2", false))
             {
                 ConnectedParts.Add(neighbor);
             }
-        }
-
-        private static bool IsLoadPacket(DrivetrainPacket p)
-        {
-            return double.IsNaN(p.UpstreamRPM) && double.IsNaN(p.UpstreamTorque);
-        }
-
-        private static bool IsOutputPacket(DrivetrainPacket p)
-        {
-            return double.IsNaN(p.DownstreamLoad);
         }
     }
 }

@@ -29,9 +29,9 @@
             <DisplayName>LM2500 Gas Turbine</DisplayName>
             <Description>Group</Description>
             <Blocks>
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Turbine_LM2500" />
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Turbine_LM2500Plus" />
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Turbine_LM2500PlusG4" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Turbine_LM2500" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Turbine_LM2500Plus" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Turbine_LM2500PlusG4" />
             </Blocks>
         </BlockVariantGroup>
 
@@ -41,9 +41,9 @@
             <DisplayName>4m Propellers</DisplayName>
             <Description>Group</Description>
             <Blocks>
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Propeller_4m3b" />
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Propeller_4m4b" />
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Propeller_4m5b" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Propeller_4m3b" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Propeller_4m4b" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Propeller_4m5b" />
             </Blocks>
         </BlockVariantGroup>
 
@@ -53,12 +53,12 @@
             <DisplayName>Small Rudders</DisplayName>
             <Description>Group</Description>
             <Blocks>
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_CenteredV1" />
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetLeftV1" />
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetRightV1" />
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_CenteredV2" />
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetLeftV2" />
-                <Block Type="MyObjectBuilder_TerminalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetRightV2" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Rudder_Small_CenteredV1" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetLeftV1" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetRightV1" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Rudder_Small_CenteredV2" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetLeftV2" />
+                <Block Type="MyObjectBuilder_FunctionalBlockDefinition" Subtype="NPS_Rudder_Small_OffsetRightV2" />
             </Blocks>
         </BlockVariantGroup>
 

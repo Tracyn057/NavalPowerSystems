@@ -2,10 +2,10 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <CubeBlocks>
 
-        <Definition>
-            <Id>
-                <TypeId>TerminalBlock</TypeId>
-                <SubtypeId>NPS_Gearbox_DoublePlanetary</SubtypeId>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
+			<Id>
+				<TypeId>FunctionalBlock</TypeId>
+                <SubtypeId>NPS_Gearbox_MRG</SubtypeId>
             </Id>
             <DisplayName>Main Reduction Gear</DisplayName>
             <Icon>Textures\GUI\Icons\Cubes\NPSDrivetrainMRG.dds</Icon>
@@ -51,9 +51,9 @@
             <PCU>80</PCU>
         </Definition>
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>FunctionalBlock</TypeId>
 				<SubtypeId>NPS_Gearbox_DoublePlanetary</SubtypeId>
 			</Id>
 			<DisplayName>Double Planetary Reduction Gearbox</DisplayName>

@@ -3,9 +3,9 @@
 	<CubeBlocks>
 
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>FunctionalBlock</TypeId>
 				<SubtypeId>NPS_Propeller_4m3b</SubtypeId>
 			</Id>
 			<DisplayName>3 Blade Propeller, 4m</DisplayName>
@@ -49,9 +49,9 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>FunctionalBlock</TypeId>
 				<SubtypeId>NPS_Propeller_4m4b</SubtypeId>
 			</Id>
 			<DisplayName>4 Blade Propeller, 4m</DisplayName>
@@ -95,9 +95,9 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>FunctionalBlock</TypeId>
 				<SubtypeId>NPS_Propeller_4m5b</SubtypeId>
 			</Id>
 			<DisplayName>5 Blade Propeller, 4m</DisplayName>

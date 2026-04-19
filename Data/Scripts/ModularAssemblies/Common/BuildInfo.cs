@@ -18,15 +18,8 @@ namespace NavalPowerSystems.Common
         {
             if (MyAPIGateway.Utilities.IsDedicated) return;
 
-            foreach (var engine in Config.EngineSubtypes)
-            {
-                MyAPIGateway.Utilities.SendModMessage(BuildInfoModID, new MyTuple<string, string, MyDefinitionId>(NPS, "NoDetailInfo", new MyDefinitionId(typeof(MyObjectBuilder_OxygenTank), engine)));
-            }
-
-            //Utilities.RemoveControlsTanks();
-            //Utilities.RemoveActionsTanks();            
-            //Utilities.RemoveControlsGyros();
-            //Utilities.RemoveActionsGyros();            
+            Utilities.RemoveControlsTanks();
+            Utilities.RemoveActionsTanks();
         }
     }
 }

@@ -48,10 +48,6 @@ namespace NavalPowerSystems.Drivetrain_V2
                 {
                     system.UpdateTick10();
                 }
-                //foreach (var grid in GridManagers.Values)
-                //{
-                //    grid.UpdateTick10();
-                //}
             }
 
             if (Ticks % 100 == 0)
@@ -135,7 +131,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                 return;
 
             Instance.DrivetrainSystems.Remove(assemblyId);
-            ModularApi.Log($"DrivetrainManager removed assembly {assemblyId}");
+            //ModularApi.Log($"DrivetrainManager removed assembly {assemblyId}");
         }
 
         public DrivetrainSystem_V2 GetDrivetrainSystem(int assemblyId)

@@ -1,13 +1,19 @@
 ﻿using NavalPowerSystems.Communication;
 using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
+using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.Game.ModAPI.Network;
 using VRage.ModAPI;
+using VRage.Network;
 using VRage.ObjectBuilders;
+using VRage.Sync;
+using VRage.Utils;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
@@ -15,14 +21,14 @@ namespace NavalPowerSystems.Drivetrain_V2
             "NPS_Gearbox_MRG",
             "NPS_Gearbox_DoublePlanetary"
     )]
-    public class GearboxLogic_V2 : MyGameLogicComponent
+    public class GearboxLogic_V2 : MyGameLogicComponent, IMyEventProxy, IDrivetrainNode
     {
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         private IMyCubeBlock GearboxBlock;
         private IMyFunctionalBlock GearboxFunctional;
         private IMyTerminalBlock GearboxTerminal;
         private GearboxStats_V2 GearboxStats;
-        private float BrakeEngagement = 1f;
+        private float BrakeEngagement = 0f;
 
         private HashSet<IMyCubeBlock> ConnectedParts = new HashSet<IMyCubeBlock>();
         private Dictionary<long, IDrivetrainNode> NodeLookup = new Dictionary<long, IDrivetrainNode>();
@@ -39,6 +45,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         private bool ControlsInitialized = false;
         private bool ActionsInitialized = false;
+        MySync<float, SyncDirection.BothWays> Terminal_ShaftBrake;
 
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
@@ -58,6 +65,9 @@ namespace NavalPowerSystems.Drivetrain_V2
             if (!ActionsInitialized)
                 CreateActions();
 
+            Terminal_ShaftBrake.SetLocalValue(BrakeEngagement);
+            Terminal_ShaftBrake.ValueChanged += Terminal_ShaftBrake_ValueChanged;
+
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
@@ -71,37 +81,36 @@ namespace NavalPowerSystems.Drivetrain_V2
             OutgoingIds.Clear();
 
             //Gather load information
-            if (PacketInbox.Count > 0)
+            ModularApi.Log($"{PacketInbox.Count} packets recieved by {GearboxBlock.BlockDefinition.SubtypeId}");
+            //int tickNow = MyAPIGateway.Session.GameplayFrameCounter;
+            double totalLoad = 0;
+            double wightedRPM = 0;
+            double totalTorque = 0;
+
+            for (int i = 0; i < PacketInbox.Count; i++)
             {
-                int tickNow = MyAPIGateway.Session.GameplayFrameCounter;
-                double totalLoad = 0;
-                double wightedRPM = 0;
-                double totalTorque = 0;
+                var packet = PacketInbox[i];
+                //if (packet.TickSent != tickNow) continue;
 
-                for (int i = 0; i < PacketInbox.Count; i++)
+                if (IsLoadPacket(packet))
                 {
-                    var packet = PacketInbox[i];
-                    if (packet.TickSent != tickNow) continue;
-
-                    if (IsLoadPacket(packet))
-                    {
-                        totalLoad += packet.DownstreamLoad;
-                        IncomingIds.Add(packet.SenderId);
-                        continue;
-                    }
-                    else if (IsOutputPacket(packet))
-                    {
-                        totalTorque += packet.UpstreamTorque;
-                        wightedRPM += packet.UpstreamRPM * packet.UpstreamTorque;
-                        OutgoingIds.Add(packet.SenderId);
-                        continue;
-                    }
+                    totalLoad += packet.DownstreamLoad;
+                    IncomingIds.Add(packet.SenderId);
+                    continue;
                 }
-                PacketInbox.Clear();
-                InputLoad = totalLoad;
-                OutputRPM = totalTorque > 0 ? wightedRPM / totalTorque : 0;
-                OutputTorque = totalTorque;
+                else if (IsOutputPacket(packet))
+                {
+                    totalTorque += packet.UpstreamTorque;
+                    wightedRPM += packet.UpstreamRPM * packet.UpstreamTorque;
+                    OutgoingIds.Add(packet.SenderId);
+                    continue;
+                }
             }
+
+            PacketInbox.Clear();
+            InputLoad = totalLoad;
+            OutputRPM = totalTorque > 0 ? wightedRPM / totalTorque : 0;
+            OutputTorque = totalTorque;
 
             //Calculate total load
             var gearedLoad = InputLoad / GearboxStats.GearRatio;
@@ -153,7 +162,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             foreach (var id in IncomingIds)
             {
                 IDrivetrainNode node;
-                if (!NodeLookup.TryGetValue(id, out node)) 
+                if (!NodeLookup.TryGetValue(id, out node))
                     continue;
 
                 node.ReceivePacket(new DrivetrainPacket
@@ -165,6 +174,12 @@ namespace NavalPowerSystems.Drivetrain_V2
                     UpstreamRPM = gearedRPMOut
                 });
             }
+        }
+
+        private void Terminal_ShaftBrake_ValueChanged(MySync<float, SyncDirection.BothWays> obj)
+        {
+            BrakeEngagement = obj.Value;
+            UpdateControls();
         }
 
         public void CleanAssembly()
@@ -198,7 +213,15 @@ namespace NavalPowerSystems.Drivetrain_V2
             ControlsInitialized = true;
 
             {
-                
+                var Control_ShaftBrake = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlSlider, IMyFunctionalBlock>("NPS_Gearbox_TerminalControl_ShaftBrake");
+                Control_ShaftBrake.Title = MyStringId.GetOrCompute("Shaft Brake Override");
+                Control_ShaftBrake.Visible = Control_ShaftBrake_Visible;
+                Control_ShaftBrake.SetLimits(0f, 1f);
+                Control_ShaftBrake.SupportsMultipleBlocks = true;
+                Control_ShaftBrake.Getter = Control_Terminal_ShaftBrake_Getter;
+                Control_ShaftBrake.Setter = Control_Terminal_ShaftBrake_Setter;
+                Control_ShaftBrake.Writer = Control_Terminal_ShaftBrake_Writer;
+                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_ShaftBrake);
             }
 
             //Shaft brake
@@ -219,10 +242,49 @@ namespace NavalPowerSystems.Drivetrain_V2
             //Reverse select
         }
 
+        public static void UpdateControls()
+        {
+            List<IMyTerminalControl> controls;
+
+            MyAPIGateway.TerminalControls.GetControls<IMyFunctionalBlock>(out controls);
+
+            foreach (IMyTerminalControl control in controls)
+            {
+                switch (control.Id)
+                {
+                    case "NPS_Gearbox_TerminalControl_ShaftBrake":
+                        {
+                            control.UpdateVisual();
+                            break;
+                        }
+                }
+            }
+        }
+
         static bool Control_ShaftBrake_Visible(IMyTerminalBlock gearbox)
         {
             var logic = GetLogic(gearbox);
             return (logic == null ? false : logic.GearboxStats.MaxBrakeTorque > 0);
+        }
+
+        static float Control_Terminal_ShaftBrake_Getter(IMyTerminalBlock engine)
+        {
+            var logic = GetLogic(engine);
+            return logic == null ? 0.01f : logic.Terminal_ShaftBrake;
+        }
+
+        static void Control_Terminal_ShaftBrake_Setter(IMyTerminalBlock engine, float value)
+        {
+            var logic = GetLogic(engine);
+            if (logic != null)
+                logic.Terminal_ShaftBrake.ValidateAndSet(value);
+        }
+
+        static void Control_Terminal_ShaftBrake_Writer(IMyTerminalBlock engine, StringBuilder writer)
+        {
+            var logic = GetLogic(engine);
+            if (logic != null)
+                writer.Append((int)(logic.Terminal_ShaftBrake * 100f)).Append('%');
         }
     }
 }

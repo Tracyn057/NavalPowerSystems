@@ -107,7 +107,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         
 
-        public override void UpdateAfterSimulation()
+        public override void UpdateBeforeSimulation()
         {
             if (!RudderFunctional.IsWorking || RudderMyGrid.Physics == null || RudderMyGrid.Physics.IsStatic) return;
 
@@ -118,7 +118,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             SoftRollGravityAlign();
         }
 
-        public override void UpdateAfterSimulation100()
+        public override void UpdateBeforeSimulation100()
         {
             UpdateDistanceToCamera();
             if (RudderShipController != null)

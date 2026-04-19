@@ -61,19 +61,9 @@ namespace NavalPowerSystems.Common
             if (block == null) return false;
             string subtype = block.BlockDefinition.SubtypeName;
 
-            return Config.EngineSubtypes.Contains(subtype) || 
-                Config.PropellerSubtypes.Contains(subtype) ||
-                subtype == "NPSExtractionCrudeOutput" ||
+            return subtype == "NPSExtractionCrudeOutput" ||
                 subtype == "NPSProductionCrudeInput" ||
                 subtype == "NPSProductionFuelInput";
-        }
-
-        public static bool ShouldRemoveGyroControls(IMyTerminalBlock block)
-        {
-            if (block == null) return false;
-            string subtype = block.BlockDefinition.SubtypeName;
-
-            return Config.RudderSubtypes.Contains(subtype);
         }
         //Utility method to remove or hide terminal controls for gas tanks based on block subtype, used to prevent player interaction with certain tanks
         public static void RemoveControlsTanks()
@@ -90,26 +80,6 @@ namespace NavalPowerSystems.Common
                     case "Auto-Refill":
                     case "ShowInInventory":
                         control.Visible = (block) => !ShouldRemoveTankControls(block);
-                        break;
-                }
-            }
-        }
-
-        public static void RemoveControlsGyros()
-        {
-            List<IMyTerminalControl> controls;
-            MyAPIGateway.TerminalControls.GetControls<IMyGyro>(out controls);
-
-            foreach (IMyTerminalControl control in controls)
-            {
-                switch (control.Id)
-                {
-                    case "Override":
-                    case "Power":
-                    case "Pitch":
-                    case "Roll":
-                    case "Yaw":
-                        control.Visible = (block) => !ShouldRemoveGyroControls(block);
                         break;
                 }
             }
@@ -131,28 +101,6 @@ namespace NavalPowerSystems.Common
                     case "Auto-Refill":
                         {
                             action.Enabled = (block) => !ShouldRemoveTankControls(block);
-                            break;
-                        }
-                }
-            }
-        }
-
-        public static void RemoveActionsGyros()
-        {
-            List<IMyTerminalAction> actions;
-            MyAPIGateway.TerminalControls.GetActions<IMyGasTank>(out actions);
-
-            foreach (IMyTerminalAction action in actions)
-            {
-                switch (action.Id)
-                {
-                    case "Override":
-                    case "Power":
-                    case "Pitch":
-                    case "Roll":
-                    case "Yaw":
-                        {
-                            action.Enabled = (block) => !ShouldRemoveGyroControls(block);
                             break;
                         }
                 }

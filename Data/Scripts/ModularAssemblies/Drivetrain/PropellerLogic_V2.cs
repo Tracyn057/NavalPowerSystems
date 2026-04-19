@@ -78,15 +78,16 @@ namespace NavalPowerSystems.Drivetrain_V2
             }
             else
                 PitchRatio = 1.1f;
-            
 
-            NeedsUpdate = 
+
+            NeedsUpdate =
                 MyEntityUpdateEnum.EACH_FRAME
                 | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
 
-        public override void UpdateAfterSimulation()
+        public override void UpdateBeforeSimulation()
         {
+            base.UpdateBeforeSimulation();
             //Clean slate before information gathering
             InputLoad = 0;
             OutputRPM = 0;
@@ -95,60 +96,51 @@ namespace NavalPowerSystems.Drivetrain_V2
             OutgoingId = 0;
 
             //Grab information from inbox
-            if (PacketInbox.Count > 0)
-            {
-                int tickNow = MyAPIGateway.Session.GameplayFrameCounter;
+            ModularApi.Log($"{PacketInbox.Count} packets recieved by {PropellerBlock.BlockDefinition.SubtypeId}");
+            int tickNow = MyAPIGateway.Session.GameplayFrameCounter;
 
-                for (int i = 0; i < PacketInbox.Count; i++)
+            for (int i = 0; i < PacketInbox.Count; i++)
+            {
+                var packet = PacketInbox[i];
+                if (packet.TickSent != tickNow) continue;
                 {
-                    var packet = PacketInbox[i];
-                    if (packet.TickSent != tickNow) continue;
+                    if (IsOutputPacket(packet))
                     {
-                        if (IsOutputPacket(packet))
-                        {
-                            OutputRPM = packet.UpstreamRPM;
-                            OutputTorque = packet.UpstreamTorque;
-                            OutgoingId = packet.SenderId;
-                        }
-                        else if (IsLoadPacket(packet))
-                        {
-                            InputLoad = packet.DownstreamLoad;
-                            IncomingId = packet.SenderId;
-                        }
+                        OutputRPM = packet.UpstreamRPM;
+                        OutputTorque = packet.UpstreamTorque;
+                        OutgoingId = packet.SenderId;
                     }
                 }
-                PacketInbox.Clear();
             }
+
+            PacketInbox.Clear();
 
             //Gather load information
             double velocity = PropellerBlock.CubeGrid.Physics?.LinearVelocity.Length() ?? 0;
-            double RPS = OutputRPM / 60;
+            double RPS = Math.Max(OutputRPM / 60, 0.5);
             double advanceRatio = (RPS > 0.1) ? velocity / (RPS * PropellerStats.Diameter) : 0;
             double currentTorque = PropellerStats.TorqueCoefficient * PitchRatio * MathHelper.Clamp(1 - (advanceRatio / PitchRatio), 0.1, 1);
             double torqueDemand = currentTorque * PitchRatio * Math.Pow(RPS, 2) * Math.Pow(PropellerStats.Diameter, 5);
-            InputLoad = torqueDemand;
+            InputLoad = torqueDemand + (PropellerStats.Diameter * 0.1);
 
             //Create load packet and send
-            if (ConnectedParts.Count > 0)
+            var loadPacket = new DrivetrainPacket
             {
-                var loadPacket = new DrivetrainPacket
-                {
-                    SenderId = PropellerBlock.EntityId,
-                    TickSent = MyAPIGateway.Session.GameplayFrameCounter,
-                    DownstreamLoad = InputLoad,
-                    UpstreamTorque = double.NaN,
-                    UpstreamRPM = double.NaN
-                };
+                SenderId = PropellerBlock.EntityId,
+                TickSent = MyAPIGateway.Session.GameplayFrameCounter,
+                DownstreamLoad = InputLoad,
+                UpstreamTorque = double.NaN,
+                UpstreamRPM = double.NaN
+            };
 
-                foreach (var part in ConnectedParts)
-                {
-                    var logic = part.GameLogic?.GetAs<IDrivetrainNode>();
-                    if (logic == null) continue;
+            foreach (var part in ConnectedParts)
+            {
+                var logic = part.GameLogic?.GetAs<IDrivetrainNode>();
+                if (logic == null)
+                    continue;
 
-                    //Send load packet -- Propellers don't have output packets
-                    if (part.EntityId == OutgoingId)
-                        logic.ReceivePacket(loadPacket);
-                }
+                //Send load packet -- Propellers don't have output packets
+                logic.ReceivePacket(loadPacket);
             }
 
             //Calculate output force

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <EntityContainers>
+
+		<Container>
+			<Id>
+				<TypeId>FunctionalBlock</TypeId>
+				<SubtypeId>NPS_Turbine_LM2500</SubtypeId>
+			</Id>
+			<DefaultComponents>
+				<Component BuilderType="MyObjectBuilder_ConveyorEndpointComponent" SubtypeId="LM2500" ForceCreate="true"/>
+			</DefaultComponents>
+		</Container>
+		
+		<Container>
+			<Id>
+				<TypeId>FunctionalBlock</TypeId>
+				<SubtypeId>NPS_Turbine_LM2500Plus</SubtypeId>
+			</Id>
+			<DefaultComponents>
+				<Component BuilderType="MyObjectBuilder_ConveyorEndpointComponent" SubtypeId="LM2500" ForceCreate="true"/>
+			</DefaultComponents>
+		</Container>
+		
+		<Container>
+			<Id>
+				<TypeId>FunctionalBlock</TypeId>
+				<SubtypeId>NPS_Turbine_LM2500PlusG4</SubtypeId>
+			</Id>
+			<DefaultComponents>
+				<Component BuilderType="MyObjectBuilder_ConveyorEndpointComponent" SubtypeId="LM2500" ForceCreate="true"/>
+			</DefaultComponents>
+		</Container>
+
+	</EntityContainers>
+</Definitions>

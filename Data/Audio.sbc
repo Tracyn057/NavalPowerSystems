@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<Sounds>
+
+		<Sound>
+			<Id>
+				<TypeId>MyObjectBuilder_AudioDefinition</TypeId>
+				<SubtypeId>NPS_LargeGasTurbine</SubtypeId>
+			</Id>
+			<Category>BLOCK</Category>
+			<MaxDistance>20</MaxDistance>
+			<Volume>1</Volume>
+			<Loopable>true</Loopable>
+			<UpdateDistance>20</UpdateDistance>
+			<Waves>
+				<Wave Type="D3">
+					<Start>Audio\NPS_LargeGasTurbine_Start.wav</Start>
+					<Loop>Audio\NPS_LargeGasTurbine.wav</Loop>
+				</Wave>
+			</Waves>
+		</Sound>
+		
+	</Sounds>
+</Definitions>

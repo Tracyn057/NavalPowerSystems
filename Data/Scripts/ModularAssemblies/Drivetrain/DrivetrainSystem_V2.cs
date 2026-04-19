@@ -1,9 +1,7 @@
 ﻿using NavalPowerSystems.Communication;
 using Sandbox.ModAPI;
-using Steamworks;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using VRage.Game.ModAPI;
 using VRageMath;
 
@@ -58,10 +56,14 @@ namespace NavalPowerSystems.Drivetrain_V2
             }
             else if (Config.DriveshaftSubtypes.Contains(subtype))
             {
+                var logic = new DriveshaftLogic_V2();
+                block.GameLogic = logic;
+                logic.Init(block.GetObjectBuilder());
                 Driveshafts.Add(block);
                 AllBlocks.Add(block);
             }
 
+            //ModularApi.Log($"Adding {subtype} to assembly {AssemblyId}. Assembly now contains {AllBlocks.Count} parts.");
             DirtyAssembly = true;
         }
 
@@ -93,6 +95,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                 AllBlocks.Remove(block);
             }
 
+            //ModularApi.Log($"Removing {subtype} from assembly {AssemblyId}. Assembly now contains {AllBlocks.Count} parts.");
             DirtyAssembly = true;
         }
 
@@ -102,7 +105,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             {
                 foreach (var block in AllBlocks)
                 {
-                    var node = (IDrivetrainNode)block;
+                    var node = block.GameLogic?.GetAs<IDrivetrainNode>();
                     if (node == null) continue;
                     node.CleanAssembly();
                 }
@@ -133,11 +136,9 @@ namespace NavalPowerSystems.Drivetrain_V2
             if (MyAPIGateway.Utilities.IsDedicated)
                 return;
 
-            var cameraPosition = MyAPIGateway.Session.Camera.WorldMatrix.Translation;
-            var gridPosition = SystemGrid.WorldMatrix.Translation;
-            var distanceSquared = Vector3D.DistanceSquared(gridPosition, cameraPosition);
+            var dist = Vector3D.Distance(SystemGrid.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
 
-            ShouldAnimate = distanceSquared > Math.Pow(ViewRange * ViewPadding, 2);
+            ShouldAnimate = dist < 750;
         }
     }
 }

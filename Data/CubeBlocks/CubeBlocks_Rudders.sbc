@@ -2,9 +2,9 @@
 <Definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 	<CubeBlocks>
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>FunctionalBlock</TypeId>
 				<SubtypeId>NPS_Rudder_Small_CenteredV1</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Centered V1</DisplayName>
@@ -55,9 +55,9 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>FunctionalBlock</TypeId>
 				<SubtypeId>NPS_Rudder_Small_OffsetLeftV1</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Offset Left V1</DisplayName>
@@ -108,9 +108,9 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>FunctionalBlock</TypeId>
 				<SubtypeId>NPS_Rudder_Small_OffsetRightV1</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Offset Right V1</DisplayName>
@@ -163,9 +163,9 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>FunctionalBlock</TypeId>
 				<SubtypeId>NPS_Rudder_Small_CenteredV2</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Centered V2</DisplayName>
@@ -216,9 +216,9 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>FunctionalBlock</TypeId>
 				<SubtypeId>NPS_Rudder_Small_OffsetLeftV2</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Offset Left V2</DisplayName>
@@ -269,9 +269,9 @@
 			</TargetingGroups>
 		</Definition>
 
-		<Definition>
+		<Definition xsi:type="MyObjectBuilder_FunctionalBlockDefinition">
 			<Id>
-				<TypeId>TerminalBlock</TypeId>
+				<TypeId>FunctionalBlock</TypeId>
 				<SubtypeId>NPS_Rudder_Small_OffsetRightV2</SubtypeId>
 			</Id>
 			<DisplayName>Rudder, Small Offset Right V2</DisplayName>
