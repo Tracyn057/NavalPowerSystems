@@ -5,6 +5,7 @@ using Sandbox.ModAPI;
 using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
@@ -30,6 +31,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         private IMyFunctionalBlock PropellerFunctional;
         private IMyTerminalBlock PropellerTerminal;
         private MyEntitySubpart PropellerSubpart;
+        private IDrivetrainNode PropellerNode => this as IDrivetrainNode;
         private IMyCubeGrid PropellerGrid;
         private Matrix PropellerSubpartInitialMatrix;
         public PropellerStats_V2 PropellerStats;
@@ -41,10 +43,10 @@ namespace NavalPowerSystems.Drivetrain_V2
         private float CurrentAngle;
         public bool ShouldAnimate = false;
         private HashSet<IMyCubeBlock> ConnectedParts = new HashSet<IMyCubeBlock>();
-        private long IncomingId = 0; //Load coming from downstream -- Send output information back
-        private long OutgoingId = 0; //Output coming from upstream -- Send load information back
         private List<DrivetrainPacket> PacketInbox = new List<DrivetrainPacket>();
         public void ReceivePacket(DrivetrainPacket packet) => PacketInbox.Add(packet);
+        public long GetNodeID() => PropellerBlock.EntityId;
+        public string GetNodeSubtype() => PropellerFunctional.BlockDefinition.SubtypeId;
         public double GetLoadWeight() => 1;
         private double InputLoad = 0;
         private double OutputRPM = 0;
@@ -57,6 +59,8 @@ namespace NavalPowerSystems.Drivetrain_V2
             PropellerFunctional = (IMyFunctionalBlock)Entity;
             PropellerBlock = (MyCubeBlock)Entity;
             PropellerTerminal = (IMyTerminalBlock)Entity;
+
+            PropellerTerminal.AppendingCustomInfo += AppendCustomInfo;
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
@@ -92,56 +96,14 @@ namespace NavalPowerSystems.Drivetrain_V2
             InputLoad = 0;
             OutputRPM = 0;
             OutputTorque = 0;
-            IncomingId = 0;
-            OutgoingId = 0;
-
-            //Grab information from inbox
-            ModularApi.Log($"{PacketInbox.Count} packets recieved by {PropellerBlock.BlockDefinition.SubtypeId}");
-            int tickNow = MyAPIGateway.Session.GameplayFrameCounter;
-
-            for (int i = 0; i < PacketInbox.Count; i++)
-            {
-                var packet = PacketInbox[i];
-                if (packet.TickSent != tickNow) continue;
-                {
-                    if (IsOutputPacket(packet))
-                    {
-                        OutputRPM = packet.UpstreamRPM;
-                        OutputTorque = packet.UpstreamTorque;
-                        OutgoingId = packet.SenderId;
-                    }
-                }
-            }
-
-            PacketInbox.Clear();
 
             //Gather load information
             double velocity = PropellerBlock.CubeGrid.Physics?.LinearVelocity.Length() ?? 0;
-            double RPS = Math.Max(OutputRPM / 60, 0.5);
+            double RPS = Math.Max(OutputRPM / 60, 0.1);
             double advanceRatio = (RPS > 0.1) ? velocity / (RPS * PropellerStats.Diameter) : 0;
             double currentTorque = PropellerStats.TorqueCoefficient * PitchRatio * MathHelper.Clamp(1 - (advanceRatio / PitchRatio), 0.1, 1);
             double torqueDemand = currentTorque * PitchRatio * Math.Pow(RPS, 2) * Math.Pow(PropellerStats.Diameter, 5);
             InputLoad = torqueDemand + (PropellerStats.Diameter * 0.1);
-
-            //Create load packet and send
-            var loadPacket = new DrivetrainPacket
-            {
-                SenderId = PropellerBlock.EntityId,
-                TickSent = MyAPIGateway.Session.GameplayFrameCounter,
-                DownstreamLoad = InputLoad,
-                UpstreamTorque = double.NaN,
-                UpstreamRPM = double.NaN
-            };
-
-            foreach (var part in ConnectedParts)
-            {
-                var logic = part.GameLogic?.GetAs<IDrivetrainNode>();
-                if (logic == null)
-                    continue;
-
-                //Send load packet -- Propellers don't have output packets
-                logic.ReceivePacket(loadPacket);
-            }
 
             //Calculate output force
             OutputThrust = currentTorque * 1024 * Math.Pow(RPS, 2) * Math.Pow(PropellerStats.Diameter, 4);
@@ -173,14 +135,10 @@ namespace NavalPowerSystems.Drivetrain_V2
             }
         }
 
-        private static bool IsLoadPacket(DrivetrainPacket p)
+        private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder info)
         {
-            return double.IsNaN(p.UpstreamRPM) && double.IsNaN(p.UpstreamTorque);
-        }
-
-        private static bool IsOutputPacket(DrivetrainPacket p)
-        {
-            return double.IsNaN(p.DownstreamLoad);
+            info.AppendLine($"Current Torque: {OutputThrust:0.00}");
+            info.AppendLine($"Current RPM: {OutputRPM:0.00}");
         }
 
         private void Terminal_PitchRatio_ValueChanged(MySync<float, SyncDirection.BothWays> obj)

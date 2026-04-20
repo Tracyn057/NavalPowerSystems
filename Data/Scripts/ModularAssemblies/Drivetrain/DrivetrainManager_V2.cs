@@ -1,9 +1,13 @@
-﻿using NavalPowerSystems.Communication;
+﻿using EmptyKeys.UserInterface.Controls;
+using NavalPowerSystems.Communication;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.Game.ObjectBuilders.Definitions;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
@@ -15,9 +19,8 @@ namespace NavalPowerSystems.Drivetrain_V2
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         public IEnumerable<DrivetrainSystem_V2> GetAssemblies => DrivetrainSystems.Values;
         private Dictionary<int, DrivetrainSystem_V2> DrivetrainSystems = new Dictionary<int, DrivetrainSystem_V2>();
+        private Dictionary<int, DrivetrainDistributor> MechanicalDistributors = new Dictionary<int, DrivetrainDistributor>();
         private Dictionary<IMyCubeGrid, NavalGridManager> GridManagers = new Dictionary<IMyCubeGrid, NavalGridManager>();
-
-
 
         public override void LoadData()
         {
@@ -80,6 +83,12 @@ namespace NavalPowerSystems.Drivetrain_V2
                 if (iGrid != null && noAssemblies)
                         GridManagers.Remove(iGrid);
             }
+            foreach (var dist in MechanicalDistributors.Values.ToList())
+            {
+                var assemblies = ModularApi.GetAllAssemblies();
+                if (assemblies.Any() && assemblies.Contains(dist.AssemblyId))
+                    MechanicalDistributors.Remove(dist.AssemblyId);
+            }
         }
 
         public static void OnPartAdd(int assemblyId, IMyCubeBlock block, bool isBasePart)
@@ -88,15 +97,22 @@ namespace NavalPowerSystems.Drivetrain_V2
 
             DrivetrainSystem_V2 drivetrain;
             NavalGridManager navalGridManager;
+            DrivetrainDistributor distributor;
             IMyCubeGrid grid = null;
+
             if (!Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
             {
                 drivetrain = new DrivetrainSystem_V2(assemblyId);
                 Instance.DrivetrainSystems.Add(assemblyId, drivetrain);
-                //ModularApi.Log($"DrivetrainManager created new assembly {assemblyId}");
 
                 grid = ModularApi.GetAssemblyGrid(assemblyId);
             }
+
+            if (!Instance.MechanicalDistributors.TryGetValue(assemblyId, out distributor))
+            {
+                Instance.MechanicalDistributors.Add(assemblyId, distributor);
+            }
+
             if (grid != null && !Instance.GridManagers.TryGetValue(grid, out navalGridManager))
             {
                 navalGridManager = new NavalGridManager(grid);

@@ -26,16 +26,13 @@ namespace NavalPowerSystems.Drivetrain_V2
             "NPS_Turbine_LM2500Plus",
             "NPS_Turbine_LM2500PlusG4"
     )]
-    public class EngineLogic_V2 : MyGameLogicComponent, IMyEventProxy, IDrivetrainNode
+    public class EngineLogic_V2 : DrivetrainPart<IMyFunctionalBlock>
     {
-        private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
-        private const float PhysicsStep = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
         private MyCubeBlock EngineCube;
         private MyEntitySubpart EngineSignage;
         private IMyTerminalBlock EngineTerminal;
         private IMyFunctionalBlock EngineFunctional;
         private MyCubeGrid EngineMyGrid;
-        private long EngineId;
         private IMyShipController EngineShipController;
         private EngineStats_V2 EngineStats;
         private double SystemInertia;
@@ -49,13 +46,10 @@ namespace NavalPowerSystems.Drivetrain_V2
         private static MySoundPair AudioFar;
         private MyEntity3DSoundEmitter Sound;
         private MyEntity3DSoundEmitter SoundDistant;
-
-        private int AssemblyId = -1;
         private string CurrentStatus = "Null";
         private int StartupTicks = 0;
         private int TicksToStart = 900; //15 seconds at 60 ticks per second
         private double RPMVarianceMult = 0.02;
-        private double IntegralError = 0;
         private double FlutterTime = 0;
         private double CurrentRPM = 0;
         private double PreviousRPM = 0;
@@ -65,13 +59,9 @@ namespace NavalPowerSystems.Drivetrain_V2
         private static bool ControlsInitialized = false;
         private MyResourceSinkComponent SinkFuel;
         private MyResourceSinkComponent SinkO2;
-        private HashSet<IMyCubeBlock> ConnectedParts = new HashSet<IMyCubeBlock>();
-        private List<DrivetrainPacket> PacketInbox = new List<DrivetrainPacket>();
-        public void ReceivePacket(DrivetrainPacket packet) => PacketInbox.Add(packet);
-        public double GetLoadWeight() => ClutchEngagement;
         private static EngineLogic_V2 GetLogic(IMyTerminalBlock engine) => engine?.GameLogic?.GetAs<EngineLogic_V2>();
         private double InputLoad = 0;
-        public double InputRPM = 0;
+        private double ClutchRPMToMatch = 0;
         private double OutputRPM = 0;
         private double OutputTorque = 0;
         private double FuelFlow = 0;
@@ -105,7 +95,6 @@ namespace NavalPowerSystems.Drivetrain_V2
             EngineCube = (MyCubeBlock)Entity;
             EngineTerminal = (IMyTerminalBlock)Entity;
             EngineFunctional = (IMyFunctionalBlock)Entity;
-            EngineId = Entity.EntityId;
 
             Audio = new MySoundPair(GasTurbineSoundID);
             AudioFar = new MySoundPair(GasTurbineSoundFarID);
@@ -207,10 +196,31 @@ namespace NavalPowerSystems.Drivetrain_V2
             {
                 distributor.AddSink(SinkFuel);
                 distributor.AddSink(SinkO2);
-                ModularApi.Log("Engine Logic fuel sink init complete.");
                 return true;
             }
             return false;
+        }
+
+        private void InitMechanicalResources(float maxBHP)
+        {
+            var sourceSHP = new MyResourceSourceComponent();
+            var infoSHP = new MyResourceSourceInfo()
+            {
+                ResourceTypeId = DrivetrainDistributor.SHPId,
+                DefinedOutput = maxBHP,
+                ProductionToCapacityMultiplier = 1
+            };
+
+            var sinkLoad = new MyResourceSinkComponent();
+            var infoLoad = new MyResourceSinkInfo()
+            {
+                ResourceTypeId = DrivetrainDistributor.LoadId,
+                MaxRequiredInput = float.MaxValue,
+                RequiredInputFunc =
+            };
+
+            sourceSHP.Init(MyStringHash.GetOrCompute("Mechanical"), infoSHP);
+            sourceSHP.SetMaxOutputByType(DrivetrainDistributor.SHPId, maxBHP);
         }
 
         private static void ControlsDoOnce()
@@ -223,7 +233,7 @@ namespace NavalPowerSystems.Drivetrain_V2
             ControlsInitialized = true;
         }
 
-        public override void UpdateAfterSimulation()
+        public override void UpdateBeforeSimulation()
         {
             if (EngineTerminal == null || EngineCube == null)
                 return;
@@ -232,46 +242,9 @@ namespace NavalPowerSystems.Drivetrain_V2
             GetControlInput();
             UpdateEngineState();
 
-            //Get any load information from downstream first
-            //ModularApi.Log($"{PacketInbox.Count} packets recieved by {EngineFunctional.BlockDefinition.SubtypeId}");
-            //int tickNow = MyAPIGateway.Session.GameplayFrameCounter;
-            double load = 0;
-
-            //In theory should only ever be 1 incoming packet, but just in case
-            for (int i = 0; i < PacketInbox.Count; i++)
-            {
-                var packet = PacketInbox[i];
-                //if (packet.TickSent != tickNow) continue;
-                if (IsLoadPacket(packet))
-                    load += packet.DownstreamLoad;
-            }
-
-            PacketInbox.Clear();
-            InputLoad = load;
-
             //Update physics based on load
             UpdateEngineClutchState();
             CalculateTorqueOutput();
-
-            //Send output information
-            if (ConnectedParts.Count > 0)
-            {
-                var packet = new DrivetrainPacket
-                {
-                    SenderId = EngineId,
-                    TickSent = MyAPIGateway.Session.GameplayFrameCounter,
-                    DownstreamLoad = double.NaN,
-                    UpstreamRPM = OutputRPM,
-                    UpstreamTorque = OutputTorque
-                };
-
-                foreach (var part in ConnectedParts)
-                {
-                    var logic = part.GameLogic?.GetAs<IDrivetrainNode>();
-                    if (logic != null)
-                        logic.ReceivePacket(packet);
-                }
-            }
 
             UpdateSoundEffects();
 
@@ -288,10 +261,6 @@ namespace NavalPowerSystems.Drivetrain_V2
                     HasFuel = false;
                 else
                     HasFuel = true;
-            }
-            if (SinkFuel.ResourceAvailableByType(MyDefinitionId.Parse("MyObjectBuilder_GasProperties/DieselFuel")) <= 0)
-            {
-                CurrentStatus = "No fuel.";
             }
         }
 
@@ -348,24 +317,8 @@ namespace NavalPowerSystems.Drivetrain_V2
             }
         }
 
-        private static bool IsLoadPacket(DrivetrainPacket p)
-        {
-            return double.IsNaN(p.UpstreamRPM) && double.IsNaN(p.UpstreamTorque);
-        }
-
-        private static bool IsOutputPacket(DrivetrainPacket p)
-        {
-            return double.IsNaN(p.DownstreamLoad);
-        }
-
         public void CleanAssembly()
         {
-            ConnectedParts.Clear();
-            foreach (IMyCubeBlock neighbor in ModularApi.GetConnectedBlocks(EngineTerminal, "Drivetrain_Definition_V2", false))
-            {
-                ConnectedParts.Add(neighbor);
-            }
-
             //Engine specific inertia totalling
             double systemInertia = 0;
             foreach (IMyCubeBlock block in ModularApi.GetMemberParts(AssemblyId))
@@ -516,8 +469,8 @@ namespace NavalPowerSystems.Drivetrain_V2
             CurrentRPM += changeInRPM;
             CurrentRPM = Math.Max(CurrentRPM, 0);
 
-            OutputRPM = CurrentRPM * ClutchEngagement;
-            OutputTorque = CurrentTorque * ClutchEngagement;
+            OutputRPM = CurrentRPM;
+            OutputTorque = CurrentTorque;
         }
 
         private void CalculateResourceUse()
@@ -572,7 +525,7 @@ namespace NavalPowerSystems.Drivetrain_V2
                     }
 
                     StartupTicks++;
-                    Terminal_Throttle.Value = 0.1f; //Maintain small throttle during startup
+                    Terminal_Throttle.Value = 0.05f; //Maintain small throttle during startup
 
                     if (StartupTicks >= TicksToStart)
                     {
@@ -619,8 +572,8 @@ namespace NavalPowerSystems.Drivetrain_V2
                 return;
             }
             double viscousClutch = 0;
-            double rpmDifference = Math.Abs(CurrentRPM - InputRPM);
-            double engagementWindow = Math.Max(InputRPM * 0.075, 50);
+            double rpmDifference = Math.Abs(CurrentRPM - ClutchRPMToMatch);
+            double engagementWindow = Math.Max(ClutchRPMToMatch * 0.075, 50);
 
             if (rpmDifference < engagementWindow)
                 Terminal_ClutchEngagement.Value += PhysicsStep;
@@ -629,8 +582,8 @@ namespace NavalPowerSystems.Drivetrain_V2
 
             Terminal_ClutchEngagement.Value = MathHelper.Clamp(Terminal_ClutchEngagement.Value, 0f, 1f);
 
-            if (RequestedThrottle > 0.15f && ClutchEngagement < 0.2f)
-                viscousClutch = 0.05f;
+            if (RequestedThrottle > 0.10f)
+                viscousClutch = 0.15f;
 
             Terminal_ClutchEngagement.Value = (float)Math.Max(Terminal_ClutchEngagement.Value, viscousClutch);
         }
@@ -682,10 +635,12 @@ namespace NavalPowerSystems.Drivetrain_V2
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder info)
         {
             info.AppendLine($"Status: {CurrentStatus}");
-            info.AppendLine($"RPM: {CurrentRPM:0}");
-            info.AppendLine($"Torque: {CurrentTorque:0}");
-            info.AppendLine($"Fuel Flow: {CurrentFuelUse:0.00} / {MaxFuelFlow} L/s");
-            info.AppendLine($"Mass Air Flow: {CurrentO2Use:0.00} / {MaxFuelFlow * 3.5} L/s");
+            info.AppendLine($"Clutch Engagement: {ClutchEngagement:0.00}");
+            info.AppendLine($"Clutch RPM To Match: {ClutchRPMToMatch:0.00}");
+            info.AppendLine($"RPM: {CurrentRPM:0.00}");
+            info.AppendLine($"Torque: {CurrentTorque:0.00}");
+            info.AppendLine($"Fuel Flow: {CurrentFuelUse:0.00} / {MaxFuelFlow:0.00} L/s");
+            info.AppendLine($"Mass Air Flow: {CurrentO2Use:0.00} / {MaxFuelFlow * 3.5:0.00} L/s");
         }
 
         static void CreateControls<IMyFunctionalBlock>()

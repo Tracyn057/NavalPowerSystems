@@ -12,6 +12,8 @@ namespace NavalPowerSystems.Drivetrain_V2
         public const double DriveshaftInertiaPerBlock = 92.5; //Inertia of driveshafts per 2.5m section, used for calculating response time
         public const double WaterDensity = 1024; //Density of water in kg/m^3. 1024 is used to account for seawater. Same value as Water Mod
 
+        public enum DrivetrainRole { Producer, Consumer, Transformer };
+
         public static readonly Dictionary<string, EngineStats_V2> EngineSettings_V2 = new Dictionary<string, EngineStats_V2>
         {
             //Gas Turbines
@@ -106,22 +108,5 @@ namespace NavalPowerSystems.Drivetrain_V2
     public class RudderStats_V2
     {
         public float SufaceArea; // Surface area of the rudder in square meters, used for calculating thrust and torque
-    }
-
-    public struct DrivetrainPacket
-    {
-        public long SenderId; //EntityId of the sending block
-        public int TickSent; //The tick counter number from when packet was created
-
-        public double DownstreamLoad; //Load requested from downstream consumers
-        public double UpstreamTorque; //Torque sent downstream from producers
-        public double UpstreamRPM; //Incoming RPM from torque source
-    }
-
-    public interface IDrivetrainNode
-    {
-        void ReceivePacket(DrivetrainPacket packet);
-        void CleanAssembly();
-        double GetLoadWeight();
     }
 }

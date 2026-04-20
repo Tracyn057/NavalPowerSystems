@@ -1,4 +1,5 @@
 ﻿using NavalPowerSystems.Communication;
+using Sandbox.ModAPI;
 using System.Collections.Generic;
 using VRage.Game;
 using VRage.Game.Components;
@@ -7,6 +8,7 @@ using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRageMath;
+using static Sandbox.Game.Components.MyRenderComponentThrust;
 
 namespace NavalPowerSystems.Drivetrain_V2
 {
@@ -28,17 +30,18 @@ namespace NavalPowerSystems.Drivetrain_V2
     {
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         private IMyCubeBlock ShaftIBlock;
-        public IDrivetrainNode ShaftNode;
+        public IDrivetrainNode ShaftNode => this as IDrivetrainNode;
         private MyEntitySubpart ShaftSubpart;
         private Matrix ShaftSubpartInitialMatrix;
         private long ShaftId;
         private float CurrentAngle;
         public bool ShouldAnimate = false;
-        private HashSet<IMyCubeBlock> ConnectedParts = new HashSet<IMyCubeBlock>();
-        private long IncomingId = 0; //Load coming from downstream -- Send output information back
-        private long OutgoingId = 0; //Output coming from upstream -- Send load information back
+        private Dictionary<IMyCubeBlock, IDrivetrainNode> ConnectedParts = new Dictionary<IMyCubeBlock, IDrivetrainNode>();
+        private IDrivetrainNode LoadRequestNode; //Load coming from downstream -- Send output information back
         private List<DrivetrainPacket> PacketInbox = new List<DrivetrainPacket>();
         public void ReceivePacket(DrivetrainPacket packet) => PacketInbox.Add(packet);
+        public long GetNodeID() => ShaftId;
+        public string GetNodeSubtype() => ShaftIBlock.BlockDefinition.SubtypeId;
         public double GetLoadWeight() => 1;
         private double InputLoad = 0;
         private double OutputRPM = 0;
@@ -60,36 +63,26 @@ namespace NavalPowerSystems.Drivetrain_V2
             Entity.TryGetSubpart("Driveshaft", out ShaftSubpart);
             if (ShaftSubpart != null)
                 ShaftSubpartInitialMatrix = ShaftSubpart.PositionComp.WorldMatrixRef;
+            else
+                ModularApi.Log($"{ShaftIBlock.BlockDefinition.SubtypeId} subpart is null.");
 
             NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
         }
 
         public override void UpdateBeforeSimulation()
         {
-            foreach (var packet in PacketInbox)
-            {
-                foreach (var neighbor in ConnectedParts)
+
+                //Animate
+                if (ShaftSubpart != null && OutputRPM != 0 && ShouldAnimate)
                 {
-                    var logic = neighbor.GameLogic?.GetAs<IDrivetrainNode>();
-                    if (logic == null || neighbor.EntityId == packet.SenderId) continue;
+                    float degreesPerTick = (float)OutputRPM * 360f / 3600f; // convert RPM → degrees/tick at 60 Hz
+                    CurrentAngle += degreesPerTick;
+                    CurrentAngle %= 360f;
 
-                    logic.ReceivePacket(packet);
-                    OutputRPM = double.IsNaN(packet.UpstreamRPM) ? 0 : packet.UpstreamRPM;
+                    Matrix rotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(-CurrentAngle));
+                    Matrix finalMatrix = rotationMatrix * ShaftSubpartInitialMatrix;
+                    ShaftSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
                 }
-            }
-            PacketInbox.Clear();
-
-            //Animate
-            if (ShaftSubpart != null && OutputRPM != 0 && ShouldAnimate)
-            {
-                float degreesPerTick = (float)OutputRPM * 360f / 3600f; // convert RPM → degrees/tick at 60 Hz
-                CurrentAngle += degreesPerTick;
-                CurrentAngle %= 360f;
-
-                Matrix rotationMatrix = Matrix.CreateRotationZ(MathHelper.ToRadians(-CurrentAngle));
-                Matrix finalMatrix = rotationMatrix * ShaftSubpartInitialMatrix;
-                ShaftSubpart.PositionComp.SetLocalMatrix(ref finalMatrix);
-            }
         }
 
         public void CleanAssembly()
@@ -97,8 +90,22 @@ namespace NavalPowerSystems.Drivetrain_V2
             ConnectedParts.Clear();
             foreach (IMyCubeBlock neighbor in ModularApi.GetConnectedBlocks(ShaftIBlock, "Drivetrain_Definition_V2", false))
             {
-                ConnectedParts.Add(neighbor);
+                var logic = neighbor.GameLogic?.GetAs<MyGameLogicComponent>() as IDrivetrainNode;
+                if (logic != null)
+                {
+                    ConnectedParts[neighbor] = logic;
+                }
             }
+        }
+
+        private static bool IsLoadPacket(DrivetrainPacket p)
+        {
+            return double.IsNaN(p.UpstreamRPM) && double.IsNaN(p.UpstreamTorque);
+        }
+
+        private static bool IsOutputPacket(DrivetrainPacket p)
+        {
+            return double.IsNaN(p.DownstreamLoad);
         }
     }
 }
