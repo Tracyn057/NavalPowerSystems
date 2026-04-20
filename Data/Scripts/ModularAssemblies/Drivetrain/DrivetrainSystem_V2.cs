@@ -18,6 +18,8 @@ namespace NavalPowerSystems.Drivetrain_V2
         public const double ViewRange = 600;
         public const double ViewPadding = 200;
 
+
+
         private List<IMyCubeBlock> AllBlocks = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Engines = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Motors = new List<IMyCubeBlock>();
@@ -26,7 +28,8 @@ namespace NavalPowerSystems.Drivetrain_V2
         private List<IMyCubeBlock> Gearboxes = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Propellers = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Driveshafts = new List<IMyCubeBlock>();
-        private List<DriveshaftSection> DriveshaftSections = new List<DriveshaftSection>();
+        private List<LinkedPath> LinkedPaths = new List<LinkedPath>();
+        private Dictionary<long, DriveshaftSection> DriveshaftSections = new Dictionary<long, DriveshaftSection>();
 
         public DrivetrainSystem_V2(int assemblyId)
         {
@@ -58,9 +61,6 @@ namespace NavalPowerSystems.Drivetrain_V2
             }
             else if (Config.DriveshaftSubtypes.Contains(subtype))
             {
-                var logic = new DriveshaftLogic_V2();
-                block.GameLogic = logic;
-                logic.Init(block.GetObjectBuilder());
                 Driveshafts.Add(block);
                 AllBlocks.Add(block);
             }
@@ -103,7 +103,10 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public void UpdateTick10()
         {
-            
+            if (DirtyAssembly)
+            {
+                RebuildDrivetrain();
+            }
         }
 
         public void UpdateTick100()
@@ -119,18 +122,119 @@ namespace NavalPowerSystems.Drivetrain_V2
             DistanceToCamera = Vector3D.Distance(SystemGrid.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
         }
 
-        private void ValidateSystem()
+        private void RebuildDrivetrain()
         {
+            LinkedPaths.Clear();
+            DriveshaftSections.Clear();            
 
+            foreach (var engineBlock in Engines)
+            {
+                var engineLogic = engineBlock.GameLogic?.GetAs<IDrivetrainPart>();
+                if (engineLogic == null) continue;
+
+                foreach (var propBlock in Propellers)
+                {
+                    var propLogic = propBlock.GameLogic?.GetAs<IDrivetrainPart>();
+                    if (propLogic == null) continue;
+
+                    var newPath = new LinkedPath(engineLogic, propLogic);
+                    var visited = new HashSet<IMyCubeBlock>();
+                    if (RunTrace(engineBlock, engineBlock, propBlock, 1.0f, newPath, ref visited, ref DriveshaftSections))
+                        LinkedPaths.Add(newPath);
+                }
+            }
         }
 
-        public struct DriveshaftSection
+        private bool RunTrace(
+            IMyCubeBlock startBlock, //Producer
+            IMyCubeBlock currentBlock,
+            IMyCubeBlock targetBlock, //Consumer
+            float ratio,
+            LinkedPath path,
+            ref HashSet<IMyCubeBlock> visited,
+            ref Dictionary<long, DriveshaftSection> sections)
+        {
+            if (!visited.Add(currentBlock)) return false;
+
+            var logic = currentBlock.GameLogic?.GetAs<IDrivetrainPart>();
+            var subtype = currentBlock.BlockDefinition.SubtypeName;
+            if (logic != null)
+            {
+                path.PathMembers.Add(logic);
+                if (Config.GearboxSubtypes.Contains(subtype))
+                    ratio *= logic.GetRatio();
+            }
+
+            if (currentBlock == targetBlock)
+            {   
+                path.PathGearRatio = ratio;
+                return true;
+            }
+
+            var connectedBlocks = ModularApi.GetConnectedBlocks(currentBlock, "Drivetrain_Definition_V2", false);
+            foreach (var connected in connectedBlocks)
+            {
+                long sectionId = GetSectionId(currentBlock, connected);
+
+                if (Config.DriveshaftSubtypes.Contains(subtype))
+                {
+                    if (!sections.ContainsKey(sectionId))
+                    {
+                        sections.Add(sectionId, new DriveshaftSection{ SectionController = currentBlock });
+                    }
+                }
+
+                if (RunTrace(startBlock, connected, targetBlock, ratio, path, ref visited, ref sections))
+                    return true;
+            }
+
+            if (logic != null) path.PathMembers.Remove(logic);
+            return false;
+        }
+
+        private long GetSectionId(IMyCubeBlock a, IMyCubeBlock b)
+        {
+            long idA = a.Entity.EntityId;
+            long idB = b.Entity.EntityId;
+
+            long id1 = Math.Min(idA, idB);
+            long id2 = Math.Max(idA, idB);
+
+            return (id1 << 32) | (uint)id2;
+        }
+
+        public class DriveshaftSection
         {
             public IMyCubeBlock SectionController;
             public float CurrentAngle;
             public bool IsCCW;
 
-            public Dictionary<MyEntitySubpart, Matrix> ShaftSubparts;
+            public Dictionary<MyEntitySubpart, Matrix> ShaftSubparts = new Dictionary<MyEntitySubpart, Matrix>();
+            public void UpdateRotation(float deltaAngle)
+            {
+                float direction = IsCCW ? -1f : 1f;
+                CurrentAngle += deltaAngle * direction;
+
+                if (CurrentAngle >= 360f) CurrentAngle -= 360f;
+                if (CurrentAngle < 0f) CurrentAngle += 360f;
+            }
+        }
+
+        public class LinkedPath
+        {
+            public readonly IDrivetrainPart Producer;
+            public readonly IDrivetrainPart Consumer;
+
+            public readonly List<IDrivetrainPart> PathMembers = new List<IDrivetrainPart>();
+            public float PathGearRatio { get; internal set; } = 1.0f;
+            public bool IsValid => Producer != null && Consumer != null;
+
+            public LinkedPath(IDrivetrainPart producer, IDrivetrainPart consumer)
+            {
+                Producer = producer;
+                Consumer = consumer;
+            }
+
         }
     }
 }

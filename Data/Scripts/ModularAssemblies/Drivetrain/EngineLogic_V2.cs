@@ -200,29 +200,6 @@ namespace NavalPowerSystems.Drivetrain_V2
             }
             return false;
         }
-
-        private void InitMechanicalResources(float maxBHP)
-        {
-            var sourceSHP = new MyResourceSourceComponent();
-            var infoSHP = new MyResourceSourceInfo()
-            {
-                ResourceTypeId = DrivetrainDistributor.SHPId,
-                DefinedOutput = maxBHP,
-                ProductionToCapacityMultiplier = 1
-            };
-
-            var sinkLoad = new MyResourceSinkComponent();
-            var infoLoad = new MyResourceSinkInfo()
-            {
-                ResourceTypeId = DrivetrainDistributor.LoadId,
-                MaxRequiredInput = float.MaxValue,
-                RequiredInputFunc =
-            };
-
-            sourceSHP.Init(MyStringHash.GetOrCompute("Mechanical"), infoSHP);
-            sourceSHP.SetMaxOutputByType(DrivetrainDistributor.SHPId, maxBHP);
-        }
-
         private static void ControlsDoOnce()
         {
             if (ControlsInitialized) return;
