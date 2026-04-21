@@ -34,6 +34,8 @@ namespace NavalPowerSystems.Drivetrain.Engine
         private IMyShipController MyShipController;
         private MyEntitySubpart MySubpart;
         private EngineStats_V2 MyStats => Drivetrain_Config.EngineSettings_V2[SubtypeName];
+        private EngineSettings Settings;
+
         #region Engine Control Variables
         private int StartupTicks = 0;
         private int TicksToStart = 900; //15 seconds
@@ -46,9 +48,10 @@ namespace NavalPowerSystems.Drivetrain.Engine
         private double RequestedLoad = 0;
         private double CurrentTorque = 0;
         private double SystemInertia = 0;
-        private EngineState CurrentState = EngineState.Off;
+        
         public enum EngineState { Off, Starting, Running, Stopping }
         #endregion
+
         #region Interface Variables
         public DrivetrainRole Role { get; private set; } = DrivetrainRole.Producer;
         public float EngagementMult { get; private set; }
@@ -57,6 +60,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
         public double Load_In { get; set; }
         public double Torque_Out { get; private set; }
         #endregion
+
         #region Resource Sink Variables
         private double FuelResponseRate = 0.1;
         private double CurrentFuelUse = 0;
@@ -66,10 +70,13 @@ namespace NavalPowerSystems.Drivetrain.Engine
         private MyResourceSinkComponent SinkFuel;
         private MyResourceSinkComponent SinkO2;
         #endregion
+
         #region Sync, Terminal and Settings Variables
         private static bool ControlsInitialized = false;
         MySync<bool, SyncDirection.BothWays> Terminal_RequestEngineOn;
         private bool RequestEngineOn;
+        MySync<int, SyncDirection.BothWays> Terminal_EngineState;
+        private EngineState CurrentState = EngineState.Off;
         MySync<float, SyncDirection.BothWays> Terminal_Throttle;
         public float Throttle = 0f;
         MySync<int, SyncDirection.BothWays> Terminal_ThrottleIndex;
@@ -109,8 +116,17 @@ namespace NavalPowerSystems.Drivetrain.Engine
         {
             base.UpdateAfterSimulation();
 
+            RequestedLoad = Load_In;
+            ClutchRPMToMatch = RPM_In;
             GetControlInput();
+            UpdateEngineState();
+            UpdateEngineClutchState();
+            CalculateTorqueOutput();
+            CalculateResourceUse();
+            Torque_Out = CurrentTorque * (double)ClutchEngagement;
+            RPM_Out = CurrentRPM;
 
+            //HasFuel doesn't seem to play well with terminal. Mostly O2. Suspect because of no O2 storage.
             if (MyAPIGateway.Session.IsServer)
             {
                 if (
@@ -135,6 +151,19 @@ namespace NavalPowerSystems.Drivetrain.Engine
 
             RecalculateController();
         }
+
+        public override double GetTorque()
+        {
+            if (!Block.IsWorking || CurrentState == EngineState.Off || CurrentState == EngineState.Stopping)
+                return 0;
+
+            return Torque_Out;
+        }
+
+        public override float GetRatio()
+        {
+            return ClutchEngagement;
+        }
         #endregion
 
         #region Initial Setup
@@ -151,6 +180,9 @@ namespace NavalPowerSystems.Drivetrain.Engine
         {
             Terminal_RequestEngineOn.SetLocalValue(RequestEngineOn);
             Terminal_RequestEngineOn.ValueChanged += Terminal_RequestEngineOn_ValueChanged;
+
+            Terminal_EngineState.SetLocalValue((int)CurrentState);
+            Terminal_EngineState.ValueChanged += Terminal_EngineState_ValueChanged;
 
             Terminal_Throttle.SetLocalValue(Throttle);
             Terminal_Throttle.ValueChanged += Terminal_Throttle_ValueChanged;
@@ -224,12 +256,197 @@ namespace NavalPowerSystems.Drivetrain.Engine
             return false;
         }
         #endregion
+
         #region Physics and Operation
+        public override double GetTorque()
+        {
+            return CurrentTorque * ClutchEngagement;
+        }
+
+        public override double GetRatio()
+        {
+            return ClutchEngagement;
+        }
+
         private void UpdateSoundEffects()
         {
             if (MyAPIGateway.Utilities.IsDedicated) return;
         }
+
+        private void CalculateResourceUse()
+        {
+            if (CurrentRPM <= 0f || CurrentState == EngineState.Off)
+            {
+                CurrentFuelUse = 0f;
+                CurrentO2Use = 0f;
+                return;
+            }
+
+            CurrentFuelUse = (float)FuelFlow * MaxFuelFlow * Config.globalFuelMult;
+            CurrentO2Use = CurrentFuelUse * 3.5;
+
+            //Adjust to tick scale
+            CurrentFuelUse *= PhysicsStep;
+            CurrentO2Use *= PhysicsStep;
+        }
+
+        private void CalculateTorqueOutput()
+        {
+            if (!EngineTerminal.IsWorking || CurrentState == EngineState.Off)
+            {
+                CurrentRPM = 0;
+                CurrentTorque = 0;
+                RPM_Out = 0;
+                Torque_Out = 0;
+                FuelFlow = 0;
+                return;
+            }
+
+            double peakRPM = MyStats.PeakRPM;
+            double peakTorque = MyStats.PeakTorque;
+
+            FlutterTime += PhysicsStep;
+
+            //Target RPM with noise
+            double flutter =
+                (Math.Sin(FlutterTime * 12) + //Base noise
+                Math.Sin(FlutterTime * 40) * 0.3 + //High frequency
+                MyUtils.GetRandomDouble(-5, 5) * 0.2) //Noise
+                * RPMVarianceMult * peakRPM;
+
+            double targetRPM = Throttle * peakRPM + flutter;
+            double minRPM = (CurrentState == EngineState.Stopping) ? 0 : 700;
+            targetRPM = Math.Max(targetRPM, minRPM);
+
+            //Governor
+            double error = targetRPM - CurrentRPM;
+            double rpmRate = (CurrentRPM - PreviousRPM) / PhysicsStep;
+            PreviousRPM = CurrentRPM;
+            double kp = 1.0 / (peakRPM * 0.1);
+            double kd = 0.02;
+            double fuelCommand = (error * kp) - (rpmRate * kd);
+            fuelCommand = MathHelper.Clamp(fuelCommand, 0, 1);
+            FuelFlow += (fuelCommand - FuelFlow) * FuelResponseRate; //Fuel system lag
+
+            //Engine capability
+            double deviation = (CurrentRPM - peakRPM) / peakRPM;
+            double availableTorque = peakTorque * (1 - MyStats.PowerCurveConstant * Math.Pow(deviation, 2));
+            availableTorque = Math.Max(availableTorque, 0);
+            CurrentTorque = availableTorque * FuelFlow; //Fuel converts to torque
+
+            //Internal loss
+            double rpmFactor = CurrentRPM / peakRPM;
+            double baseLoad = peakTorque * 0.02;
+            double dynamicLoad = peakTorque * 0.03 * rpmFactor * rpmFactor;
+            double internalLoad = baseLoad + dynamicLoad;
+
+            //RPM Change and net torque
+            double netTorque = CurrentTorque - (RequestedLoad + internalLoad);
+            double angularAcceleration = netTorque / (MyStats.EngineInertia + SystemInertia);
+            double changeInRPM = angularAcceleration * 9.5488 * PhysicsStep;
+
+            CurrentRPM += changeInRPM;
+            CurrentRPM = Math.Max(CurrentRPM, 0);
+        }
+
+        private void UpdateEngineState()
+        {
+            //bool canRun = HasFuel && EngineTerminal.IsWorking; //HasFuel is strange with O2
+            bool canRun = Block.IsWorking;
+            bool shouldRun = canRun && RequestEngineOn;
+
+            if (!shouldRun && CurrentState == EngineState.Running)
+            {
+                CurrentStatus = "Shutting Down";
+                Terminal_EngineState = EngineState.Stopping;
+            }
+            else if (shouldRun && CurrentState == EngineState.Running && CurrentRPM < 500)
+            {
+                CurrentStatus = "Engine Stall";
+                Terminal_EngineState = EngineState.Stopping;
+                Terminal_RequestEngineOn = false;
+            }
+
+            switch (CurrentState)
+            {
+                case EngineState.Off:
+                    if (shouldRun)
+                    {
+                        Terminal_EngineState = EngineState.Starting;
+                        CurrentStatus = "Starting";
+                    }
+                    break;
+
+                case EngineState.Starting:
+                    if (!shouldRun)
+                    {
+                        Terminal_EngineState = EngineState.Off;
+                        StartupTicks = 0;
+                        CurrentStatus = "Off";
+                        return;
+                    }
+
+                    StartupTicks++;
+                    Terminal_Throttle.Value = 0.05f; //Maintain small throttle during startup
+
+                    if (StartupTicks >= TicksToStart)
+                    {
+                        Terminal_EngineState = EngineState.Running;
+                        CurrentStatus = "Running";
+                    }
+                    break;
+
+                case EngineState.Running:
+                    if (!shouldRun)
+                    {
+                        Terminal_EngineState = EngineState.Stopping;
+                        StartupTicks = 0;
+                        CurrentStatus = "Shutting Down";
+                    }
+                    break;
+
+                case EngineState.Stopping:
+                    if (shouldRun)
+                    {
+                        Terminal_EngineState = EngineState.Running;
+                        CurrentStatus = "Running";
+                        return;
+                    }
+                    if (CurrentRPM <= 100)
+                    {
+                        Terminal_EngineState = EngineState.Off;
+                        StartupTicks = 0;
+                        CurrentStatus = "Off";
+                    }
+                    break;
+            }
+        }
+
+        private void UpdateEngineClutchState()
+        {
+            if (ClutchLocked)
+            {
+                Terminal_ClutchEngagement.Value = 0f;
+                return;
+            }
+            double viscousClutch = 0;
+            double rpmDifference = Math.Abs(CurrentRPM - ClutchRPMToMatch);
+            double engagementWindow = Math.Max(ClutchRPMToMatch * 0.075, 50);
+
+            if (rpmDifference < engagementWindow)
+                Terminal_ClutchEngagement.Value += PhysicsStep;
+            else
+                Terminal_ClutchEngagement.Value -= PhysicsStep;
+
+            Terminal_ClutchEngagement.Value = MathHelper.Clamp(Terminal_ClutchEngagement.Value, 0f, 1f);
+
+            if (Throttle > 0.10f)
+                viscousClutch = 0.15f;
+
+            Terminal_ClutchEngagement.Value = (float)Math.Max(Terminal_ClutchEngagement.Value, viscousClutch);
+        }
         #endregion
+
         #region UI and Controls
         private void GetControlInput()
         {
@@ -246,7 +463,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
             {
                 Terminal_Throttle.Value = Math.Max(Terminal_Throttle.Value - throttleStep, 0f);
             }
-            if (!KeepThrottle)
+            if (!KeepThrottle || ThrottleIndex <= 0)
             {
                 if (moveIndicator == 0)
                 {
@@ -276,8 +493,8 @@ namespace NavalPowerSystems.Drivetrain.Engine
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder info)
         {
             info.AppendLine($"Status: {CurrentStatus}");
-            info.AppendLine($"Clutch Engagement: {ClutchEngagement:0.00}");
-            info.AppendLine($"Clutch RPM To Match: {ClutchRPMToMatch:0.00}");
+            info.AppendLine($"Clutch Engagement: {ClutchEngagement:0.00}"); //Debug
+            info.AppendLine($"Clutch RPM To Match: {ClutchRPMToMatch:0.00}"); //Debug
             info.AppendLine($"RPM: {CurrentRPM:0.00}");
             info.AppendLine($"Torque: {CurrentTorque:0.00}");
             info.AppendLine($"Fuel Flow: {CurrentFuelUse:0.00} / {MaxFuelFlow:0.00} L/s");
@@ -347,7 +564,6 @@ namespace NavalPowerSystems.Drivetrain.Engine
                     list.Add(new MyTerminalControlComboBoxItem { Key = 2, Value = MyStringId.GetOrCompute("Ahead Standard") });
                     list.Add(new MyTerminalControlComboBoxItem { Key = 3, Value = MyStringId.GetOrCompute("Ahead Full") });
                     list.Add(new MyTerminalControlComboBoxItem { Key = 4, Value = MyStringId.GetOrCompute("Flank") });
-                    list.Add(new MyTerminalControlComboBoxItem { Key = 5, Value = MyStringId.GetOrCompute("Emergency") });
                 };
                 Control_ThrottleIndex.Visible = Control_Visible;
                 Control_ThrottleIndex.SupportsMultipleBlocks = true;
@@ -386,13 +602,36 @@ namespace NavalPowerSystems.Drivetrain.Engine
         private void Terminal_RequestEngineOn_ValueChanged(MySync<bool, SyncDirection.BothWays> obj)
         {
             RequestEngineOn = obj.Value;
+            Settings.EngineRequestOn = obj.Value;
             UpdateControls();
+            SaveSettings();
+        }
+
+        private void Terminal_EngineState_ValueChanged(MySync<int, SyncDirection.BothWays> obj)
+        {
+            CurrentState = (EngineState)obj.Value;
+            Settings.EngineStateIndex = obj.Value;
+            UpdateControls();
+            SaveSettings();
         }
 
         private void Terminal_Throttle_ValueChanged(MySync<float, SyncDirection.BothWays> obj)
         {
             Throttle = obj.Value;
+            Settings.Throttle = obj.Value;
+
+            if (Throttle == 0f)
+                Terminal_ThrottleIndex = 0;
+            else if (Throttle == 0.15f)
+                Terminal_ThrottleIndex = 1;
+            else if (Throttle == 0.35f)
+                Terminal_ThrottleIndex = 2;
+            else if (Throttle == 0.65f)
+                Terminal_ThrottleIndex = 3;
+            else if (Throttle == 1f)
+                Terminal_ThrottleIndex = 4;
             UpdateControls();
+            SaveSettings();
         }
 
         private void Terminal_ThrottleIndex_ValueChanged(MySync<int, SyncDirection.BothWays> obj)
@@ -427,13 +666,17 @@ namespace NavalPowerSystems.Drivetrain.Engine
         private void Terminal_KeepThrottle_ValueChanged(MySync<bool, SyncDirection.BothWays> obj)
         {
             KeepThrottle = obj.Value;
+            Settings.KeepThrottle = obj.Value;
             UpdateControls();
+            SaveSettings();
         }
 
         private void Terminal_ClutchLocked_ValueChanged(MySync<bool, SyncDirection.BothWays> obj)
         {
             ClutchLocked = obj.Value;
+            Settings.ClutchLocked = obj.Value;
             UpdateControls();
+            SaveSettings();
         }
 
         private void Terminal_ClutchEngagement_ValueChanged(MySync<float, SyncDirection.BothWays> obj)
@@ -532,5 +775,97 @@ namespace NavalPowerSystems.Drivetrain.Engine
                 logic.Terminal_RequestEngineOn.ValidateAndSet(value);
         }
         #endregion
+
+        #region Settings and Saving
+        private void SetDefaultSettings()
+        {
+            if (!MyAPIGateway.Session.IsServer)
+                return;
+
+            Settings.EngineRequestOn = false;
+            Settings.EngineStateIndex = 0;
+            Settings.Throttle = 0f;
+            Settings.KeepThrottle = false;
+            Settings.ClutchLocked = true;
+        }
+
+        internal virtual bool LoadSettings()
+        {
+            if (Settings == null)
+                Settings = new EngineSettings();
+
+            if (Block.Storage == null)
+            {
+                SetDefaultSettings();
+                return false;
+            }
+
+            string rawData;
+            if (!Block.Storage.TryGetValue(SettingsGuid, out rawData))
+            {
+                SetDefaultSettings();
+                return false;
+            }
+
+            try
+            {
+                var loadedSettings =
+                    MyAPIGateway.Utilities.SerializeFromBinary<EngineSettings>(Convert.FromBase64String(rawData));
+
+                if (loadedSettings != null)
+                {
+                    Settings.EngineRequestOn = loadedSettings.EngineRequestOn;
+                    Settings.EngineStateIndex = loadedSettings.EngineStateIndex;
+                    Settings.Throttle = loadedSettings.Throttle;
+                    Settings.KeepThrottle = loadedSettings.KeepThrottle;
+                    Settings.ClutchLocked = loadedSettings.ClutchLocked;
+
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                MyLog.Default.WriteLineAndConsole("Exception in loading Engine settings: " + e);
+                MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Exception in loading Engine settings: " + e);
+                ModularApi.Log("Exception in loading Engine settings: " + e);
+            }
+
+            return false;
+        }
+
+        private void SaveSettings()
+        {
+            if (Block == null || Settings == null)
+            {
+                ModularApi.Log($"Block or Settings null on Engine.");
+                return; // called too soon or after it was already closed, ignore
+            }
+
+            if (MyAPIGateway.Utilities == null)
+                throw new NullReferenceException(
+                    $"MyAPIGateway.Utilities == null; entId={Entity?.EntityId}; Test log 2");
+
+            if (Block.Storage == null)
+                Block.Storage = new MyModStorageComponent();
+
+            Block.Storage.SetValue(SettingsGuid,
+                Convert.ToBase64String(MyAPIGateway.Utilities.SerializeToBinary(Settings)));
+        }
+        #endregion
+    }
+
+    [ProtoContract]
+    internal class EngineSettings
+    {
+        [ProtoMember(1)]
+        public bool EngineRequestOn;
+        [ProtoMember(2)]
+        public int EngineStateIndex;
+        [ProtoMember(3)]
+        public float Throttle;
+        [ProtoMember(4)]
+        public bool KeepThrottle;
+        [ProtoMember(5)]
+        public bool ClutchLocked;
     }
 }

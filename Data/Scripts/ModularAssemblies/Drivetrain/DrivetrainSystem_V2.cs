@@ -25,6 +25,9 @@ namespace NavalPowerSystems.Drivetrain_V2
         private List<IMyCubeBlock> Gearboxes = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Propellers = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Driveshafts = new List<IMyCubeBlock>();
+        private List<IDrivetrainPart> Producers = new List<IDrivetrainPart>();
+        private List<IDrivetrainPart> Transformers = new List<IDrivetrainPart>();
+        private List<IDrivetrainPart> Consumers = new List<IDrivetrainPart>();
         private List<LinkedPath> LinkedPaths = new List<LinkedPath>();
         private Dictionary<long, DriveshaftSection> DriveshaftSections = new Dictionary<long, DriveshaftSection>();
 
@@ -45,16 +48,25 @@ namespace NavalPowerSystems.Drivetrain_V2
             {
                 Engines.Add(block);
                 AllBlocks.Add(block);
+                var logic = block.GameLogic?.GetAs<IDrivetrainPart>();
+                if (logic != null)
+                    Producers.Add(logic);
             }
             else if (Config.GearboxSubtypes.Contains(subtype))
             {
                 Gearboxes.Add(block);
                 AllBlocks.Add(block);
+                var logic = block.GameLogic?.GetAs<IDrivetrainPart>();
+                if (logic != null)
+                    Transformers.Add(logic);
             }
             else if (Config.PropellerSubtypes.Contains(subtype))
             {
                 Propellers.Add(block);
                 AllBlocks.Add(block);
+                var logic = block.GameLogic?.GetAs<IDrivetrainPart>();
+                if (logic != null)
+                    Consumers.Add(logic);
             }
             else if (Config.DriveshaftSubtypes.Contains(subtype))
             {
@@ -75,16 +87,25 @@ namespace NavalPowerSystems.Drivetrain_V2
             {
                 Engines.Remove(block);
                 AllBlocks.Remove(block);
+                var logic = block.GameLogic?.GetAs<IDrivetrainPart>();
+                if (logic != null)
+                    Producers.Remove(logic);
             }
             else if (Config.GearboxSubtypes.Contains(subtype))
             {
                 Gearboxes.Remove(block);
                 AllBlocks.Remove(block);
+                var logic = block.GameLogic?.GetAs<IDrivetrainPart>();
+                if (logic != null)
+                    Transformers.Remove(logic);
             }
             else if (Config.PropellerSubtypes.Contains(subtype))
             {
                 Propellers.Remove(block);
                 AllBlocks.Remove(block);
+                var logic = block.GameLogic?.GetAs<IDrivetrainPart>();
+                if (logic != null)
+                    Consumers.Remove(logic);
             }
             else if (Config.DriveshaftSubtypes.Contains(subtype))
             {
@@ -96,7 +117,36 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public void UpdateTick()
         {
+            //Go away if there's nothing to do
+            if (LinkedPaths.Count() <= 0)
+                return;
 
+            foreach (var prod in Producers) prod.Load_In = 0;
+            var shafts = LinkedPaths.GroupBy(p => p.Consumer);
+
+            foreach (var shaft in shafts)
+            {
+                var con = shaft.Key;
+                double conLoad = con.GetLoad();
+                int prodsForCon = shaft.Count();
+
+                foreach (var path in shaft)
+                {
+                    double brakeLoad = 0;
+
+                    foreach (var member in path.PathMembers)
+                    {
+                        if (member.Role != Tranformer) continue;
+
+                        brakeLoad += member.GetLoad();
+                    }
+
+                    double gearedLoad = (conLoad + brakeLoad) / path.PathGearRatio;
+                    double prodLoad = gearedLoad / prodsForCon;
+
+                    path.Producer.Load_In += prodLoad;
+                }
+            }
         }
 
         public void UpdateTick10()
