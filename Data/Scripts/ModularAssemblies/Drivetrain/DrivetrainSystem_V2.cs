@@ -13,12 +13,9 @@ namespace NavalPowerSystems.Drivetrain_V2
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         public readonly int AssemblyId;
         private readonly IMyCubeGrid SystemGrid;
-        private double DistanceToCamera;
         public bool DirtyAssembly = true;
-        public const double ViewRange = 600;
-        public const double ViewPadding = 200;
-
-
+        private double DistanceToCamera;
+        public const double ViewRange = 750;
 
         private List<IMyCubeBlock> AllBlocks = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Engines = new List<IMyCubeBlock>();
@@ -64,8 +61,6 @@ namespace NavalPowerSystems.Drivetrain_V2
                 Driveshafts.Add(block);
                 AllBlocks.Add(block);
             }
-
-            //ModularApi.Log($"Adding {subtype} to assembly {AssemblyId}. Assembly now contains {AllBlocks.Count} parts.");
             DirtyAssembly = true;
         }
 
@@ -96,9 +91,12 @@ namespace NavalPowerSystems.Drivetrain_V2
                 Driveshafts.Remove(block);
                 AllBlocks.Remove(block);
             }
-
-            //ModularApi.Log($"Removing {subtype} from assembly {AssemblyId}. Assembly now contains {AllBlocks.Count} parts.");
             DirtyAssembly = true;
+        }
+
+        public void UpdateTick()
+        {
+
         }
 
         public void UpdateTick10()
@@ -111,7 +109,11 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public void UpdateTick100()
         {
-            UpdateCameraDistance();
+            if (!MyAPIGateway.Utilities.IsDedicated)
+            {
+                UpdateCameraDistance();
+            }
+            
         }
 
         private void UpdateCameraDistance()
@@ -141,6 +143,20 @@ namespace NavalPowerSystems.Drivetrain_V2
                     var visited = new HashSet<IMyCubeBlock>();
                     if (RunTrace(engineBlock, engineBlock, propBlock, 1.0f, newPath, ref visited, ref DriveshaftSections))
                         LinkedPaths.Add(newPath);
+                }
+            }
+
+            foreach (var section in DriveshaftSections)
+            {
+                var logic = section.Value.ControllerLogic;
+                if (logic == null) continue;
+                if (logic.GetRole() == DrivetrainRole.Consumer)
+                {
+                    var subtype = section.Value.SectionController.BlockDefinition.SubtypeId;
+                    if (subtype != null && Drivetrain_Config.PropellerSettings_V2[subtype].IsCCW)
+                    {
+                        section.Value.IsCCW = true;
+                    }
                 }
             }
         }
@@ -180,7 +196,10 @@ namespace NavalPowerSystems.Drivetrain_V2
                 {
                     if (!sections.ContainsKey(sectionId))
                     {
-                        sections.Add(sectionId, new DriveshaftSection{ SectionController = currentBlock });
+                        sections.Add(sectionId, new DriveshaftSection{ 
+                            SectionController = currentBlock,
+                            ControllerLogic = logic
+                        });
                     }
                 }
 
@@ -194,8 +213,8 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         private long GetSectionId(IMyCubeBlock a, IMyCubeBlock b)
         {
-            long idA = a.Entity.EntityId;
-            long idB = b.Entity.EntityId;
+            long idA = a.EntityId;
+            long idB = b.EntityId;
 
             long id1 = Math.Min(idA, idB);
             long id2 = Math.Max(idA, idB);
@@ -206,6 +225,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         public class DriveshaftSection
         {
             public IMyCubeBlock SectionController;
+            public IDrivetrainPart ControllerLogic;
             public float CurrentAngle;
             public bool IsCCW;
 
