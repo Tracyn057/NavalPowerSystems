@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using VRageMath;
 using static NavalPowerSystems.Communication.DefinitionDefs;
-using NavalPowerSystems.Drivetrain_V2;
+using NavalPowerSystems.Drivetrain;
 
 namespace NavalPowerSystems
 {
@@ -14,21 +14,21 @@ namespace NavalPowerSystems
         private ModularPhysicalDefinition DrivetrainDefinition_V2 => new ModularPhysicalDefinition
         {
             // Unique name of the definition.
-            Name = "Drivetrain_Definition_V2",
+            Name = "Drivetrain_Definition_",
 
             //Boop
             OnInit = null,
 
             // Triggers whenever a new part is added to an assembly.
-            OnPartAdd = DrivetrainManager_V2.OnPartAdd,
+            OnPartAdd = DrivetrainManager.OnPartAdd,
 
             // Triggers whenever a part is removed from an assembly.
-            OnPartRemove = DrivetrainManager_V2.OnPartRemove,
+            OnPartRemove = DrivetrainManager.OnPartRemove,
 
             // Triggers whenever a part is destroyed, just after OnPartRemove.
-            OnPartDestroy = DrivetrainManager_V2.OnPartDestroy,
+            OnPartDestroy = DrivetrainManager.OnPartDestroy,
 
-            OnAssemblyClose = DrivetrainManager_V2.OnAssemblyClose,
+            OnAssemblyClose = DrivetrainManager.OnAssemblyClose,
 
             // Optional - if this is set, an assembly will not be created until a baseblock exists.
             BaseBlockSubtype = null,

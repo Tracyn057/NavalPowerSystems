@@ -17,14 +17,14 @@ using VRage.ObjectBuilders;
 using VRage.Sync;
 using VRageMath;
 
-namespace NavalPowerSystems.Drivetrain_V2
+namespace NavalPowerSystems.Drivetrain
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_FunctionalBlock), false,
     "NPS_Propeller_4m3b",
     "NPS_Propeller_4m4b",
     "NPS_Propeller_4m5b"
     )]
-    public class PropellerLogic_V2 : MyGameLogicComponent, IMyEventProxy, IDrivetrainNode
+    public class PropellerLogic_V2 : MyGameLogicComponent, IMyEventProxy, IDrivetrain
     {
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         public IMyCubeBlock PropellerBlock;
@@ -34,7 +34,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         private IDrivetrainNode PropellerNode => this as IDrivetrainNode;
         private IMyCubeGrid PropellerGrid;
         private Matrix PropellerSubpartInitialMatrix;
-        public PropellerStats_V2 PropellerStats;
+        public PropellerStats PropellerStats;
         private bool ControlsInitialized = false;
         private bool ActionsInitialized = false;
         MySync<float, SyncDirection.BothWays> Terminal_PitchRatio;
@@ -68,7 +68,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         public override void UpdateOnceBeforeFrame()
         {
             PropellerGrid = PropellerBlock.CubeGrid;
-            PropellerStats = Drivetrain_Config.PropellerSettings_V2[PropellerBlock.BlockDefinition.SubtypeId];
+            PropellerStats = Drivetrain_Config.PropellerSettings[PropellerBlock.BlockDefinition.SubtypeId];
             Entity.TryGetSubpart("Propeller", out PropellerSubpart);
             if (PropellerSubpart != null)
             {

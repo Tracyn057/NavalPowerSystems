@@ -3,13 +3,14 @@ using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VRage.Audio;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRageMath;
 
-namespace NavalPowerSystems.Drivetrain_V2
+namespace NavalPowerSystems.Drivetrain
 {
-    public class DrivetrainSystem_V2
+    public class DrivetrainSystem
     {
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         public readonly int AssemblyId;
@@ -30,9 +31,9 @@ namespace NavalPowerSystems.Drivetrain_V2
         private List<IDrivetrainPart> Transformers = new List<IDrivetrainPart>();
         private List<IDrivetrainPart> Consumers = new List<IDrivetrainPart>();
         private List<LinkedPath> LinkedPaths = new List<LinkedPath>();
-        private Dictionary<long, DriveshaftSection> DriveshaftSections = new Dictionary<long, DriveshaftSection>();
+        private Dictionary<IMyCubeBlock, DriveshaftSection> DriveshaftSections = new Dictionary<IMyCubeBlock, DriveshaftSection>();
 
-        public DrivetrainSystem_V2(int assemblyId)
+        public DrivetrainSystem(int assemblyId)
         {
             AssemblyId = assemblyId;
             SystemGrid = ModularApi.GetAssemblyGrid(assemblyId);
@@ -215,7 +216,6 @@ namespace NavalPowerSystems.Drivetrain_V2
             {
                 UpdateCameraDistance();
             }
-            
         }
 
         private void UpdateCameraDistance()
@@ -243,7 +243,8 @@ namespace NavalPowerSystems.Drivetrain_V2
 
                     var newPath = new LinkedPath(engineLogic, propLogic);
                     var visited = new HashSet<IMyCubeBlock>();
-                    if (RunTrace(engineBlock, engineBlock, propBlock, 1.0f, newPath, ref visited, ref DriveshaftSections))
+                    var currentShaftSegment = new List<IMyCubeBlock>();
+                    if (RunTrace(engineBlock, propBlock, 1.0f, newPath, ref visited, ref currentShaftSegment))
                         LinkedPaths.Add(newPath);
                 }
             }
@@ -255,33 +256,40 @@ namespace NavalPowerSystems.Drivetrain_V2
                 if (logic.GetRole() == DrivetrainRole.Consumer)
                 {
                     var subtype = section.Value.SectionController.BlockDefinition.SubtypeId;
-                    if (subtype != null && Drivetrain_Config.PropellerSettings_V2[subtype].IsCCW)
+                    if (subtype != null && Drivetrain_Config.PropellerSettings[subtype].IsCCW)
                     {
                         section.Value.IsCCW = true;
                     }
                 }
+
             }
         }
 
         private bool RunTrace(
-            IMyCubeBlock startBlock, //Producer
             IMyCubeBlock currentBlock,
             IMyCubeBlock targetBlock, //Consumer
             float ratio,
             LinkedPath path,
             ref HashSet<IMyCubeBlock> visited,
-            ref Dictionary<long, DriveshaftSection> sections)
+            ref List<IMyCubeBlock> currentShaftSegment)
         {
             if (!visited.Add(currentBlock)) return false;
-
             var logic = currentBlock.GameLogic?.GetAs<IDrivetrainPart>();
             var subtype = currentBlock.BlockDefinition.SubtypeName;
+
             if (logic != null)
             {
                 path.PathMembers.Add(logic);
-                if (Config.GearboxSubtypes.Contains(subtype))
+                if (currentShaftSegment.Count > 0)
+                {
+                    AssignSection(currentShaftSegment, logic, currentBlock);
+                    currentShaftSegment.Clear();
+                }
+                if (logic.GetRole() == DrivetrainRole.Transformer)
                     ratio *= logic.GetRatio();
             }
+            else if (Config.DriveshaftSubtypes.Contains(subtype))
+                currentShaftSegment.Add(currentBlock);
 
             if (currentBlock == targetBlock)
             {   
@@ -289,23 +297,10 @@ namespace NavalPowerSystems.Drivetrain_V2
                 return true;
             }
 
-            var connectedBlocks = ModularApi.GetConnectedBlocks(currentBlock, "Drivetrain_Definition_V2", false);
+            var connectedBlocks = ModularApi.GetConnectedBlocks(currentBlock, "Drivetrain_Definition", false);
             foreach (var connected in connectedBlocks)
             {
-                long sectionId = GetSectionId(currentBlock, connected);
-
-                if (Config.DriveshaftSubtypes.Contains(subtype))
-                {
-                    if (!sections.ContainsKey(sectionId))
-                    {
-                        sections.Add(sectionId, new DriveshaftSection{ 
-                            SectionController = currentBlock,
-                            ControllerLogic = logic
-                        });
-                    }
-                }
-
-                if (RunTrace(startBlock, connected, targetBlock, ratio, path, ref visited, ref sections))
+                if (RunTrace(currentBlock, targetBlock, ratio, path, ref visited, ref currentShaftSegment))
                     return true;
             }
 
@@ -313,15 +308,15 @@ namespace NavalPowerSystems.Drivetrain_V2
             return false;
         }
 
-        private long GetSectionId(IMyCubeBlock a, IMyCubeBlock b)
+        private void AssignSection(List<IMyCubeBlock> list, IDrivetrainPart controller, IMyCubeBlock controllerBlock)
         {
-            long idA = a.EntityId;
-            long idB = b.EntityId;
+            var newSegment = new DriveshaftSection(){
+                SectionController = controllerBlock,
+                ControllerLogic = controller,
+                Shafts = list,
+            };
 
-            long id1 = Math.Min(idA, idB);
-            long id2 = Math.Max(idA, idB);
-
-            return (id1 << 32) | (uint)id2;
+            newSegment.InitSection();
         }
 
         public class DriveshaftSection
@@ -331,7 +326,23 @@ namespace NavalPowerSystems.Drivetrain_V2
             public float CurrentAngle;
             public bool IsCCW;
 
+            public List<IMyCubeBlock> Shafts = new List<IMyCubeBlock>();
             public Dictionary<MyEntitySubpart, Matrix> ShaftSubparts = new Dictionary<MyEntitySubpart, Matrix>();
+
+            public void InitSection()
+            {
+                foreach (var shaft in Shafts)
+                {
+                    MyEntitySubpart sub;
+                    Matrix matrix;
+
+                    if (shaft.TryGetSubpart("Driveshaft", out sub))
+                    {
+                        matrix = sub.PositionComp.LocalMatrixRef;
+                        ShaftSubparts.Add(sub, matrix);
+                    }
+                }
+            }
             public void UpdateRotation(float deltaAngle)
             {
                 float direction = IsCCW ? -1f : 1f;
@@ -342,7 +353,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
                 foreach (var sub in ShaftSubparts)
                 {
-                    Matrix rotation = Matrix.CreateRotationZ(MathHelper.ToRadians(-deltaAngle));
+                    Matrix rotation = Matrix.CreateRotationZ(MathHelper.ToRadians(-CurrentAngle));
                     Matrix final = rotation * sub.Value;
                     sub.Key.PositionComp.SetLocalMatrix(ref final);
                 }

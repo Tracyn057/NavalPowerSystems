@@ -1,5 +1,4 @@
-﻿using NavalPowerSystems.Drivetrain_V2;
-using ProtoBuf;
+﻿using ProtoBuf;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Localization;
@@ -34,7 +33,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
         private MyCubeBlock MyBlock => Entity as MyCubeBlock;
         private IMyShipController MyShipController;
         private MyEntitySubpart MySubpart;
-        private EngineStats_V2 MyStats => Drivetrain_Config.EngineSettings_V2[SubtypeName];
+        private EngineStats MyStats => Drivetrain_Config.EngineSettings[SubtypeName];
         private EngineSettings Settings;
 
         #region Engine Control Variables
@@ -104,6 +103,9 @@ namespace NavalPowerSystems.Drivetrain.Engine
             UpdateSyncBeforeFrame();
             InitResourceSinks();
             ControlsDoOnce();
+
+            LoadSettings();
+            SaveSettings();
 
             NeedsUpdate = MyEntityUpdateEnum.EACH_FRAME | MyEntityUpdateEnum.EACH_100TH_FRAME;
         }
@@ -844,7 +846,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
         #endregion
     }
 
-    [ProtoContract]
+    [ProtoContract(UseProtoMembersOnly = true)]
     internal class EngineSettings
     {
         [ProtoMember(1)]

@@ -1,5 +1,4 @@
-﻿using EmptyKeys.UserInterface.Controls;
-using NavalPowerSystems.Communication;
+﻿using NavalPowerSystems.Communication;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,17 +8,16 @@ using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRage.Game.ObjectBuilders.Definitions;
 
-namespace NavalPowerSystems.Drivetrain_V2
+namespace NavalPowerSystems.Drivetrain
 {
     [MySessionComponentDescriptor(MyUpdateOrder.AfterSimulation)]
-    internal class DrivetrainManager_V2 : MySessionComponentBase
+    internal class DrivetrainManager : MySessionComponentBase
     {
         private int Ticks;
-        public static DrivetrainManager_V2 Instance { get; private set; } = null;
+        public static DrivetrainManager Instance { get; private set; } = null;
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
-        public IEnumerable<DrivetrainSystem_V2> GetAssemblies => DrivetrainSystems.Values;
-        private Dictionary<int, DrivetrainSystem_V2> DrivetrainSystems = new Dictionary<int, DrivetrainSystem_V2>();
-        private Dictionary<int, DrivetrainDistributor> MechanicalDistributors = new Dictionary<int, DrivetrainDistributor>();
+        public IEnumerable<DrivetrainSystem> GetAssemblies => DrivetrainSystems.Values;
+        private Dictionary<int, DrivetrainSystem> DrivetrainSystems = new Dictionary<int, DrivetrainSystem>();
         private Dictionary<IMyCubeGrid, NavalGridManager> GridManagers = new Dictionary<IMyCubeGrid, NavalGridManager>();
 
         public override void LoadData()
@@ -83,34 +81,22 @@ namespace NavalPowerSystems.Drivetrain_V2
                 if (iGrid != null && noAssemblies)
                         GridManagers.Remove(iGrid);
             }
-            foreach (var dist in MechanicalDistributors.Values.ToList())
-            {
-                var assemblies = ModularApi.GetAllAssemblies();
-                if (assemblies.Any() && assemblies.Contains(dist.AssemblyId))
-                    MechanicalDistributors.Remove(dist.AssemblyId);
-            }
         }
 
         public static void OnPartAdd(int assemblyId, IMyCubeBlock block, bool isBasePart)
         {
             if (Instance == null) return;
 
-            DrivetrainSystem_V2 drivetrain;
+            DrivetrainSystem drivetrain;
             NavalGridManager navalGridManager;
-            DrivetrainDistributor distributor;
             IMyCubeGrid grid = null;
 
             if (!Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
             {
-                drivetrain = new DrivetrainSystem_V2(assemblyId);
+                drivetrain = new DrivetrainSystem(assemblyId);
                 Instance.DrivetrainSystems.Add(assemblyId, drivetrain);
 
                 grid = ModularApi.GetAssemblyGrid(assemblyId);
-            }
-
-            if (!Instance.MechanicalDistributors.TryGetValue(assemblyId, out distributor))
-            {
-                Instance.MechanicalDistributors.Add(assemblyId, distributor);
             }
 
             if (grid != null && !Instance.GridManagers.TryGetValue(grid, out navalGridManager))
@@ -124,7 +110,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public static void OnPartRemove(int assemblyId, IMyCubeBlock block, bool isBasePart)
         {
-            DrivetrainSystem_V2 drivetrain;
+            DrivetrainSystem drivetrain;
             if (Instance == null || !Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
                 return;
 
@@ -133,7 +119,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public static void OnPartDestroy(int assemblyId, IMyCubeBlock block, bool isBasePart)
         {
-            DrivetrainSystem_V2 drivetrain;
+            DrivetrainSystem drivetrain;
             if (Instance == null || !Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
                 return;
 
@@ -142,7 +128,7 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public static void OnAssemblyClose(int assemblyId)
         {
-            DrivetrainSystem_V2 drivetrain;
+            DrivetrainSystem drivetrain;
             if (Instance == null || !Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
                 return;
 
@@ -150,9 +136,9 @@ namespace NavalPowerSystems.Drivetrain_V2
             //ModularApi.Log($"DrivetrainManager removed assembly {assemblyId}");
         }
 
-        public DrivetrainSystem_V2 GetDrivetrainSystem(int assemblyId)
+        public DrivetrainSystem GetDrivetrainSystem(int assemblyId)
         {
-            DrivetrainSystem_V2 drivetrain;
+            DrivetrainSystem drivetrain;
             if (Instance == null || !Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
                 return null;
             return drivetrain;

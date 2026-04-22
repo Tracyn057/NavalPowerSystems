@@ -18,7 +18,7 @@ using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
-namespace NavalPowerSystems.Drivetrain_V2
+namespace NavalPowerSystems.Drivetrain
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_FunctionalBlock), false,
     "NPS_Rudder_Small_CenteredV1",
@@ -34,7 +34,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         private IMyCubeBlock RudderBlock;
         private IMyFunctionalBlock RudderFunctional;
         private MyEntitySubpart RudderSubpart;
-        private RudderStats_V2 RudderStats;
+        private RudderStats RudderStats;
         private Vector3D RudderPosition;
         private MatrixD RudderSubpartMatrix;
         private MyCubeGrid RudderMyGrid;

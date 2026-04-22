@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using static NavalPowerSystems.Drivetrain.Engine.EngineLogic;
 
-namespace NavalPowerSystems.Drivetrain_V2
+namespace NavalPowerSystems.Drivetrain
 {
     public static class Drivetrain_Config
     {
@@ -14,64 +15,64 @@ namespace NavalPowerSystems.Drivetrain_V2
 
         public enum DrivetrainRole { Producer, Consumer, Transformer };
 
-        public static readonly Dictionary<string, EngineStats_V2> EngineSettings_V2 = new Dictionary<string, EngineStats_V2>
+        public static readonly Dictionary<string, EngineStats> EngineSettings = new Dictionary<string, EngineStats>
         {
             //Gas Turbines
-            {"NPS_Turbine_MT7", new EngineStats_V2 { PeakRPM = 12500, PeakTorque = 2160, HeatRate = 13846, PowerCurveConstant = 0.45f, EngineInertia = 250 } },
-            {"NPS_Turbine_LM2500", new EngineStats_V2 { PeakRPM = 3300, PeakTorque = 66459, HeatRate = 9705, PowerCurveConstant = 0.35f, EngineInertia = 425 } },
-            {"NPS_Turbine_LM2500Plus", new EngineStats_V2 { PeakRPM = 3300, PeakTorque = 80109, HeatRate = 9227, PowerCurveConstant = 0.325f, EngineInertia = 425 } },
-            {"NPS_Turbine_LM2500PlusG4", new EngineStats_V2 { PeakRPM = 3300, PeakTorque = 93698, HeatRate = 9150, PowerCurveConstant = 0.315f, EngineInertia = 425 } },
-            {"NPS_Turbine_MT30", new EngineStats_V2 { PeakRPM = 3300, PeakTorque = 106101, HeatRate = 9000, PowerCurveConstant = 0.3f, EngineInertia = 350 } },
+            {"NPS_Turbine_MT7", new EngineStats { PeakRPM = 12500, PeakTorque = 2160, HeatRate = 13846, PowerCurveConstant = 0.45f, EngineInertia = 250 } },
+            {"NPS_Turbine_LM2500", new EngineStats { PeakRPM = 3300, PeakTorque = 66459, HeatRate = 9705, PowerCurveConstant = 0.35f, EngineInertia = 425 } },
+            {"NPS_Turbine_LM2500Plus", new EngineStats { PeakRPM = 3300, PeakTorque = 80109, HeatRate = 9227, PowerCurveConstant = 0.325f, EngineInertia = 425 } },
+            {"NPS_Turbine_LM2500PlusG4", new EngineStats { PeakRPM = 3300, PeakTorque = 93698, HeatRate = 9150, PowerCurveConstant = 0.315f, EngineInertia = 425 } },
+            {"NPS_Turbine_MT30", new EngineStats { PeakRPM = 3300, PeakTorque = 106101, HeatRate = 9000, PowerCurveConstant = 0.3f, EngineInertia = 350 } },
         
             //Internal Combustion Diesel
         };
 
-        public static readonly Dictionary<string, PropellerStats_V2> PropellerSettings_V2 = new Dictionary<string, PropellerStats_V2>
+        public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
         {
-            {"NPS_Propeller_4m3b", new PropellerStats_V2 { Diameter = 4f, Inertia = 10696, TorqueCoefficient = 0.03, ThrustCoefficient = 0.15, IsCRP = false, IsCCW = false } },
-            {"NPS_Propeller_4m4b", new PropellerStats_V2 { Diameter = 4f, Inertia = 11078, TorqueCoefficient = 0.04, ThrustCoefficient = 0.175, IsCRP = false, IsCCW = false } },
-            {"NPS_Propeller_4m5b", new PropellerStats_V2 { Diameter = 4f, Inertia = 12224, TorqueCoefficient = 0.05, ThrustCoefficient = 0.2, IsCRP = false, IsCCW = false } },
-            {"NPS_Propeller_4m3b_CCW", new PropellerStats_V2 { Diameter = 4f, Inertia = 10696, TorqueCoefficient = 0.03, ThrustCoefficient = 0.15, IsCRP = false, IsCCW = true } },
-            {"NPS_Propeller_4m4b_CCW", new PropellerStats_V2 { Diameter = 4f, Inertia = 11078, TorqueCoefficient = 0.04, ThrustCoefficient = 0.175, IsCRP = false, IsCCW = true } },
-            {"NPS_Propeller_4m5b_CCW", new PropellerStats_V2 { Diameter = 4f, Inertia = 12224, TorqueCoefficient = 0.05, ThrustCoefficient = 0.2, IsCRP = false, IsCCW = true } },
+            {"NPS_Propeller_4m3b", new PropellerStats { Diameter = 4f, Inertia = 10696, TorqueCoefficient = 0.03, ThrustCoefficient = 0.15, IsCRP = false, IsCCW = false } },
+            {"NPS_Propeller_4m4b", new PropellerStats { Diameter = 4f, Inertia = 11078, TorqueCoefficient = 0.04, ThrustCoefficient = 0.175, IsCRP = false, IsCCW = false } },
+            {"NPS_Propeller_4m5b", new PropellerStats { Diameter = 4f, Inertia = 12224, TorqueCoefficient = 0.05, ThrustCoefficient = 0.2, IsCRP = false, IsCCW = false } },
+            {"NPS_Propeller_4m3b_CCW", new PropellerStats { Diameter = 4f, Inertia = 10696, TorqueCoefficient = 0.03, ThrustCoefficient = 0.15, IsCRP = false, IsCCW = true } },
+            {"NPS_Propeller_4m4b_CCW", new PropellerStats { Diameter = 4f, Inertia = 11078, TorqueCoefficient = 0.04, ThrustCoefficient = 0.175, IsCRP = false, IsCCW = true } },
+            {"NPS_Propeller_4m5b_CCW", new PropellerStats { Diameter = 4f, Inertia = 12224, TorqueCoefficient = 0.05, ThrustCoefficient = 0.2, IsCRP = false, IsCCW = true } },
 
         };
 
-        public static readonly Dictionary<string, GearboxStats_V2> GearboxSettings_V2 = new Dictionary<string, GearboxStats_V2>
+        public static readonly Dictionary<string, GearboxStats> GearboxSettings = new Dictionary<string, GearboxStats>
         {
-            {"NPS_Gearbox_MRG", new GearboxStats_V2 { GearRatio = 10f, MaxBrakeTorque = 2000000 } },
-            {"NPS_Gearbox_DoublePlanetary", new GearboxStats_V2 { GearRatio = 10f, MaxBrakeTorque = 750000 } },
+            {"NPS_Gearbox_MRG", new GearboxStats { GearRatio = 10f, MaxBrakeTorque = 2000000 } },
+            {"NPS_Gearbox_DoublePlanetary", new GearboxStats { GearRatio = 10f, MaxBrakeTorque = 750000 } },
         };
 
-        public static readonly Dictionary<string, ShaftStats_V2> ShaftSettings_V2 = new Dictionary<string, ShaftStats_V2>
+        public static readonly Dictionary<string, ShaftStats> ShaftSettings = new Dictionary<string, ShaftStats>
         {
-            {"NPS_Driveshaft", new ShaftStats_V2 { BlockLength = 1 } },
-            {"NPS_Driveshaft_Marked", new ShaftStats_V2 { BlockLength = 1 } },
-            {"NPS_Driveshaft_Long", new ShaftStats_V2 { BlockLength = 2 } },
-            {"NPS_Driveshaft_Long_Marked", new ShaftStats_V2 { BlockLength = 2 } },
-            {"NPS_Driveshaft_LinearGearbox1", new ShaftStats_V2 { BlockLength = 2 } },
-            {"NPS_Driveshaft_LinearGearbox2", new ShaftStats_V2 { BlockLength = 3 } },
-            {"NPS_Driveshaft_TubeSealEnclosed1", new ShaftStats_V2 { BlockLength = 1 } },
-            {"NPS_Driveshaft_TubeSealSlope1", new ShaftStats_V2 { BlockLength = 1 } },
-            {"NPS_Driveshaft_TubeSealSlope1Corner", new ShaftStats_V2 { BlockLength = 2 } },
-            {"NPS_Driveshaft_TubeSealSlope2", new ShaftStats_V2 { BlockLength = 2 } },
-            {"NPS_Driveshaft_TubeSealSlope2Corner", new ShaftStats_V2 { BlockLength = 4 } },
-            {"NPS_Driveshaft_EndTubeV1", new ShaftStats_V2 { BlockLength = 2 } },
+            {"NPS_Driveshaft", new ShaftStats { BlockLength = 1 } },
+            {"NPS_Driveshaft_Marked", new ShaftStats { BlockLength = 1 } },
+            {"NPS_Driveshaft_Long", new ShaftStats { BlockLength = 2 } },
+            {"NPS_Driveshaft_Long_Marked", new ShaftStats { BlockLength = 2 } },
+            {"NPS_Driveshaft_LinearGearbox1", new ShaftStats { BlockLength = 2 } },
+            {"NPS_Driveshaft_LinearGearbox2", new ShaftStats { BlockLength = 3 } },
+            {"NPS_Driveshaft_TubeSealEnclosed1", new ShaftStats { BlockLength = 1 } },
+            {"NPS_Driveshaft_TubeSealSlope1", new ShaftStats { BlockLength = 1 } },
+            {"NPS_Driveshaft_TubeSealSlope1Corner", new ShaftStats { BlockLength = 2 } },
+            {"NPS_Driveshaft_TubeSealSlope2", new ShaftStats { BlockLength = 2 } },
+            {"NPS_Driveshaft_TubeSealSlope2Corner", new ShaftStats { BlockLength = 4 } },
+            {"NPS_Driveshaft_EndTubeV1", new ShaftStats { BlockLength = 2 } },
         };
 
-        public static readonly Dictionary<string, RudderStats_V2> RudderSettings_V2 = new Dictionary<string, RudderStats_V2>
+        public static readonly Dictionary<string, RudderStats> RudderSettings_V2 = new Dictionary<string, RudderStats>
         {
-            {"NPS_Rudder_Small_CenteredV1", new RudderStats_V2 { SufaceArea = 38.9f } },
-            {"NPS_Rudder_Small_OffsetLeftV1", new RudderStats_V2 { SufaceArea = 38.9f } },
-            {"NPS_Rudder_Small_OffsetRightV1", new RudderStats_V2 { SufaceArea = 38.9f } },
-            {"NPS_Rudder_Small_CenteredV2", new RudderStats_V2 { SufaceArea = 37.32f } },
-            {"NPS_Rudder_Small_OffsetLeftV2", new RudderStats_V2 { SufaceArea = 37.32f } },
-            {"NPS_Rudder_Small_OffsetRightV2", new RudderStats_V2 { SufaceArea = 37.32f } },
+            {"NPS_Rudder_Small_CenteredV1", new RudderStats { SufaceArea = 38.9f } },
+            {"NPS_Rudder_Small_OffsetLeftV1", new RudderStats { SufaceArea = 38.9f } },
+            {"NPS_Rudder_Small_OffsetRightV1", new RudderStats { SufaceArea = 38.9f } },
+            {"NPS_Rudder_Small_CenteredV2", new RudderStats { SufaceArea = 37.32f } },
+            {"NPS_Rudder_Small_OffsetLeftV2", new RudderStats { SufaceArea = 37.32f } },
+            {"NPS_Rudder_Small_OffsetRightV2", new RudderStats { SufaceArea = 37.32f } },
         };
 
     }
 
-    public class EngineStats_V2
+    public class EngineStats
     {
         // Torque Output in Nm = PeakTorque * ( 1 - PowerCurveConstant * ((CurrentRPM - PeakRPM) / PeakRPM)^2)
         // Power Output in Watts = CurrentTorque * CurrentRPM / 9.5488
@@ -84,7 +85,7 @@ namespace NavalPowerSystems.Drivetrain_V2
         public double EngineInertia; //Inertia of the engine system, affecting how quickly it responds to changes in load and throttle
     }
 
-    public class PropellerStats_V2
+    public class PropellerStats
     {
         public float Diameter; // Diameter in meters
         public double Inertia; // 0.5 * mass * (radius^2). Used in response time
@@ -94,18 +95,18 @@ namespace NavalPowerSystems.Drivetrain_V2
         public bool IsCCW; // Whether the propeller rotates counterclockwise, used for visual effects and potential future logic
     }
 
-    public class GearboxStats_V2
+    public class GearboxStats
     {
         public float GearRatio; //Obvious
         public double MaxBrakeTorque; // Maximum torque the shaft brake can hold, used for calculating how much braking force to apply based on engine output and current load. Should be set based on the strength of the brake components and the expected loads in the system.
     }
 
-    public class ShaftStats_V2
+    public class ShaftStats
     {
         public double BlockLength; // Length of the shaft section in meters
     }
 
-    public class RudderStats_V2
+    public class RudderStats
     {
         public float SufaceArea; // Surface area of the rudder in square meters, used for calculating thrust and torque
     }

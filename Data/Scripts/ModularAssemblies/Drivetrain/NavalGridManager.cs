@@ -5,7 +5,7 @@ using VRage.Game.Components;
 using VRage.Game.ModAPI;
 using VRageMath;
 
-namespace NavalPowerSystems.Drivetrain_V2
+namespace NavalPowerSystems.Drivetrain
 {
     public class NavalGridManager
     {
