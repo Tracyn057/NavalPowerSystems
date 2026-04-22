@@ -57,6 +57,8 @@ namespace NavalPowerSystems.Drivetrain_V2
         float EngagementMult { get; set; }
 
         float GetRatio();
+        double GetTorque();
+        double GetLoad();
         DrivetrainRole GetRole();
     }
 

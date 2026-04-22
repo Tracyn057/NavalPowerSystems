@@ -2,6 +2,7 @@
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRageMath;
@@ -118,33 +119,84 @@ namespace NavalPowerSystems.Drivetrain_V2
         public void UpdateTick()
         {
             //Go away if there's nothing to do
-            if (LinkedPaths.Count() <= 0)
+            if (LinkedPaths.Count <= 0)
                 return;
 
             foreach (var prod in Producers) prod.Load_In = 0;
             var shafts = LinkedPaths.GroupBy(p => p.Consumer);
 
+            //Get/set load
             foreach (var shaft in shafts)
             {
                 var con = shaft.Key;
-                double conLoad = con.GetLoad();
                 int prodsForCon = shaft.Count();
 
+                //Skip if no shaft input from this path
                 foreach (var path in shaft)
                 {
-                    double brakeLoad = 0;
+                    if (path.Producer.GetRatio() == 0)
+                    {
+                        prodsForCon--;
+                        continue;
+                    }
+                }
+                //Skip whole shaft if there's no one left to contribute
+                if (prodsForCon <= 0) continue;
 
+                double conRPM = con.RPM_Out;
+                double conLoad = con.GetLoad();
+
+                //Gather and distribute load, any producer past this point is contributing
+                foreach (var path in shaft)
+                {
+                    //Get any shaft brake
+                    double brakeLoad = 0;
                     foreach (var member in path.PathMembers)
                     {
-                        if (member.Role != Tranformer) continue;
-
-                        brakeLoad += member.GetLoad();
+                        if (member.GetRole() == DrivetrainRole.Transformer)
+                            brakeLoad += member.GetLoad();
                     }
 
                     double gearedLoad = (conLoad + brakeLoad) / path.PathGearRatio;
                     double prodLoad = gearedLoad / prodsForCon;
 
+                    path.Producer.RPM_In = (float)conRPM * path.PathGearRatio;
                     path.Producer.Load_In += prodLoad;
+                }
+            }
+
+            //Get/set torque
+            foreach (var shaft in shafts)
+            {
+                //Replicate 
+                var con = shaft.Key;
+                double prodTotalTorque = 0;
+                float prodRPM = 0;
+
+                foreach (var path in shaft)
+                {
+                    if (path.Producer.GetRatio() > 0)
+                    {
+                        prodTotalTorque += path.Producer.GetTorque() * path.PathGearRatio;
+                        prodRPM = Math.Max(prodRPM, path.Producer.RPM_Out / path.PathGearRatio);
+                    }
+                }
+                con.Torque_In = prodTotalTorque;
+                con.RPM_In = prodRPM;
+            }
+
+            //Animate last
+            if (DistanceToCamera < ViewRange)
+            {
+                var shaftSections = DriveshaftSections.GroupBy(p => p.Value.ControllerLogic);
+
+                foreach (var shaft in DriveshaftSections)
+                {
+                    var controller = shaft.Value.ControllerLogic;
+                    var shaftRPM = controller.RPM_In;
+                    float deltaAngle = (float)shaftRPM * 360f / 3600f;
+
+                    shaft.Value.UpdateRotation(deltaAngle);
                 }
             }
         }
@@ -287,6 +339,13 @@ namespace NavalPowerSystems.Drivetrain_V2
 
                 if (CurrentAngle >= 360f) CurrentAngle -= 360f;
                 if (CurrentAngle < 0f) CurrentAngle += 360f;
+
+                foreach (var sub in ShaftSubparts)
+                {
+                    Matrix rotation = Matrix.CreateRotationZ(MathHelper.ToRadians(-deltaAngle));
+                    Matrix final = rotation * sub.Value;
+                    sub.Key.PositionComp.SetLocalMatrix(ref final);
+                }
             }
         }
 

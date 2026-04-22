@@ -1,4 +1,5 @@
 ﻿using NavalPowerSystems.Drivetrain_V2;
+using ProtoBuf;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Localization;
@@ -41,7 +42,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
         private int TicksToStart = 900; //15 seconds
         private double RPMVarianceMult = 0.02;
         private double FlutterTime = 0;
-        private double CurrentRPM = 0;
+        private float CurrentRPM = 0;
         private double PreviousRPM = 0;
         private string CurrentStatus = "Off";
         private double ClutchRPMToMatch = 0;
@@ -53,12 +54,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
         #endregion
 
         #region Interface Variables
-        public DrivetrainRole Role { get; private set; } = DrivetrainRole.Producer;
-        public float EngagementMult { get; private set; }
-        public float RPM_In { get; set; }
-        public float RPM_Out { get; private set; }
-        public double Load_In { get; set; }
-        public double Torque_Out { get; private set; }
+        
         #endregion
 
         #region Resource Sink Variables
@@ -116,15 +112,11 @@ namespace NavalPowerSystems.Drivetrain.Engine
         {
             base.UpdateAfterSimulation();
 
-            RequestedLoad = Load_In;
-            ClutchRPMToMatch = RPM_In;
             GetControlInput();
             UpdateEngineState();
             UpdateEngineClutchState();
             CalculateTorqueOutput();
             CalculateResourceUse();
-            Torque_Out = CurrentTorque * (double)ClutchEngagement;
-            RPM_Out = CurrentRPM;
 
             //HasFuel doesn't seem to play well with terminal. Mostly O2. Suspect because of no O2 storage.
             if (MyAPIGateway.Session.IsServer)
@@ -150,19 +142,6 @@ namespace NavalPowerSystems.Drivetrain.Engine
                 MySubpart.Render.Visible = false;
 
             RecalculateController();
-        }
-
-        public override double GetTorque()
-        {
-            if (!Block.IsWorking || CurrentState == EngineState.Off || CurrentState == EngineState.Stopping)
-                return 0;
-
-            return Torque_Out;
-        }
-
-        public override float GetRatio()
-        {
-            return ClutchEngagement;
         }
         #endregion
 
@@ -260,12 +239,19 @@ namespace NavalPowerSystems.Drivetrain.Engine
         #region Physics and Operation
         public override double GetTorque()
         {
-            return CurrentTorque * ClutchEngagement;
+            return CurrentTorque;
         }
 
-        public override double GetRatio()
+        public override float GetRatio()
         {
-            return ClutchEngagement;
+            if (ClutchEngagement > 0.75f)
+                return 1f;
+            return 0f;
+        }
+
+        public override DrivetrainRole GetRole()
+        {
+            return DrivetrainRole.Producer;
         }
 
         private void UpdateSoundEffects()
@@ -292,7 +278,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
 
         private void CalculateTorqueOutput()
         {
-            if (!EngineTerminal.IsWorking || CurrentState == EngineState.Off)
+            if (!Block.IsWorking || CurrentState == EngineState.Off)
             {
                 CurrentRPM = 0;
                 CurrentTorque = 0;
@@ -341,12 +327,16 @@ namespace NavalPowerSystems.Drivetrain.Engine
             double internalLoad = baseLoad + dynamicLoad;
 
             //RPM Change and net torque
+            RequestedLoad = RPM_In * ClutchEngagement;
             double netTorque = CurrentTorque - (RequestedLoad + internalLoad);
             double angularAcceleration = netTorque / (MyStats.EngineInertia + SystemInertia);
             double changeInRPM = angularAcceleration * 9.5488 * PhysicsStep;
 
-            CurrentRPM += changeInRPM;
+            CurrentRPM += (float)changeInRPM;
             CurrentRPM = Math.Max(CurrentRPM, 0);
+
+            Torque_Out = CurrentTorque;
+            RPM_Out = CurrentRPM;
         }
 
         private void UpdateEngineState()
@@ -358,13 +348,13 @@ namespace NavalPowerSystems.Drivetrain.Engine
             if (!shouldRun && CurrentState == EngineState.Running)
             {
                 CurrentStatus = "Shutting Down";
-                Terminal_EngineState = EngineState.Stopping;
+                Terminal_EngineState.Value = 3;
             }
             else if (shouldRun && CurrentState == EngineState.Running && CurrentRPM < 500)
             {
                 CurrentStatus = "Engine Stall";
-                Terminal_EngineState = EngineState.Stopping;
-                Terminal_RequestEngineOn = false;
+                Terminal_EngineState.Value = 3;
+                Terminal_RequestEngineOn.Value = false;
             }
 
             switch (CurrentState)
@@ -372,7 +362,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
                 case EngineState.Off:
                     if (shouldRun)
                     {
-                        Terminal_EngineState = EngineState.Starting;
+                        Terminal_EngineState.Value = 1;
                         CurrentStatus = "Starting";
                     }
                     break;
@@ -380,7 +370,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
                 case EngineState.Starting:
                     if (!shouldRun)
                     {
-                        Terminal_EngineState = EngineState.Off;
+                        Terminal_EngineState.Value = 0;
                         StartupTicks = 0;
                         CurrentStatus = "Off";
                         return;
@@ -391,7 +381,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
 
                     if (StartupTicks >= TicksToStart)
                     {
-                        Terminal_EngineState = EngineState.Running;
+                        Terminal_EngineState.Value = 2;
                         CurrentStatus = "Running";
                     }
                     break;
@@ -399,7 +389,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
                 case EngineState.Running:
                     if (!shouldRun)
                     {
-                        Terminal_EngineState = EngineState.Stopping;
+                        Terminal_EngineState.Value = 3;
                         StartupTicks = 0;
                         CurrentStatus = "Shutting Down";
                     }
@@ -408,13 +398,13 @@ namespace NavalPowerSystems.Drivetrain.Engine
                 case EngineState.Stopping:
                     if (shouldRun)
                     {
-                        Terminal_EngineState = EngineState.Running;
+                        Terminal_EngineState.Value = 2;
                         CurrentStatus = "Running";
                         return;
                     }
                     if (CurrentRPM <= 100)
                     {
-                        Terminal_EngineState = EngineState.Off;
+                        Terminal_EngineState.Value = 0;
                         StartupTicks = 0;
                         CurrentStatus = "Off";
                     }
@@ -621,15 +611,15 @@ namespace NavalPowerSystems.Drivetrain.Engine
             Settings.Throttle = obj.Value;
 
             if (Throttle == 0f)
-                Terminal_ThrottleIndex = 0;
+                Terminal_ThrottleIndex.Value = 0;
             else if (Throttle == 0.15f)
-                Terminal_ThrottleIndex = 1;
+                Terminal_ThrottleIndex.Value = 1;
             else if (Throttle == 0.35f)
-                Terminal_ThrottleIndex = 2;
+                Terminal_ThrottleIndex.Value = 2;
             else if (Throttle == 0.65f)
-                Terminal_ThrottleIndex = 3;
+                Terminal_ThrottleIndex.Value = 3;
             else if (Throttle == 1f)
-                Terminal_ThrottleIndex = 4;
+                Terminal_ThrottleIndex.Value = 4;
             UpdateControls();
             SaveSettings();
         }
