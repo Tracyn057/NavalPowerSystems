@@ -12,7 +12,7 @@ using VRage.Utils;
 
 namespace NavalPowerSystems.Common
 {
-    public class Utilities
+    public static class Utilities
     {
         //Utility method to change gas level in a tank by a certain amount of liters, with checks for validity and capacity
         public static void ChangeTankLevel(IMyGasTank tank, double amountLiters)

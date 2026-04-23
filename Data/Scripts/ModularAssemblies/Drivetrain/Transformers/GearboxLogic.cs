@@ -1,6 +1,4 @@
-﻿using NavalPowerSystems.Drivetrain;
-using NavalPowerSystems.Drivetrain.Engine;
-using ProtoBuf;
+﻿using ProtoBuf;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
@@ -9,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.Entity;
@@ -19,7 +16,7 @@ using VRage.ObjectBuilders;
 using VRage.Sync;
 using VRage.Utils;
 
-namespace NavalPowerSystems.Drivetrain
+namespace NavalPowerSystems.Drivetrain.Transformers
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_FunctionalBlock), false,
             "NPS_Gearbox_MRG",
@@ -28,7 +25,6 @@ namespace NavalPowerSystems.Drivetrain
     public class GearboxLogic : DrivetrainPart<IMyFunctionalBlock>
     {
         static GearboxLogic GetLogic(IMyTerminalBlock gearbox) => gearbox?.GameLogic?.GetAs<GearboxLogic>();
-        private MyCubeBlock MyBlock => Entity as MyCubeBlock;
         private GearboxStats MyStats => Drivetrain_Config.GearboxSettings[SubtypeName];
 
         #region Sync, Terminal and Settings Variables
@@ -45,7 +41,7 @@ namespace NavalPowerSystems.Drivetrain
         {
             base.Init(objectBuilder);
 
-            Block.AppendingCustomInfo += AppendingCustomInfo;
+            //Block.AppendingCustomInfo += AppendingCustomInfo; //Nothing to keep track of yet? Maybe add a method to send info here from system later.
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
@@ -91,21 +87,21 @@ namespace NavalPowerSystems.Drivetrain
             return DrivetrainRole.Transformer;
         }
 
-        private void AppendingCustomInfo(IMyTerminalBlock block, StringBuilder info)
-        {
-            info.AppendLine($"Gear Ratio: {MyStats.GearRatio}");
-            info.AppendLine($"Incoming Torque: {Torque_In:0.00}"); //From Engines
-            info.AppendLine($"Incoming RPM: {RPM_In:0.00}"); //From Engines
-            info.AppendLine($"Outgoing Torque: {Torque_Out:0.00}");
-            info.AppendLine($"Outgoing RPM: {RPM_Out:0.00}");
-        }
+        //private void AppendingCustomInfo(IMyTerminalBlock block, StringBuilder info)
+        //{
+        //    info.AppendLine($"Gear Ratio: {MyStats.GearRatio}");
+        //    info.AppendLine($"Incoming Torque: {Torque_In:0.00}");
+        //    info.AppendLine($"Incoming RPM: {RPM_In:0.00}");
+        //    info.AppendLine($"Outgoing Torque: {Torque_Out:0.00}");
+        //    info.AppendLine($"Outgoing RPM: {RPM_Out:0.00}");
+        //}
 
         static bool Control_Visible(IMyTerminalBlock block)
         {
             return GetLogic(block) != null;
         }
 
-        private void CreateControls(IMyTerminalBlock block)
+        static void CreateControls<IMyFunctionalBlock>()
         {
             if (ControlsInitialized) return;
 
@@ -122,7 +118,7 @@ namespace NavalPowerSystems.Drivetrain
             }
         }
 
-        private void CreateActions(IMyFunctionalBlock block)
+        static void CreateActions<IMyFunctionalBlock>()
         {
             if (ControlsInitialized) return;
 
@@ -222,9 +218,9 @@ namespace NavalPowerSystems.Drivetrain
             }
             catch (Exception e)
             {
-                MyLog.Default.WriteLineAndConsole("Exception in loading Engine settings: " + e);
-                MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Exception in loading Engine settings: " + e);
-                ModularApi.Log("Exception in loading Engine settings: " + e);
+                MyLog.Default.WriteLineAndConsole("Exception in loading Gearbox settings: " + e);
+                MyAPIGateway.Utilities.ShowMessage("Naval Power Systems", "Exception in loading Gearbox settings: " + e);
+                ModularApi.Log("Exception in loading Gearbox settings: " + e);
             }
 
             return false;
@@ -234,7 +230,7 @@ namespace NavalPowerSystems.Drivetrain
         {
             if (Block == null || Settings == null)
             {
-                ModularApi.Log($"Block or Settings null on Engine.");
+                ModularApi.Log($"Block or Settings null on Gearbox.");
                 return; // called too soon or after it was already closed, ignore
             }
 

@@ -24,6 +24,8 @@ namespace NavalPowerSystems.Drivetrain
         protected string _subtypeName;
         public string SubtypeName => _subtypeName ?? (_subtypeName = Block?.BlockDefinition.SubtypeName);
         public T Block => Entity as T;
+        public IMyCubeGrid IMyGrid => Entity.Parent as IMyCubeGrid;
+        public NavalGridManager MyGridManager => DrivetrainManager.Instance.GetGridManager(IMyGrid);
         public IDrivetrainPart IPart;
         public int AssemblyId;
         public const float PhysicsStep = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;

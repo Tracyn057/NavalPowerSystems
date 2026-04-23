@@ -20,7 +20,7 @@ using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
 
-namespace NavalPowerSystems.Drivetrain.Engine
+namespace NavalPowerSystems.Drivetrain.Producers
 {
     [MyEntityComponentDescriptor(typeof(MyObjectBuilder_FunctionalBlock), false,
             "NPS_Turbine_LM2500",
@@ -142,8 +142,6 @@ namespace NavalPowerSystems.Drivetrain.Engine
 
             if (!MySubpart.IsPreview)
                 MySubpart.Render.Visible = false;
-
-            RecalculateController();
         }
         #endregion
 
@@ -443,7 +441,7 @@ namespace NavalPowerSystems.Drivetrain.Engine
         private void GetControlInput()
         {
             var throttleStep = 0.005f;
-            var moveIndicator = MathHelper.Clamp(-MyShipController?.MoveIndicator.Z ?? 0f, -1f, 1f);
+            var moveIndicator = MyGridManager.ForwardInput;
 
             if (Math.Abs(moveIndicator) < 0.01f)
                 moveIndicator = 0f;
@@ -467,18 +465,6 @@ namespace NavalPowerSystems.Drivetrain.Engine
                     else
                         Terminal_Throttle.Value = 0f;
                 }
-            }
-        }
-
-        public void RecalculateController()
-        {
-            if (MyShipController == null || !MyShipController.IsWorking || !MyShipController.IsMainCockpit)
-            {
-                var player = MyAPIGateway.Players.GetPlayerControllingEntity(MyShipController);
-                MyShipController = null;
-
-                if (player?.Controller?.ControlledEntity != null)
-                    MyShipController = player.Controller.ControlledEntity as IMyShipController;
             }
         }
 

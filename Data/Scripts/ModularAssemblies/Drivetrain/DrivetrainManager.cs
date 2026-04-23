@@ -1,12 +1,10 @@
 ﻿using NavalPowerSystems.Communication;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
-using VRage.Game.ObjectBuilders.Definitions;
 
 namespace NavalPowerSystems.Drivetrain
 {
@@ -17,8 +15,8 @@ namespace NavalPowerSystems.Drivetrain
         public static DrivetrainManager Instance { get; private set; } = null;
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         public IEnumerable<DrivetrainSystem> GetAssemblies => DrivetrainSystems.Values;
-        private Dictionary<int, DrivetrainSystem> DrivetrainSystems = new Dictionary<int, DrivetrainSystem>();
-        private Dictionary<IMyCubeGrid, NavalGridManager> GridManagers = new Dictionary<IMyCubeGrid, NavalGridManager>();
+        public Dictionary<int, DrivetrainSystem> DrivetrainSystems = new Dictionary<int, DrivetrainSystem>();
+        public Dictionary<IMyCubeGrid, NavalGridManager> GridManagers = new Dictionary<IMyCubeGrid, NavalGridManager>();
 
         public override void LoadData()
         {
@@ -54,10 +52,6 @@ namespace NavalPowerSystems.Drivetrain
             if (Ticks % 100 == 0)
             {
                 Update100();
-                foreach (var system in DrivetrainSystems.Values)
-                {
-                    system.UpdateTick100();
-                }
                 foreach (var grid in GridManagers.Values)
                 {
                     grid.UpdateTick100();
@@ -68,18 +62,17 @@ namespace NavalPowerSystems.Drivetrain
 
         private void Update100()
         {
-            var systems = ModularApi.GetAllAssemblies();
+            var assemblies = ModularApi.GetAllAssemblies();
+
             foreach (var driveSystem in DrivetrainSystems.Values.ToList())
-                // Remove invalid systems
-                if (!systems.Contains(driveSystem.AssemblyId))
+                if (!assemblies.Contains(driveSystem.AssemblyId))
                     DrivetrainSystems.Remove(driveSystem.AssemblyId);
 
-            foreach (var grid in GridManagers.Values.ToList())
+            foreach (var gridManager in GridManagers.Values.ToList())
             {
-                var iGrid = grid.IGrid;
-                var noAssemblies = ModularApi.GetGridAssemblies(iGrid).Any();
-                if (iGrid != null && noAssemblies)
-                        GridManagers.Remove(iGrid);
+                var gridAssemblies = ModularApi.GetGridAssemblies(gridManager.IMyGrid);
+                if (gridManager.IMyGrid == null || gridAssemblies.Count() == 0)
+                    GridManagers.Remove(gridManager.IMyGrid);
             }
         }
 
@@ -142,6 +135,16 @@ namespace NavalPowerSystems.Drivetrain
             if (Instance == null || !Instance.DrivetrainSystems.TryGetValue(assemblyId, out drivetrain))
                 return null;
             return drivetrain;
+        }
+
+        public NavalGridManager GetGridManager(IMyCubeGrid grid)
+        {
+            NavalGridManager manager;
+            if (GridManagers.TryGetValue(grid, out manager))
+            {
+                return manager;
+            }
+            return null;
         }
     }
 }

@@ -16,8 +16,6 @@ namespace NavalPowerSystems.Drivetrain
         public readonly int AssemblyId;
         private readonly IMyCubeGrid SystemGrid;
         public bool DirtyAssembly = true;
-        private double DistanceToCamera;
-        public const double ViewRange = 750;
 
         private List<IMyCubeBlock> AllBlocks = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Engines = new List<IMyCubeBlock>();
@@ -27,7 +25,7 @@ namespace NavalPowerSystems.Drivetrain
         private List<IMyCubeBlock> Gearboxes = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Propellers = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Driveshafts = new List<IMyCubeBlock>();
-        private List<IDrivetrainPart> Producers = new List<IDrivetrainPart>();
+        public List<IDrivetrainPart> Producers = new List<IDrivetrainPart>();
         private List<IDrivetrainPart> Transformers = new List<IDrivetrainPart>();
         private List<IDrivetrainPart> Consumers = new List<IDrivetrainPart>();
         private List<LinkedPath> LinkedPaths = new List<LinkedPath>();
@@ -68,7 +66,17 @@ namespace NavalPowerSystems.Drivetrain
                 AllBlocks.Add(block);
                 var logic = block.GameLogic?.GetAs<IDrivetrainPart>();
                 if (logic != null)
+                {
+                    var grid = block.CubeGrid;
+                    if (grid != null)
+                    {
+                        var manager = DrivetrainManager.Instance.GetGridManager(grid);
+                        if (manager != null)
+                            manager.RegisterProp(logic);
+                    }
                     Consumers.Add(logic);
+                }
+                    
             }
             else if (Config.DriveshaftSubtypes.Contains(subtype))
             {
@@ -119,6 +127,10 @@ namespace NavalPowerSystems.Drivetrain
 
         public void UpdateTick()
         {
+            if (DirtyAssembly)
+            {
+                RebuildDrivetrain();
+            }
             //Go away if there's nothing to do
             if (LinkedPaths.Count <= 0)
                 return;
@@ -187,7 +199,7 @@ namespace NavalPowerSystems.Drivetrain
             }
 
             //Animate last
-            if (DistanceToCamera < ViewRange)
+            if (DrivetrainManager.Instance.GetGridManager(SystemGrid).DistanceToCamera < 750f)
             {
                 var shaftSections = DriveshaftSections.GroupBy(p => p.Value.ControllerLogic);
 
@@ -204,26 +216,7 @@ namespace NavalPowerSystems.Drivetrain
 
         public void UpdateTick10()
         {
-            if (DirtyAssembly)
-            {
-                RebuildDrivetrain();
-            }
-        }
-
-        public void UpdateTick100()
-        {
-            if (!MyAPIGateway.Utilities.IsDedicated)
-            {
-                UpdateCameraDistance();
-            }
-        }
-
-        private void UpdateCameraDistance()
-        {
-            if (MyAPIGateway.Utilities.IsDedicated)
-                return;
-
-            DistanceToCamera = Vector3D.Distance(SystemGrid.WorldMatrix.Translation, MyAPIGateway.Session.Camera.WorldMatrix.Translation);
+            
         }
 
         private void RebuildDrivetrain()

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using static NavalPowerSystems.Drivetrain.Engine.EngineLogic;
 
 namespace NavalPowerSystems.Drivetrain
 {
@@ -60,7 +59,7 @@ namespace NavalPowerSystems.Drivetrain
             {"NPS_Driveshaft_EndTubeV1", new ShaftStats { BlockLength = 2 } },
         };
 
-        public static readonly Dictionary<string, RudderStats> RudderSettings_V2 = new Dictionary<string, RudderStats>
+        public static readonly Dictionary<string, RudderStats> RudderSettings = new Dictionary<string, RudderStats>
         {
             {"NPS_Rudder_Small_CenteredV1", new RudderStats { SufaceArea = 38.9f } },
             {"NPS_Rudder_Small_OffsetLeftV1", new RudderStats { SufaceArea = 38.9f } },
