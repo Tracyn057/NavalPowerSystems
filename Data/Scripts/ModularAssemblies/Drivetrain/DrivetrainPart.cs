@@ -13,7 +13,6 @@ using VRage.Game.ModAPI;
 using VRage.ModAPI;
 using VRage.Network;
 using VRage.ObjectBuilders;
-using static NavalPowerSystems.Drivetrain.Drivetrain_Config;
 
 namespace NavalPowerSystems.Drivetrain
 {

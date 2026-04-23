@@ -29,12 +29,12 @@ namespace NavalPowerSystems.Drivetrain
 
         public static readonly Dictionary<string, PropellerStats> PropellerSettings = new Dictionary<string, PropellerStats>
         {
-            {"NPS_Propeller_4m3b", new PropellerStats { Diameter = 4f, Inertia = 10696, TorqueCoefficient = 0.03, ThrustCoefficient = 0.15, IsCRP = false, IsCCW = false } },
-            {"NPS_Propeller_4m4b", new PropellerStats { Diameter = 4f, Inertia = 11078, TorqueCoefficient = 0.04, ThrustCoefficient = 0.175, IsCRP = false, IsCCW = false } },
-            {"NPS_Propeller_4m5b", new PropellerStats { Diameter = 4f, Inertia = 12224, TorqueCoefficient = 0.05, ThrustCoefficient = 0.2, IsCRP = false, IsCCW = false } },
-            {"NPS_Propeller_4m3b_CCW", new PropellerStats { Diameter = 4f, Inertia = 10696, TorqueCoefficient = 0.03, ThrustCoefficient = 0.15, IsCRP = false, IsCCW = true } },
-            {"NPS_Propeller_4m4b_CCW", new PropellerStats { Diameter = 4f, Inertia = 11078, TorqueCoefficient = 0.04, ThrustCoefficient = 0.175, IsCRP = false, IsCCW = true } },
-            {"NPS_Propeller_4m5b_CCW", new PropellerStats { Diameter = 4f, Inertia = 12224, TorqueCoefficient = 0.05, ThrustCoefficient = 0.2, IsCRP = false, IsCCW = true } },
+            {"NPS_Propeller_4m3b", new PropellerStats { Diameter = 4f, Blades = 3, Inertia = 10696, TorqueCoefficient = 0.03, ThrustCoefficient = 0.15, IsCRP = false, IsCCW = false } },
+            {"NPS_Propeller_4m4b", new PropellerStats { Diameter = 4f, Blades = 4, Inertia = 11078, TorqueCoefficient = 0.04, ThrustCoefficient = 0.175, IsCRP = false, IsCCW = false } },
+            {"NPS_Propeller_4m5b", new PropellerStats { Diameter = 4f, Blades = 5, Inertia = 12224, TorqueCoefficient = 0.05, ThrustCoefficient = 0.2, IsCRP = false, IsCCW = false } },
+            {"NPS_Propeller_4m3b_CCW", new PropellerStats { Diameter = 4f, Blades = 3, Inertia = 10696, TorqueCoefficient = 0.03, ThrustCoefficient = 0.15, IsCRP = false, IsCCW = true } },
+            {"NPS_Propeller_4m4b_CCW", new PropellerStats { Diameter = 4f, Blades = 4, Inertia = 11078, TorqueCoefficient = 0.04, ThrustCoefficient = 0.175, IsCRP = false, IsCCW = true } },
+            {"NPS_Propeller_4m5b_CCW", new PropellerStats { Diameter = 4f, Blades = 5, Inertia = 12224, TorqueCoefficient = 0.05, ThrustCoefficient = 0.2, IsCRP = false, IsCCW = true } },
 
         };
 
@@ -88,6 +88,7 @@ namespace NavalPowerSystems.Drivetrain
     public class PropellerStats
     {
         public float Diameter; // Diameter in meters
+        public int Blades; //Number of blades
         public double Inertia; // 0.5 * mass * (radius^2). Used in response time
         public double TorqueCoefficient; // Coefficient for calculating torque based on advance speed. 0.02-0.05
         public double ThrustCoefficient; // Coefficient for calculating thrust based on advance speed. 0.15-0.25

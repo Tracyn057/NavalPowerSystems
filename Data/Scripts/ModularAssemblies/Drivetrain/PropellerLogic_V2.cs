@@ -101,6 +101,8 @@ namespace NavalPowerSystems.Drivetrain
             double velocity = PropellerBlock.CubeGrid.Physics?.LinearVelocity.Length() ?? 0;
             double RPS = Math.Max(OutputRPM / 60, 0.1);
             double advanceRatio = (RPS > 0.1) ? velocity / (RPS * PropellerStats.Diameter) : 0;
+            //Static Load
+            double staticLoad = 0.01 * 
             double currentTorque = PropellerStats.TorqueCoefficient * PitchRatio * MathHelper.Clamp(1 - (advanceRatio / PitchRatio), 0.1, 1);
             double torqueDemand = currentTorque * PitchRatio * Math.Pow(RPS, 2) * Math.Pow(PropellerStats.Diameter, 5);
             InputLoad = torqueDemand + (PropellerStats.Diameter * 0.1);
