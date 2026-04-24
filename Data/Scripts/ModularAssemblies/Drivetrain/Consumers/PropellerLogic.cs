@@ -39,6 +39,7 @@ namespace NavalPowerSystems.Drivetrain.Consumers
 
         #region Operational Variables
         private float CurrentAngle;
+        private float CurrentRPM;
         MySync<float, SyncDirection.BothWays> Terminal_PD;
         private float AE;
         private float PD;
@@ -102,8 +103,12 @@ namespace NavalPowerSystems.Drivetrain.Consumers
         {
             base.UpdateBeforeSimulation();
 
+            float limit = 0.75f;
+            float delta = RPM_In - CurrentRPM;
+            CurrentRPM += MathHelper.Clamp(delta, -limit, limit);
+
             var diameter = MyStats.Diameter;
-            double RPS = RPM_In / 60;
+            double RPS = CurrentRPM / 60;
             double velocity = MyGrid.LinearVelocity.Length();
             double j = (RPS > 0.01) ? velocity / (RPS * diameter) : 0;
             double kq = GetTorqueCoefficient(j);
@@ -127,9 +132,9 @@ namespace NavalPowerSystems.Drivetrain.Consumers
             }
 
             //Animate
-            if (MySubpart != null && RPM_In != 0)
+            if (MySubpart != null && CurrentRPM != 0)
             {
-                float degreesPerTick = (float)RPM_In * 360f / 3600f; // convert RPM → degrees/tick at 60 Hz
+                float degreesPerTick = (float)CurrentRPM * 360f / 3600f; // convert RPM → degrees/tick at 60 Hz
                 CurrentAngle += degreesPerTick;
                 CurrentAngle %= 360f;
 

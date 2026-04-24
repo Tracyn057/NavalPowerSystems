@@ -3,10 +3,11 @@
 namespace NavalPowerSystems.Drivetrain
 {
     public static class Drivetrain_Config
-    {
+    {   
         // Torque Load = WaterDensity * Diameter^5 * PitchRatio * (RPM/60)^2
         public const float GlobalFuelMult = 0.66f; //Multiplier for fuel consumption
-        public const double DieselEnergyDensity = 38295; //KJ/Liter for diesel fuel, used for calculating fuel consumption
+        public const double DieselEnergyDensity = 36295; //KJ/Liter for marine diesel fuel
+        public const double FuelOilEnergyDensity = 39552; // KJ/Liter for heavy fuel oil
         private const double DriveshaftDensity_Reference = 8000; //Informationl only. Density of 316L stainless steel in kg/m^3, used for calculating driveshaft inertia based on length and diameter. Not directly used in code as of 2.0, but useful for reference when creating new shaft blocks with different materials or dimensions.
         private const double PropellerDensity_Reference = 7640; //Informational only. Density of NIBRAL for calculating propeller mass and inertia
         public const double DriveshaftInertiaPerBlock = 92.5; //Inertia of driveshafts per 2.5m section, used for calculating response time

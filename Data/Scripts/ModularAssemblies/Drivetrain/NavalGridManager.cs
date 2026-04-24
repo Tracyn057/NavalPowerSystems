@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using VRage.Game;
@@ -18,12 +19,12 @@ namespace NavalPowerSystems.Drivetrain
         public float MyGridMass => MyShipController.CalculateShipMass().TotalMass;
         public IMyShipController MyShipController;
         private IMyShipController MyShadowController;
+        public MyShipController MyResourceController;
         private bool ShadowControllerCaptured;
         private MatrixD ShadowControllerMatrix;
         public MatrixD GridMatrixRef => MyShipController?.WorldMatrix ?? ShadowControllerMatrix;
         public float Update100Coefficient = 1f;
         public float GridAverageThrust = 0f;
-        private MyResourceSinkComponent MyResourceSink;
         private const float WaterDensity = 1024f;
         private const float Gravity = 9.81f;
         private const float PhysicsStep = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
@@ -45,8 +46,7 @@ namespace NavalPowerSystems.Drivetrain
 
         public void InitResourceSystem()
         {
-            MyResourceSink = new MyResourceSinkComponent();
-            var controller = MyShipController ?? MyShadowController;
+            MyResourceController = new MyShipController();
         }
 
         public void UpdateTick()

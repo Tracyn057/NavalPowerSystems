@@ -31,7 +31,7 @@ namespace NavalPowerSystems.Drivetrain.Producers
     {
         private static EngineLogic GetLogic(IMyTerminalBlock terminalBlock) => terminalBlock?.GameLogic?.GetAs<EngineLogic>();
         private MyCubeBlock MyBlock => Entity as MyCubeBlock;
-        private MyEntitySubpart MySubpart;
+        private MyEntitySubpart MySubpart_Signage;
         private EngineStats MyStats => Drivetrain_Config.EngineSettings[SubtypeName];
         private EngineSettings Settings;
 
@@ -101,7 +101,7 @@ namespace NavalPowerSystems.Drivetrain.Producers
             UpdateSyncBeforeFrame();
             InitResourceSinks();
             ControlsDoOnce();
-            Entity.TryGetSubpart("Signage_Gearbox", out MySubpart);
+            Entity.TryGetSubpart("Signage", out MySubpart_Signage);
 
             LoadSettings();
             SaveSettings();
@@ -117,7 +117,6 @@ namespace NavalPowerSystems.Drivetrain.Producers
             UpdateEngineState();
             UpdateEngineClutchState();
             CalculateTorqueOutput();
-            CalculateResourceUse();
 
             //HasFuel doesn't seem to play well with terminal. Mostly O2. Suspect because of no O2 storage.
             if (MyAPIGateway.Session.IsServer)
@@ -139,8 +138,8 @@ namespace NavalPowerSystems.Drivetrain.Producers
             if (Sync_HasFuel != HasFuel)
                 Sync_HasFuel.ValidateAndSet(HasFuel);
 
-            if (!MySubpart.IsPreview)
-                MySubpart.Render.Visible = false;
+            if (!MySubpart_Signage.IsPreview)
+                MySubpart_Signage.Render.Visible = false;
         }
         #endregion
 
@@ -224,6 +223,7 @@ namespace NavalPowerSystems.Drivetrain.Producers
                 Block.Components?.Add(SinkO2);
             }
 
+
             var distributor = fakeController.GridResourceDistributor;
             if (distributor != null)
             {
@@ -260,23 +260,6 @@ namespace NavalPowerSystems.Drivetrain.Producers
             if (MyAPIGateway.Utilities.IsDedicated) return;
         }
 
-        private void CalculateResourceUse()
-        {
-            if (CurrentRPM <= 0f || CurrentState == EngineState.Off)
-            {
-                CurrentFuelUse = 0f;
-                CurrentO2Use = 0f;
-                return;
-            }
-
-            CurrentFuelUse = (float)FuelFlow * MaxFuelFlow * Config.globalFuelMult;
-            CurrentO2Use = CurrentFuelUse * 3.5;
-
-            //Adjust to tick scale
-            CurrentFuelUse *= PhysicsStep;
-            CurrentO2Use *= PhysicsStep;
-        }
-
         private void CalculateTorqueOutput()
         {
             if (!Block.IsWorking || CurrentState == EngineState.Off)
@@ -286,6 +269,8 @@ namespace NavalPowerSystems.Drivetrain.Producers
                 RPM_Out = 0;
                 Torque_Out = 0;
                 FuelFlow = 0;
+                CurrentFuelUse = 0f;
+                CurrentO2Use = 0f;
                 return;
             }
 
@@ -332,6 +317,10 @@ namespace NavalPowerSystems.Drivetrain.Producers
             double netTorque = CurrentTorque - (RequestedLoad + internalLoad);
             double angularAcceleration = netTorque / (MyStats.EngineInertia + SystemInertia);
             double changeInRPM = angularAcceleration * 9.5488 * PhysicsStep;
+
+            //Calculate fuel use
+            CurrentFuelUse = (float)FuelFlow * MaxFuelFlow * Config.globalFuelMult;
+            CurrentO2Use = CurrentFuelUse * 30000;
 
             CurrentRPM += (float)changeInRPM;
             CurrentRPM = Math.Max(CurrentRPM, 0);
