@@ -31,7 +31,6 @@ namespace NavalPowerSystems.Drivetrain.Producers
     {
         private static EngineLogic GetLogic(IMyTerminalBlock terminalBlock) => terminalBlock?.GameLogic?.GetAs<EngineLogic>();
         private MyCubeBlock MyBlock => Entity as MyCubeBlock;
-        private IMyShipController MyShipController;
         private MyEntitySubpart MySubpart;
         private EngineStats MyStats => Drivetrain_Config.EngineSettings[SubtypeName];
         private EngineSettings Settings;
@@ -90,7 +89,6 @@ namespace NavalPowerSystems.Drivetrain.Producers
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
-            Entity.TryGetSubpart("Signage_Gearbox", out MySubpart);
             Block.AppendingCustomInfo += AppendCustomInfo;
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
@@ -103,6 +101,7 @@ namespace NavalPowerSystems.Drivetrain.Producers
             UpdateSyncBeforeFrame();
             InitResourceSinks();
             ControlsDoOnce();
+            Entity.TryGetSubpart("Signage_Gearbox", out MySubpart);
 
             LoadSettings();
             SaveSettings();
@@ -245,6 +244,8 @@ namespace NavalPowerSystems.Drivetrain.Producers
         public override float GetRatio()
         {
             if (ClutchEngagement > 0.75f)
+                return 1f;
+            else if (MyDrivetrainSystem.Producers.Count == 1 && !ClutchLocked)
                 return 1f;
             return 0f;
         }
@@ -431,7 +432,7 @@ namespace NavalPowerSystems.Drivetrain.Producers
             Terminal_ClutchEngagement.Value = MathHelper.Clamp(Terminal_ClutchEngagement.Value, 0f, 1f);
 
             if (Throttle > 0.10f)
-                viscousClutch = 0.15f;
+                viscousClutch = 0.5f;
 
             Terminal_ClutchEngagement.Value = (float)Math.Max(Terminal_ClutchEngagement.Value, viscousClutch);
         }
@@ -441,7 +442,7 @@ namespace NavalPowerSystems.Drivetrain.Producers
         private void GetControlInput()
         {
             var throttleStep = 0.005f;
-            var moveIndicator = MyGridManager.ForwardInput;
+            var moveIndicator = MyGridManager?.ForwardInput ?? 0f;
 
             if (Math.Abs(moveIndicator) < 0.01f)
                 moveIndicator = 0f;
@@ -473,8 +474,8 @@ namespace NavalPowerSystems.Drivetrain.Producers
             info.AppendLine($"Status: {CurrentStatus}");
             info.AppendLine($"Clutch Engagement: {ClutchEngagement:0.00}"); //Debug
             info.AppendLine($"Clutch RPM To Match: {ClutchRPMToMatch:0.00}"); //Debug
-            info.AppendLine($"RPM: {CurrentRPM:0.00}");
-            info.AppendLine($"Torque: {CurrentTorque:0.00}");
+            info.AppendLine($"RPM: {RPM_Out:0.00}");
+            info.AppendLine($"Torque: {Torque_Out:0.00}");
             info.AppendLine($"Fuel Flow: {CurrentFuelUse:0.00} / {MaxFuelFlow:0.00} L/s");
             info.AppendLine($"Mass Air Flow: {CurrentO2Use:0.00} / {MaxFuelFlow * 30000:0.00} L/s");
         }

@@ -129,11 +129,16 @@ namespace NavalPowerSystems.Drivetrain
         {
             if (DirtyAssembly)
             {
+                ModularApi.Log($"Assembly {AssemblyId} is dirty, attempting rebuild.");
                 RebuildDrivetrain();
             }
             //Go away if there's nothing to do
             if (LinkedPaths.Count <= 0)
+            {
+                ModularApi.Log($"Assembly {AssemblyId} no paths found.");
                 return;
+            }
+                
 
             foreach (var prod in Producers) prod.Load_In = 0;
             var shafts = LinkedPaths.GroupBy(p => p.Consumer);
@@ -222,23 +227,25 @@ namespace NavalPowerSystems.Drivetrain
         private void RebuildDrivetrain()
         {
             LinkedPaths.Clear();
-            DriveshaftSections.Clear();            
+            DriveshaftSections.Clear();
 
-            foreach (var engineBlock in Engines)
+            ModularApi.Log("Rebuild Drivetrain called.");
+
+            foreach (var p in Producers)
             {
-                var engineLogic = engineBlock.GameLogic?.GetAs<IDrivetrainPart>();
-                if (engineLogic == null) continue;
-
-                foreach (var propBlock in Propellers)
+                if (p == null) continue;
+                foreach (var c in Consumers)
                 {
-                    var propLogic = propBlock.GameLogic?.GetAs<IDrivetrainPart>();
-                    if (propLogic == null) continue;
-
-                    var newPath = new LinkedPath(engineLogic, propLogic);
+                    var newPath = new LinkedPath(p, c);
                     var visited = new HashSet<IMyCubeBlock>();
                     var currentShaftSegment = new List<IMyCubeBlock>();
-                    if (RunTrace(engineBlock, propBlock, 1.0f, newPath, ref visited, ref currentShaftSegment))
+
+                    var pBlock = p.GetMyCubeBlock();
+                    var cBlock = c.GetMyCubeBlock();
+                    if (RunTrace(pBlock, cBlock, 1f, newPath, ref visited, ref currentShaftSegment))
+                    {
                         LinkedPaths.Add(newPath);
+                    }
                 }
             }
 
@@ -256,6 +263,8 @@ namespace NavalPowerSystems.Drivetrain
                 }
 
             }
+
+            DirtyAssembly = false;
         }
 
         private bool RunTrace(
@@ -266,38 +275,45 @@ namespace NavalPowerSystems.Drivetrain
             ref HashSet<IMyCubeBlock> visited,
             ref List<IMyCubeBlock> currentShaftSegment)
         {
-            if (!visited.Add(currentBlock)) return false;
-            var logic = currentBlock.GameLogic?.GetAs<IDrivetrainPart>();
-            var subtype = currentBlock.BlockDefinition.SubtypeName;
+            var currentLogic = currentBlock.GameLogic.GetAs<IDrivetrainPart>();
+            var subtype = currentBlock.BlockDefinition.SubtypeId;
 
-            if (logic != null)
+            if (!visited.Add(currentBlock)) 
+                return false;
+
+            if (currentLogic != null)
             {
-                path.PathMembers.Add(logic);
+                path.PathMembers.Add(currentLogic);
                 if (currentShaftSegment.Count > 0)
                 {
-                    AssignSection(currentShaftSegment, logic, currentBlock);
+                    AssignSection(new List<IMyCubeBlock>(currentShaftSegment), currentLogic, currentBlock);
                     currentShaftSegment.Clear();
                 }
-                if (logic.GetRole() == DrivetrainRole.Transformer)
-                    ratio *= logic.GetRatio();
+                if (currentLogic.GetRole() == DrivetrainRole.Transformer)
+                    ratio *= currentLogic.GetRatio();
             }
             else if (Config.DriveshaftSubtypes.Contains(subtype))
                 currentShaftSegment.Add(currentBlock);
+            else
+                return false;
 
             if (currentBlock == targetBlock)
             {   
                 path.PathGearRatio = ratio;
+                ModularApi.Log($"Producer - Consumer pair created.");
                 return true;
             }
 
             var connectedBlocks = ModularApi.GetConnectedBlocks(currentBlock, "Drivetrain_Definition", false);
             foreach (var connected in connectedBlocks)
             {
-                if (RunTrace(currentBlock, targetBlock, ratio, path, ref visited, ref currentShaftSegment))
+                if (RunTrace(connected, targetBlock, ratio, path, ref visited, ref currentShaftSegment))
                     return true;
             }
 
-            if (logic != null) path.PathMembers.Remove(logic);
+            if (currentLogic != null) path.PathMembers.Remove(currentLogic);
+            if (currentShaftSegment.Contains(currentBlock)) currentShaftSegment.Remove(currentBlock);
+            ModularApi.Log("End of trace.");
             return false;
         }
 
@@ -308,7 +324,7 @@ namespace NavalPowerSystems.Drivetrain
                 ControllerLogic = controller,
                 Shafts = list,
             };
-
+            ModularApi.Log("Driveshaft Section created.");
             newSegment.InitSection();
         }
 

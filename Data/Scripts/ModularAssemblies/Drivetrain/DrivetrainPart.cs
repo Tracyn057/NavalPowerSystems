@@ -26,6 +26,7 @@ namespace NavalPowerSystems.Drivetrain
         public T Block => Entity as T;
         public IMyCubeGrid IMyGrid => Entity.Parent as IMyCubeGrid;
         public NavalGridManager MyGridManager => DrivetrainManager.Instance.GetGridManager(IMyGrid);
+        public DrivetrainSystem MyDrivetrainSystem => DrivetrainManager.Instance.DrivetrainSystems[ModularApi.GetContainingAssembly(Block, "Drivetrain_Definition")];
         public IDrivetrainPart IPart;
         public int AssemblyId;
         public const float PhysicsStep = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
@@ -43,6 +44,7 @@ namespace NavalPowerSystems.Drivetrain
         public virtual double GetTorque() => 0f;
         public virtual double GetLoad() => 0f;
         public virtual DrivetrainRole GetRole() => Role;
+        public virtual IMyCubeBlock GetMyCubeBlock() => Block;
 
         public bool CanWork => Block != null && Block.IsWorking;
     }
@@ -61,6 +63,7 @@ namespace NavalPowerSystems.Drivetrain
         double GetTorque();
         double GetLoad();
         DrivetrainRole GetRole();
+        IMyCubeBlock GetMyCubeBlock();
     }
 
     public enum DrivetrainRole { Producer, Consumer, Transformer }

@@ -42,7 +42,6 @@ namespace NavalPowerSystems.Drivetrain
         public override void Init(MyObjectBuilder_EntityBase objectBuilder)
         {
             base.Init(objectBuilder);
-            Entity.TryGetSubpart("Rudder", out MySubpart);
             
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
@@ -51,6 +50,7 @@ namespace NavalPowerSystems.Drivetrain
         {
             base.UpdateOnceBeforeFrame();
             MyGridManager.RegisterRudder(this);
+            Entity.TryGetSubpart("Rudder", out MySubpart);
             MySubpartMatrix = MySubpart.PositionComp.LocalMatrixRef;
 
             if (!ControlsInitialized)
@@ -94,7 +94,7 @@ namespace NavalPowerSystems.Drivetrain
             if (yaw > 0.05f || yaw < -0.05f)
             {
                 Vector3D steeringVector = MySubpart.PositionComp.WorldMatrixRef.Backward * yaw;
-                Vector3D dragCounterVector = MyGridManager.MyShipController.PositionComp.WorldMatrixRef.Forward * yaw;
+                Vector3D dragCounterVector = MyGridManager.GridMatrixRef.Forward * yaw;
 
                 MatrixD subpartWorldMatrix = MySubpart.PositionComp.WorldMatrixRef;
                 var propWash = MyGridManager.GridAverageThrust;
@@ -127,8 +127,8 @@ namespace NavalPowerSystems.Drivetrain
 
             if (gridAngularVelocity.LengthSquared() > Math.Pow(dampenAggressiveness, 2) && rollVector == Vector3.Zero)
             {
-                var rollError = Vector3.Dot(MyGridManager.MyShipController.WorldMatrix.Right, -gravity);
-                var rollVelocity = Vector3.Dot(gridAngularVelocity, MyGridManager.MyShipController.WorldMatrix.Forward);
+                var rollError = Vector3.Dot(MyGridManager.GridMatrixRef.Right, -gravity);
+                var rollVelocity = Vector3.Dot(gridAngularVelocity, MyGridManager.GridMatrixRef.Forward);
                 if (Math.Abs(rollVelocity) < dampenAggressiveness) rollVelocity = 0f;
                 rollVector = new Vector3(0f, 0f, rollVelocity);
 
@@ -136,9 +136,9 @@ namespace NavalPowerSystems.Drivetrain
                 var forceDampen = MyGridManager.MyGridMass * 0.05;
 
                 var forceMagnitude = (rollError * forceStrength) - (rollVelocity * forceDampen);
-                var forceToApply = MyGridManager.MyShipController.WorldMatrix.Right * forceMagnitude;
+                var forceToApply = MyGridManager.GridMatrixRef.Right * forceMagnitude;
 
-                var applicationPoint = IMyGrid.Physics.CenterOfMassWorld + (MyGridManager.MyShipController.WorldMatrix.Down * 10);
+                var applicationPoint = IMyGrid.Physics.CenterOfMassWorld + (MyGridManager.GridMatrixRef.Down * 10);
 
                 IMyGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, forceToApply, applicationPoint, null);
                 IMyGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, -forceToApply, IMyGrid.Physics.CenterOfMassWorld, null);

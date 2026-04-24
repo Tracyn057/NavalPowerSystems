@@ -21,20 +21,20 @@ namespace NavalPowerSystems.Drivetrain
         public override void LoadData()
         {
             Instance = this;
-            ModularApi.Log("DrivetrainManager Loaded.");
+            ModularApi.Log("Drivetrain Manager Loaded.");
         }
 
         protected override void UnloadData()
         {
             Instance = null;
-            ModularApi.Log("DrivetrainManager closed.");
+            ModularApi.Log("Drivetrain Manager closed.");
         }
 
         public override void UpdateAfterSimulation()
         {
             foreach (var system in DrivetrainSystems.Values)
             {
-                //system.UpdateTick();
+                system.UpdateTick();
             }
             foreach (var grid in GridManagers.Values)
             {
@@ -89,6 +89,7 @@ namespace NavalPowerSystems.Drivetrain
                 drivetrain = new DrivetrainSystem(assemblyId);
                 Instance.DrivetrainSystems.Add(assemblyId, drivetrain);
 
+                ModularApi.Log("New drivetrain assembly created");
                 grid = ModularApi.GetAssemblyGrid(assemblyId);
             }
 
@@ -96,6 +97,7 @@ namespace NavalPowerSystems.Drivetrain
             {
                 navalGridManager = new NavalGridManager(grid);
                 Instance.GridManagers.Add(grid, navalGridManager);
+                ModularApi.Log("Grid Manager Created");
             }
 
             drivetrain.AddPart(block);

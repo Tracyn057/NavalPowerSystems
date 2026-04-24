@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Sandbox.Game.Entities;
+using Sandbox.Game.EntityComponents;
 using Sandbox.ModAPI;
 using VRage.Game;
 using VRage.Game.Components;
 using VRage.Game.ModAPI;
+using VRage.Utils;
 using VRageMath;
 
 namespace NavalPowerSystems.Drivetrain
@@ -15,8 +17,13 @@ namespace NavalPowerSystems.Drivetrain
         public MyCubeGrid MyGrid;
         public float MyGridMass => MyShipController.CalculateShipMass().TotalMass;
         public IMyShipController MyShipController;
+        private IMyShipController MyShadowController;
+        private bool ShadowControllerCaptured;
+        private MatrixD ShadowControllerMatrix;
+        public MatrixD GridMatrixRef => MyShipController?.WorldMatrix ?? ShadowControllerMatrix;
         public float Update100Coefficient = 1f;
         public float GridAverageThrust = 0f;
+        private MyResourceSinkComponent MyResourceSink;
         private const float WaterDensity = 1024f;
         private const float Gravity = 9.81f;
         private const float PhysicsStep = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
@@ -34,6 +41,12 @@ namespace NavalPowerSystems.Drivetrain
         {
             IMyGrid = grid;
             MyGrid = grid as MyCubeGrid;
+        }
+
+        public void InitResourceSystem()
+        {
+            MyResourceSink = new MyResourceSinkComponent();
+            var controller = MyShipController ?? MyShadowController;
         }
 
         public void UpdateTick()
@@ -62,10 +75,11 @@ namespace NavalPowerSystems.Drivetrain
         public void UpdateTick100()
         {
             if (IMyGrid.Physics == null) return;
-            if (MyShipController == null)
-
 
             Update100Coefficient = CalculateWaveCoefficient();
+            RecalculateController100();
+
+            CleanLists();
 
             if (!MyAPIGateway.Utilities.IsDedicated)
                 UpdateCameraDistance();
@@ -91,6 +105,12 @@ namespace NavalPowerSystems.Drivetrain
                 GridPropellers.Add(block);
         }
 
+        private void CleanLists()
+        {
+            GridRudders.RemoveAll(r => r == null || r.MarkedForClose);
+            GridPropellers.RemoveAll(p => p == null);
+        }
+
         public float CalculateWaveCoefficient()
         {
             Vector3 localVelocity = Vector3.TransformNormal(IMyGrid.Physics.LinearVelocity, IMyGrid.PositionComp.WorldMatrixInvScaled);
@@ -111,15 +131,43 @@ namespace NavalPowerSystems.Drivetrain
 
         public void RecalculateController()
         {
-            if (MyShipController == null || !MyShipController.IsWorking || !MyShipController.IsMainCockpit)
+            if (MyShadowController != null && MyShipController.IsWorking)
             {
-                var player = MyAPIGateway.Players.GetPlayerControllingEntity(IMyGrid);
-                MyShipController = null;
-
-                if (player?.Controller?.ControlledEntity != null)
-                    MyShipController = player.Controller.ControlledEntity as IMyShipController;
+                ShadowControllerMatrix = MyShipController.WorldMatrix;
+                ShadowControllerCaptured = true;
             }
-            MyGrid.
+            else
+            {
+                MyShipController = null;
+                if (!ShadowControllerCaptured)
+                {
+                    ShadowControllerMatrix = IMyGrid.WorldMatrix;
+                    ShadowControllerCaptured = true;
+                }
+            }
+        }
+
+        public void RecalculateController100()
+        {
+            if (MyShipController != null && MyShipController.IsWorking) return;
+
+            var player = MyAPIGateway.Players.GetPlayerControllingEntity(IMyGrid);
+            MyShipController = null;
+
+            if (player?.Controller?.ControlledEntity != null)
+            {
+                MyShipController = player.Controller.ControlledEntity as IMyShipController;
+            }
+        }
+
+        private void VerifyController()
+        {
+
+        }
+
+        private void CreateShadowController()
+        {
+
         }
 
         private void GetControlInput()

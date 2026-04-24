@@ -11,10 +11,10 @@ namespace NavalPowerSystems
         // However, for all but the simplest of assemblies it would be wise to have a separate utilities class.
 
         // This is the important bit.
-        private ModularPhysicalDefinition DrivetrainDefinition_V2 => new ModularPhysicalDefinition
+        private ModularPhysicalDefinition DrivetrainDefinition => new ModularPhysicalDefinition
         {
             // Unique name of the definition.
-            Name = "Drivetrain_Definition_",
+            Name = "Drivetrain_Definition",
 
             //Boop
             OnInit = null,

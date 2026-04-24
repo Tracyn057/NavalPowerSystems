@@ -11,7 +11,7 @@
                 (
                     ProductionDefinition,
                     ExtractionDefinition,
-                    DrivetrainDefinition_V2
+                    DrivetrainDefinition
                 );
         }
     }

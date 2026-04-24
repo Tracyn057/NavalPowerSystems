@@ -50,12 +50,6 @@ namespace NavalPowerSystems.Drivetrain.Consumers
         {
             base.Init(objectBuilder);
 
-            Entity.TryGetSubpart("Propeller", out MySubpart);
-            if (MySubpart == null)
-                ModularApi.Log($"{SubtypeName} subpart is null.");
-            else
-                MySubpartMatrix = MySubpart.PositionComp.LocalMatrixRef;
-
             Block.AppendingCustomInfo += AppendCustomInfo;
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
@@ -63,6 +57,12 @@ namespace NavalPowerSystems.Drivetrain.Consumers
         public override void UpdateOnceBeforeFrame()
         {
             base.UpdateOnceBeforeFrame();
+
+            Entity.TryGetSubpart("Propeller", out MySubpart);
+            if (MySubpart == null)
+                ModularApi.Log($"{SubtypeName} subpart is null.");
+            else
+                MySubpartMatrix = MySubpart.PositionComp.LocalMatrixRef;
 
             LoadSettings();
             if (MyStats.Blades == 3)
