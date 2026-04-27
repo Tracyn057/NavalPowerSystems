@@ -1,11 +1,12 @@
-﻿using Sandbox.ModAPI;
+﻿using NavalPowerSystems.Drivetrain;
+using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NavalPowerSystems.Drivetrain.Producers
+namespace NavalPowerSystems.Drivetrain.Producers.Steam
 {
     internal class TurbineLogic : DrivetrainPart<IMyFunctionalBlock>
     {

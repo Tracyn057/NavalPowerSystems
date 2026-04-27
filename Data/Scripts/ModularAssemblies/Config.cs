@@ -7,7 +7,7 @@ namespace NavalPowerSystems
     public static class Config
     {
         //Global variables
-        public const float globalFuelMult = 0.66f;          //Multiplier for fuel consumption
+        public const float globalFuelMult = 1.75f;          //Multiplier for fuel consumption
         public const bool requiresMaintenance = false;    //Whether or not to apply wear and tear to engines and propellers, causing them to lose efficiency and eventually fail without repairs
         public const float cavitationDmgMult = 0.1f;      //Multiplier for damage caused by cavitation, applied to propeller blocks
         public const float throttleVariance = 0.015f;    //Amount of random variance in throttle response

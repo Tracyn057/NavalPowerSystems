@@ -28,14 +28,14 @@ namespace NavalPowerSystems.Drivetrain.Consumers
     public class PropellerLogic : DrivetrainPart<IMyFunctionalBlock>
     {
         private static PropellerLogic GetLogic(IMyTerminalBlock terminalBlock) => terminalBlock?.GameLogic?.GetAs<PropellerLogic>();
-        public PropellerStats MyStats => Drivetrain_Config.PropellerSettings[SubtypeName];
+        public PropellerSettings MyStats => Config_Consumers.PropellerStats[SubtypeName];
         private MyEntitySubpart MySubpart;
         private Matrix MySubpartMatrix;
         private IMyCubeGrid MyGrid => Entity.Parent as IMyCubeGrid;
         public override DrivetrainRole GetRole() => DrivetrainRole.Consumer;
         public override double GetLoad() => Load_Out;
         private static bool ControlsInitialized = false;
-        private PropellerSettings Settings;
+        private PropellerSaveSettings Settings;
 
         #region Operational Variables
         private float CurrentAngle;
@@ -66,19 +66,20 @@ namespace NavalPowerSystems.Drivetrain.Consumers
                 MySubpartMatrix = MySubpart.PositionComp.LocalMatrixRef;
 
             LoadSettings();
-            if (MyStats.Blades == 3)
+            Terminal_PD.Value = Settings.PitchRatio;
+            if (MyStats.Blades == 3 && !MyStats.IsCRP)
             {
                 AE = 0.65f;
                 PD = 1.0f;
                 KQ_0 = 0.055f;
             }
-            else if (MyStats.Blades == 4)
+            else if (MyStats.Blades == 4 && !MyStats.IsCRP)
             {
                 AE = 0.75f;
                 PD = 1.1f;
                 KQ_0 = 0.065f;
             }
-            else if (MyStats.Blades == 5)
+            else if (MyStats.Blades == 5 && !MyStats.IsCRP)
             {
                 AE = 1.05f;
                 PD = 1.2f;
@@ -103,22 +104,24 @@ namespace NavalPowerSystems.Drivetrain.Consumers
         {
             base.UpdateBeforeSimulation();
 
-            float limit = 0.75f;
-            float delta = RPM_In - CurrentRPM;
-            CurrentRPM += MathHelper.Clamp(delta, -limit, limit);
-
             var diameter = MyStats.Diameter;
-            double RPS = CurrentRPM / 60;
+            double RPS = RPM_In * PhysicsStep;
             double velocity = MyGrid.LinearVelocity.Length();
-            double j = (RPS > 0.01) ? velocity / (RPS * diameter) : 0;
+            double j = (Math.Abs(RPS) > 0.01) ? velocity / (RPS * diameter) : 0;
             double kq = GetTorqueCoefficient(j);
             double kt = GetThrustCoefficient(j);
 
             //Calculate Load
             double hydroLoad = kq * 1024 * Math.Pow(RPS, 2) * Math.Pow(diameter, 5);
-            double linearLoad = AE * RPS;
+            double linearLoad = AE * Math.Abs(RPS);
             double staticLoad = 0.05 * 0.25 * MyStats.Inertia;
             Load_Out = hydroLoad + linearLoad + staticLoad;
+
+            //Efficiency curve by optimal RPM
+            double rpmRatio = RPM_In / MyStats.DesignRPM;
+            double efficiencyCurve = 1.0 - Math.Pow(rpmRatio - 1.0, 2);
+            efficiencyCurve = Math.Max(0.2, efficiencyCurve);
+            Load_Out *= efficiencyCurve;
 
             //Calculate thrust
             Torque_Out = kt * 1024 * Math.Pow(RPS, 2) * Math.Pow(diameter, 4);
@@ -132,9 +135,9 @@ namespace NavalPowerSystems.Drivetrain.Consumers
             }
 
             //Animate
-            if (MySubpart != null && CurrentRPM != 0)
+            if (MySubpart != null && RPM_In != 0)
             {
-                float degreesPerTick = (float)CurrentRPM * 360f / 3600f; // convert RPM → degrees/tick at 60 Hz
+                float degreesPerTick = (float)RPM_In * 0.1f; // convert RPM → degrees/tick at 60 Hz
                 CurrentAngle += degreesPerTick;
                 CurrentAngle %= 360f;
 
@@ -166,7 +169,10 @@ namespace NavalPowerSystems.Drivetrain.Consumers
         #region UI and Controls
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder info)
         {
-            info.AppendLine($"Current Torque: {Torque_Out:0.00}");
+            info.AppendLine($"Current Load: {Load_Out:0.00}");
+            info.AppendLine($"Current Torque: {Torque_In:0.00}");
+            info.AppendLine($"Net: {Torque_In-Load_Out:0.00}");
+            info.AppendLine($"Current Thrust: {Torque_Out:0.00}");
             info.AppendLine($"Current RPM: {RPM_In:0.00}");
         }
 
@@ -244,12 +250,13 @@ namespace NavalPowerSystems.Drivetrain.Consumers
                 return;
 
             Settings.PitchRatio = 1.1f;
+            ModularApi.Log($"{SubtypeName} default settings loaded.");
         }
 
         internal virtual bool LoadSettings()
         {
             if (Settings == null)
-                Settings = new PropellerSettings();
+                Settings = new PropellerSaveSettings();
 
             if (Block.Storage == null)
             {
@@ -267,12 +274,12 @@ namespace NavalPowerSystems.Drivetrain.Consumers
             try
             {
                 var loadedSettings =
-                    MyAPIGateway.Utilities.SerializeFromBinary<PropellerSettings>(Convert.FromBase64String(rawData));
+                    MyAPIGateway.Utilities.SerializeFromBinary<PropellerSaveSettings>(Convert.FromBase64String(rawData));
 
                 if (loadedSettings != null)
                 {
                     Settings.PitchRatio = loadedSettings.PitchRatio;
-
+                    ModularApi.Log($"{SubtypeName} settings loaded.");
                     return true;
                 }
             }
@@ -303,12 +310,13 @@ namespace NavalPowerSystems.Drivetrain.Consumers
 
             Block.Storage.SetValue(SettingsGuid,
                 Convert.ToBase64String(MyAPIGateway.Utilities.SerializeToBinary(Settings)));
+            ModularApi.Log($"{SubtypeName} settings saved.");
         }
         #endregion
     }
 
     [ProtoContract(UseProtoMembersOnly = true)]
-    public class PropellerSettings
+    public class PropellerSaveSettings
     {
         [ProtoMember(1)]
         public float PitchRatio;

@@ -27,18 +27,17 @@ namespace NavalPowerSystems.Drivetrain
         public IMyCubeGrid IMyGrid => Entity.Parent as IMyCubeGrid;
         public NavalGridManager MyGridManager => DrivetrainManager.Instance.GetGridManager(IMyGrid);
         public DrivetrainSystem MyDrivetrainSystem => DrivetrainManager.Instance.DrivetrainSystems[ModularApi.GetContainingAssembly(Block, "Drivetrain_Definition")];
-        public IDrivetrainPart IPart;
         public int AssemblyId;
         public const float PhysicsStep = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
 
         public DrivetrainRole Role { get; set; }
-        public float RPM_In { get; set; }
-        public float RPM_Out { get; set; }
+        public double SystemInertia {  get; set; }
+        public double RPM_In { get; set; }
+        public double RPM_Out { get; set; }
         public double Load_In { get; set; }
         public double Load_Out { get; set; }
         public double Torque_In { get; set; }
         public double Torque_Out { get; set; }
-        public float EngagementMult { get; set; }
 
         public virtual float GetRatio() => 1f;
         public virtual double GetTorque() => 0f;
@@ -46,18 +45,37 @@ namespace NavalPowerSystems.Drivetrain
         public virtual DrivetrainRole GetRole() => Role;
         public virtual IMyCubeBlock GetMyCubeBlock() => Block;
 
-        public bool CanWork => Block != null && Block.IsWorking;
+        public override void Init(MyObjectBuilder_EntityBase objectBuilder)
+        {
+            base.Init(objectBuilder);
+
+            NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
+        }
+
+        public override void UpdateOnceBeforeFrame()
+        {
+            base.UpdateOnceBeforeFrame();
+            if (Block.CubeGrid?.Physics == null)
+                return;
+
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+        }
+
+        public override void UpdateAfterSimulation()
+        {
+            base.UpdateAfterSimulation();
+        }
     }
 
     public interface IDrivetrainPart
     {
-        float RPM_In { get; set; }
-        float RPM_Out { get; set; }
+        double SystemInertia { get; set; }
+        double RPM_In { get; set; }
+        double RPM_Out { get; set; }
         double Load_In { get; set; }
         double Load_Out { get; set; }
         double Torque_In { get; set; }
         double Torque_Out { get; set; }
-        float EngagementMult { get; set; }
 
         float GetRatio();
         double GetTorque();

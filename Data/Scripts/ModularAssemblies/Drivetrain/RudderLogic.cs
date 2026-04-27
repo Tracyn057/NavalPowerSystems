@@ -28,7 +28,7 @@ namespace NavalPowerSystems.Drivetrain
     )]
     public class RudderLogic : DrivetrainPart<IMyFunctionalBlock>
     {
-        private RudderStats MyStats => Drivetrain_Config.RudderSettings[SubtypeName];
+        private RudderSettings MyStats => Config_Rudder.RudderSettings[SubtypeName];
         private MyEntitySubpart MySubpart;
         private Matrix MySubpartMatrix;
         private static bool ControlsInitialized = false;
@@ -334,5 +334,23 @@ namespace NavalPowerSystems.Drivetrain
                     writer.Append("Brake \nOFF");
                 }
         }
+    }
+
+    public class Config_Rudder
+    {
+        public static readonly Dictionary<string, RudderSettings> RudderSettings = new Dictionary<string, RudderSettings>
+        {
+            {"NPS_Rudder_Small_CenteredV1", new RudderSettings { SufaceArea = 38.9f } },
+            {"NPS_Rudder_Small_OffsetLeftV1", new RudderSettings { SufaceArea = 38.9f } },
+            {"NPS_Rudder_Small_OffsetRightV1", new RudderSettings { SufaceArea = 38.9f } },
+            {"NPS_Rudder_Small_CenteredV2", new RudderSettings { SufaceArea = 37.32f } },
+            {"NPS_Rudder_Small_OffsetLeftV2", new RudderSettings { SufaceArea = 37.32f } },
+            {"NPS_Rudder_Small_OffsetRightV2", new RudderSettings { SufaceArea = 37.32f } },
+        };
+    }
+
+    public class RudderSettings
+    {
+        public float SufaceArea;
     }
 }

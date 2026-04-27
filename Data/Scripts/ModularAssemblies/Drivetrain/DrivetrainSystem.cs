@@ -1,9 +1,12 @@
 ﻿using NavalPowerSystems.Communication;
+using NavalPowerSystems.Drivetrain.Consumers;
+using Sandbox.Game.Entities;
 using Sandbox.ModAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using VRage.Audio;
+using VRage.Game;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI;
 using VRageMath;
@@ -14,8 +17,11 @@ namespace NavalPowerSystems.Drivetrain
     {
         private static ModularDefinitionApi ModularApi => ModularDefinition.ModularApi;
         public readonly int AssemblyId;
-        private readonly IMyCubeGrid SystemGrid;
-        public bool DirtyAssembly = true;
+        private bool AssemblyDirty = true;
+        private double CurrentRPM;
+        private double TotalLoad;
+        private double TotalTorque;
+        private double SystemInertia = 5000;
 
         private List<IMyCubeBlock> AllBlocks = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Engines = new List<IMyCubeBlock>();
@@ -25,16 +31,14 @@ namespace NavalPowerSystems.Drivetrain
         private List<IMyCubeBlock> Gearboxes = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Propellers = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Driveshafts = new List<IMyCubeBlock>();
+
         public List<IDrivetrainPart> Producers = new List<IDrivetrainPart>();
         private List<IDrivetrainPart> Transformers = new List<IDrivetrainPart>();
         private List<IDrivetrainPart> Consumers = new List<IDrivetrainPart>();
-        private List<LinkedPath> LinkedPaths = new List<LinkedPath>();
-        private Dictionary<IMyCubeBlock, DriveshaftSection> DriveshaftSections = new Dictionary<IMyCubeBlock, DriveshaftSection>();
 
         public DrivetrainSystem(int assemblyId)
         {
             AssemblyId = assemblyId;
-            SystemGrid = ModularApi.GetAssemblyGrid(assemblyId);
         }
 
         public void AddPart(IMyCubeBlock block)
@@ -76,14 +80,13 @@ namespace NavalPowerSystems.Drivetrain
                     }
                     Consumers.Add(logic);
                 }
-                    
+
             }
             else if (Config.DriveshaftSubtypes.Contains(subtype))
             {
                 Driveshafts.Add(block);
                 AllBlocks.Add(block);
             }
-            DirtyAssembly = true;
         }
 
         public void RemovePart(IMyCubeBlock block)
@@ -122,268 +125,51 @@ namespace NavalPowerSystems.Drivetrain
                 Driveshafts.Remove(block);
                 AllBlocks.Remove(block);
             }
-            DirtyAssembly = true;
         }
 
         public void UpdateTick()
         {
-            if (DirtyAssembly)
+            if (Producers.Count == 0 || Consumers.Count == 0) return;
+
+            //Grab load info
+            TotalLoad = 0;
+            foreach (var c in Consumers)
             {
-                ModularApi.Log($"Assembly {AssemblyId} is dirty, attempting rebuild.");
-                RebuildDrivetrain();
+                TotalLoad += c.GetLoad();
+                c.Torque_In = TotalTorque;
             }
-            //Go away if there's nothing to do
-            if (LinkedPaths.Count <= 0)
+            foreach (var t in Transformers)
             {
-                ModularApi.Log($"Assembly {AssemblyId} no paths found.");
-                return;
-            }
-                
-
-            foreach (var prod in Producers) prod.Load_In = 0;
-            var shafts = LinkedPaths.GroupBy(p => p.Consumer);
-
-            //Get/set load
-            foreach (var shaft in shafts)
-            {
-                var con = shaft.Key;
-                int prodsForCon = shaft.Count();
-
-                //Skip if no shaft input from this path
-                foreach (var path in shaft)
-                {
-                    if (path.Producer.GetRatio() == 0)
-                    {
-                        prodsForCon--;
-                        continue;
-                    }
-                }
-                //Skip whole shaft if there's no one left to contribute
-                if (prodsForCon <= 0) continue;
-
-                double conRPM = con.RPM_Out;
-                double conLoad = con.GetLoad();
-
-                //Gather and distribute load, any producer past this point is contributing
-                foreach (var path in shaft)
-                {
-                    //Get any shaft brake
-                    double brakeLoad = 0;
-                    foreach (var member in path.PathMembers)
-                    {
-                        if (member.GetRole() == DrivetrainRole.Transformer)
-                            brakeLoad += member.GetLoad();
-                    }
-
-                    double gearedLoad = (conLoad + brakeLoad) / path.PathGearRatio;
-                    double prodLoad = gearedLoad / prodsForCon;
-
-                    path.Producer.RPM_In = (float)conRPM * path.PathGearRatio;
-                    path.Producer.Load_In += prodLoad;
-                }
+                TotalLoad += t.GetLoad();
             }
 
-            //Get/set torque
-            foreach (var shaft in shafts)
-            {
-                //Replicate 
-                var con = shaft.Key;
-                double prodTotalTorque = 0;
-                float prodRPM = 0;
-
-                foreach (var path in shaft)
-                {
-                    if (path.Producer.GetRatio() > 0)
-                    {
-                        prodTotalTorque += path.Producer.GetTorque() * path.PathGearRatio;
-                        prodRPM = Math.Max(prodRPM, path.Producer.RPM_Out / path.PathGearRatio);
-                    }
-                }
-                con.Torque_In = prodTotalTorque;
-                con.RPM_In = prodRPM;
-            }
-
-            //Animate last
-            if (DrivetrainManager.Instance.GetGridManager(SystemGrid).DistanceToCamera < 750f)
-            {
-                var shaftSections = DriveshaftSections.GroupBy(p => p.Value.ControllerLogic);
-
-                foreach (var shaft in DriveshaftSections)
-                {
-                    var controller = shaft.Value.ControllerLogic;
-                    var shaftRPM = controller.RPM_In;
-                    float deltaAngle = (float)shaftRPM * 360f / 3600f;
-
-                    shaft.Value.UpdateRotation(deltaAngle);
-                }
-            }
-        }
-
-        public void UpdateTick10()
-        {
-            
-        }
-
-        private void RebuildDrivetrain()
-        {
-            LinkedPaths.Clear();
-            DriveshaftSections.Clear();
-
-            ModularApi.Log("Rebuild Drivetrain called.");
-
+            //Send to producers
+            TotalTorque = 0;
             foreach (var p in Producers)
             {
-                if (p == null) continue;
-                foreach (var c in Consumers)
-                {
-                    var newPath = new LinkedPath(p, c);
-                    var visited = new HashSet<IMyCubeBlock>();
-                    var currentShaftSegment = new List<IMyCubeBlock>();
-
-                    var pBlock = p.GetMyCubeBlock();
-                    var cBlock = c.GetMyCubeBlock();
-                    if (RunTrace(pBlock, cBlock, 1f, newPath, ref visited, ref currentShaftSegment))
-                    {
-                        LinkedPaths.Add(newPath);
-                    }
-                }
+                p.Load_In = TotalLoad;
+                TotalTorque += p.GetTorque();
             }
 
-            foreach (var section in DriveshaftSections)
+            //Solve RPM
+            double netTorque = TotalTorque - TotalLoad;
+            if (SystemInertia == 0) SystemInertia = 5000;
+            CurrentRPM += (netTorque / SystemInertia) * 9.5488 * 0.016666;
+            if (CurrentRPM < 0)
+                CurrentRPM = 0;
+
+            foreach (var c in Consumers)
             {
-                var logic = section.Value.ControllerLogic;
-                if (logic == null) continue;
-                if (logic.GetRole() == DrivetrainRole.Consumer)
-                {
-                    var subtype = section.Value.SectionController.BlockDefinition.SubtypeId;
-                    if (subtype != null && Drivetrain_Config.PropellerSettings[subtype].IsCCW)
-                    {
-                        section.Value.IsCCW = true;
-                    }
-                }
-
+                c.RPM_In = CurrentRPM;
+                c.Torque_In = TotalTorque / Consumers.Count();
             }
-
-            DirtyAssembly = false;
+            foreach (var p in Producers)
+                p.RPM_In = CurrentRPM;
         }
 
-        private bool RunTrace(
-            IMyCubeBlock currentBlock,
-            IMyCubeBlock targetBlock, //Consumer
-            float ratio,
-            LinkedPath path,
-            ref HashSet<IMyCubeBlock> visited,
-            ref List<IMyCubeBlock> currentShaftSegment)
+        public void UpdateTick100()
         {
-            var currentLogic = currentBlock.GameLogic.GetAs<IDrivetrainPart>();
-            var subtype = currentBlock.BlockDefinition.SubtypeId;
-
-            if (!visited.Add(currentBlock)) 
-                return false;
-
-            if (currentLogic != null)
-            {
-                path.PathMembers.Add(currentLogic);
-                if (currentShaftSegment.Count > 0)
-                {
-                    AssignSection(new List<IMyCubeBlock>(currentShaftSegment), currentLogic, currentBlock);
-                    currentShaftSegment.Clear();
-                }
-                if (currentLogic.GetRole() == DrivetrainRole.Transformer)
-                    ratio *= currentLogic.GetRatio();
-            }
-            else if (Config.DriveshaftSubtypes.Contains(subtype))
-                currentShaftSegment.Add(currentBlock);
-            else
-                return false;
-
-            if (currentBlock == targetBlock)
-            {   
-                path.PathGearRatio = ratio;
-                ModularApi.Log($"Producer - Consumer pair created.");
-                return true;
-            }
-
-            var connectedBlocks = ModularApi.GetConnectedBlocks(currentBlock, "Drivetrain_Definition", false);
-            foreach (var connected in connectedBlocks)
-            {
-                if (RunTrace(connected, targetBlock, ratio, path, ref visited, ref currentShaftSegment))
-                    return true;
-            }
-
-            if (currentLogic != null) path.PathMembers.Remove(currentLogic);
-            if (currentShaftSegment.Contains(currentBlock)) currentShaftSegment.Remove(currentBlock);
-            ModularApi.Log("End of trace.");
-            return false;
-        }
-
-        private void AssignSection(List<IMyCubeBlock> list, IDrivetrainPart controller, IMyCubeBlock controllerBlock)
-        {
-            var newSegment = new DriveshaftSection(){
-                SectionController = controllerBlock,
-                ControllerLogic = controller,
-                Shafts = list,
-            };
-            ModularApi.Log("Driveshaft Section created.");
-            newSegment.InitSection();
-        }
-
-        public class DriveshaftSection
-        {
-            public IMyCubeBlock SectionController;
-            public IDrivetrainPart ControllerLogic;
-            public float CurrentAngle;
-            public bool IsCCW;
-
-            public List<IMyCubeBlock> Shafts = new List<IMyCubeBlock>();
-            public Dictionary<MyEntitySubpart, Matrix> ShaftSubparts = new Dictionary<MyEntitySubpart, Matrix>();
-
-            public void InitSection()
-            {
-                foreach (var shaft in Shafts)
-                {
-                    MyEntitySubpart sub;
-                    Matrix matrix;
-
-                    if (shaft.TryGetSubpart("Driveshaft", out sub))
-                    {
-                        matrix = sub.PositionComp.LocalMatrixRef;
-                        ShaftSubparts.Add(sub, matrix);
-                    }
-                }
-            }
-            public void UpdateRotation(float deltaAngle)
-            {
-                float direction = IsCCW ? -1f : 1f;
-                CurrentAngle += deltaAngle * direction;
-
-                if (CurrentAngle >= 360f) CurrentAngle -= 360f;
-                if (CurrentAngle < 0f) CurrentAngle += 360f;
-
-                foreach (var sub in ShaftSubparts)
-                {
-                    Matrix rotation = Matrix.CreateRotationZ(MathHelper.ToRadians(-CurrentAngle));
-                    Matrix final = rotation * sub.Value;
-                    sub.Key.PositionComp.SetLocalMatrix(ref final);
-                }
-            }
-        }
-
-        public class LinkedPath
-        {
-            public readonly IDrivetrainPart Producer;
-            public readonly IDrivetrainPart Consumer;
-
-            public readonly List<IDrivetrainPart> PathMembers = new List<IDrivetrainPart>();
-            public float PathGearRatio { get; internal set; } = 1.0f;
-            public bool IsValid => Producer != null && Consumer != null;
-
-            public LinkedPath(IDrivetrainPart producer, IDrivetrainPart consumer)
-            {
-                Producer = producer;
-                Consumer = consumer;
-            }
-
+            
         }
     }
 }

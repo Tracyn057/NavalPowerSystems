@@ -41,7 +41,7 @@ namespace NavalPowerSystems.Drivetrain.Transformers
         {
             base.Init(objectBuilder);
 
-            //Block.AppendingCustomInfo += AppendingCustomInfo; //Nothing to keep track of yet? Maybe add a method to send info here from system later.
+            Block.AppendingCustomInfo += AppendingCustomInfo; //Nothing to keep track of yet? Maybe add a method to send info here from system later.
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
         }
@@ -62,7 +62,14 @@ namespace NavalPowerSystems.Drivetrain.Transformers
             Terminal_BrakeEngagement.SetLocalValue(BrakeEngagement);
             Terminal_BrakeEngagement.ValueChanged += Terminal_BrakeEngagement_ValueChanged;
 
-            //NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+            NeedsUpdate |= MyEntityUpdateEnum.EACH_FRAME;
+        }
+
+        public override void UpdateAfterSimulation()
+        {
+            base.UpdateAfterSimulation();
+
+            Load_Out = BrakeEngagement * MyStats.MaxBrakeTorque;
         }
 
         private void Terminal_BrakeEngagement_ValueChanged(MySync<float, SyncDirection.BothWays> obj)
@@ -72,29 +79,18 @@ namespace NavalPowerSystems.Drivetrain.Transformers
             SaveSettings();
         }
 
-        public override double GetLoad()
-        {
-            return BrakeEngagement * MyStats.MaxBrakeTorque;
-        }
+        public override double GetLoad() => BrakeEngagement * MyStats.MaxBrakeTorque;
 
-        public override float GetRatio()
-        {
-            return MyStats.GearRatio;
-        }
+        public override float GetRatio() => MyStats.GearRatio;
 
-        public override DrivetrainRole GetRole()
-        {
-            return DrivetrainRole.Transformer;
-        }
+        public override DrivetrainRole GetRole() => DrivetrainRole.Transformer;
 
-        //private void AppendingCustomInfo(IMyTerminalBlock block, StringBuilder info)
-        //{
-        //    info.AppendLine($"Gear Ratio: {MyStats.GearRatio}");
-        //    info.AppendLine($"Incoming Torque: {Torque_In:0.00}");
-        //    info.AppendLine($"Incoming RPM: {RPM_In:0.00}");
-        //    info.AppendLine($"Outgoing Torque: {Torque_Out:0.00}");
-        //    info.AppendLine($"Outgoing RPM: {RPM_Out:0.00}");
-        //}
+        private void AppendingCustomInfo(IMyTerminalBlock block, StringBuilder info)
+        {
+            info.AppendLine($"Gear Ratio: {MyStats.GearRatio}");
+            info.AppendLine($"Brake Engagement: {BrakeEngagement:0.00}");
+            info.AppendLine($"Brake Load: {Load_Out:0.00}");
+        }
 
         static bool Control_Visible(IMyTerminalBlock block)
         {
@@ -184,6 +180,7 @@ namespace NavalPowerSystems.Drivetrain.Transformers
                 return;
 
             Settings.BrakeEngagement = 0f;
+            ModularApi.Log($"{SubtypeName} default settings loaded.");
         }
 
         internal virtual bool LoadSettings()
@@ -212,7 +209,7 @@ namespace NavalPowerSystems.Drivetrain.Transformers
                 if (loadedSettings != null)
                 {
                     Settings.BrakeEngagement = loadedSettings.BrakeEngagement;
-
+                    ModularApi.Log($"{SubtypeName} settings loaded.");
                     return true;
                 }
             }
@@ -243,6 +240,7 @@ namespace NavalPowerSystems.Drivetrain.Transformers
 
             Block.Storage.SetValue(SettingsGuid,
                 Convert.ToBase64String(MyAPIGateway.Utilities.SerializeToBinary(Settings)));
+            ModularApi.Log($"{SubtypeName} settings saved.");
         }
         #endregion
     }
