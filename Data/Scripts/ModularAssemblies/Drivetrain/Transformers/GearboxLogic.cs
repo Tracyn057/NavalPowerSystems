@@ -6,6 +6,7 @@ using Sandbox.ModAPI.Interfaces.Terminal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using VRage.Game;
 using VRage.Game.Components;
@@ -25,7 +26,7 @@ namespace NavalPowerSystems.Drivetrain.Transformers
     public class GearboxLogic : DrivetrainPart<IMyFunctionalBlock>
     {
         static GearboxLogic GetLogic(IMyTerminalBlock gearbox) => gearbox?.GameLogic?.GetAs<GearboxLogic>();
-        private GearboxStats MyStats => Drivetrain_Config.GearboxSettings[SubtypeName];
+        private static double MyStats;
 
         #region Sync, Terminal and Settings Variables
         private static bool ControlsInitialized = false;
@@ -41,6 +42,7 @@ namespace NavalPowerSystems.Drivetrain.Transformers
         {
             base.Init(objectBuilder);
 
+            MyStats = Config_Transformers.GearboxSettings[SubtypeName];
             Block.AppendingCustomInfo += AppendingCustomInfo; //Nothing to keep track of yet? Maybe add a method to send info here from system later.
 
             NeedsUpdate |= MyEntityUpdateEnum.BEFORE_NEXT_FRAME;
@@ -87,7 +89,6 @@ namespace NavalPowerSystems.Drivetrain.Transformers
 
         private void AppendingCustomInfo(IMyTerminalBlock block, StringBuilder info)
         {
-            info.AppendLine($"Gear Ratio: {MyStats.GearRatio}");
             info.AppendLine($"Brake Engagement: {BrakeEngagement:0.00}");
             info.AppendLine($"Brake Load: {Load_Out:0.00}");
         }
