@@ -26,10 +26,9 @@ Oil Derrick (Land): 40 l/s Crude Oil
 Well Head (Ocean): 100 l/s Crude Oil
 
 
-Boiler -> Outputs Bar and Mass
-HP Turbine -> Inputs Bar and Mass, Outputs Low Bar and Mass
-LP Turbine -> Inputs Low Bar and Mass, Outputs Very Low Bar, Mass
-Condenser -> Inputs Very Low Bar, removes Bar to near-vacuum, Outputs distilled water
+Boiler - Bar_In -> Header Pressure
+	-> Sees Bar_In drop, opens steam valve.
+		-> Sees SteamMassInDrum drop, opens fuel valve.
 
 
 
