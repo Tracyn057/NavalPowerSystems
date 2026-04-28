@@ -39,7 +39,9 @@ namespace NavalPowerSystems.Drivetrain.Consumers
 
         #region Operational Variables
         private float CurrentAngle;
-        private float CurrentRPM;
+        private float CurrentThrust;
+        private const float ThrustConst = 0.5f;
+        private const float LoadConst = 0.08f;
         MySync<float, SyncDirection.BothWays> Terminal_PD;
         private float AE;
         private float PD;
@@ -124,12 +126,12 @@ namespace NavalPowerSystems.Drivetrain.Consumers
             Load_Out *= efficiencyCurve;
 
             //Calculate thrust
-            Torque_Out = kt * 1024 * Math.Pow(RPS, 2) * Math.Pow(diameter, 4);
+            CurrentThrust = (float)(kt * 1024 * Math.Pow(RPS, 2) * Math.Pow(diameter, 4));
 
             //Apply thrust
-            if (Math.Abs(Torque_Out) > 100)
+            if (Math.Abs(CurrentThrust) > 100)
             {
-                Vector3D thrustVector = Block.WorldMatrix.Backward * Torque_Out;
+                Vector3D thrustVector = Block.WorldMatrix.Backward * CurrentThrust;
                 var thrustPos = Block.PositionComp.WorldVolume.Center;
                 MyGrid.Physics.AddForce(MyPhysicsForceType.APPLY_WORLD_FORCE, thrustVector, thrustPos, null);
             }

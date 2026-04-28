@@ -24,6 +24,7 @@ namespace NavalPowerSystems.Drivetrain
         public const float PhysicsStep = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
 
         public DrivetrainRole Role { get; set; }
+        public bool IsGenSet { get; set; }
         public double SystemInertia {  get; set; }
         public double RPM_In { get; set; }
         public double RPM_Out { get; set; }
@@ -33,7 +34,8 @@ namespace NavalPowerSystems.Drivetrain
         public double Torque_Out { get; set; }
 
         public virtual float GetRatio() => 1f;
-        public virtual double GetTorque() => 0f;
+        public virtual float GetEngagement() => 1f;
+        public virtual float GetRPM() => 0f;
         public virtual double GetLoad() => 0f;
         public virtual DrivetrainRole GetRole() => Role;
         public virtual IMyCubeBlock GetMyCubeBlock() => Block;
@@ -62,6 +64,7 @@ namespace NavalPowerSystems.Drivetrain
 
     public interface IDrivetrainPart
     {
+        bool IsGenSet { get; set;  }
         double SystemInertia { get; set; }
         double RPM_In { get; set; }
         double RPM_Out { get; set; }
@@ -71,7 +74,7 @@ namespace NavalPowerSystems.Drivetrain
         double Torque_Out { get; set; }
 
         float GetRatio();
-        double GetTorque();
+        float GetRPM();
         double GetLoad();
         DrivetrainRole GetRole();
         IMyCubeBlock GetMyCubeBlock();

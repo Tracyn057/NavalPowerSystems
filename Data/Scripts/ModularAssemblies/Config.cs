@@ -41,6 +41,11 @@ namespace NavalPowerSystems
             
         };
 
+        public static readonly HashSet<string> GeneratorSubtypes = new HashSet<string>
+        {
+            
+        };
+
         public static readonly HashSet<string> PropellerSubtypes = new HashSet<string>
         {
             "NPS_Propeller_4m3b",

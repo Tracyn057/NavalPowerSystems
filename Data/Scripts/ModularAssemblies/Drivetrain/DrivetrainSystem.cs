@@ -87,6 +87,8 @@ namespace NavalPowerSystems.Drivetrain
                 Driveshafts.Add(block);
                 AllBlocks.Add(block);
             }
+
+            AssemblyDirty = true;
         }
 
         public void RemovePart(IMyCubeBlock block)
@@ -125,6 +127,8 @@ namespace NavalPowerSystems.Drivetrain
                 Driveshafts.Remove(block);
                 AllBlocks.Remove(block);
             }
+
+            AssemblyDirty = true;
         }
 
         public void UpdateTick()
@@ -136,7 +140,6 @@ namespace NavalPowerSystems.Drivetrain
             foreach (var c in Consumers)
             {
                 TotalLoad += c.GetLoad();
-                c.Torque_In = TotalTorque;
             }
             foreach (var t in Transformers)
             {
@@ -144,32 +147,29 @@ namespace NavalPowerSystems.Drivetrain
             }
 
             //Send to producers
-            TotalTorque = 0;
             foreach (var p in Producers)
             {
                 p.Load_In = TotalLoad;
-                TotalTorque += p.GetTorque();
             }
-
-            //Solve RPM
-            double netTorque = TotalTorque - TotalLoad;
-            if (SystemInertia == 0) SystemInertia = 5000;
-            CurrentRPM += (netTorque / SystemInertia) * 9.5488 * 0.016666;
-            if (CurrentRPM < 0)
-                CurrentRPM = 0;
-
-            foreach (var c in Consumers)
-            {
-                c.RPM_In = CurrentRPM;
-                c.Torque_In = TotalTorque / Consumers.Count();
-            }
-            foreach (var p in Producers)
-                p.RPM_In = CurrentRPM;
         }
 
         public void UpdateTick100()
         {
-            
+            if (AssemblyDirty)
+            {
+                foreach (var engine in Engines)
+                {
+                    var logic = engine.GameLogic?.GetAs<IDrivetrainPart>();
+                    var connected = ModularApi.GetConnectedBlocks(engine, "Drivetrain_Definition", false);
+
+                    if (logic != null && connected.Count() > 0)
+                    {
+                        logic.IsGenSet = true;
+                    }
+                }
+            }
+
+            AssemblyDirty = false;
         }
     }
 }
