@@ -71,7 +71,7 @@ namespace NavalPowerSystems.Drivetrain.Transformers
         {
             base.UpdateAfterSimulation();
 
-            Load_Out = BrakeEngagement * MyStats.MaxBrakeTorque;
+            Load_Out = BrakeEngagement * MyStats;
         }
 
         private void Terminal_BrakeEngagement_ValueChanged(MySync<float, SyncDirection.BothWays> obj)
@@ -81,9 +81,7 @@ namespace NavalPowerSystems.Drivetrain.Transformers
             SaveSettings();
         }
 
-        public override double GetLoad() => BrakeEngagement * MyStats.MaxBrakeTorque;
-
-        public override float GetRatio() => MyStats.GearRatio;
+        public override double GetLoad() => BrakeEngagement * MyStats;
 
         public override DrivetrainRole GetRole() => DrivetrainRole.Transformer;
 

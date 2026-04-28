@@ -43,10 +43,7 @@ namespace NavalPowerSystems.Drivetrain
 
             if (Ticks % 10 == 0)
             {
-                foreach (var system in DrivetrainSystems.Values)
-                {
-                    system.UpdateTick10();
-                }
+
             }
 
             if (Ticks % 100 == 0)

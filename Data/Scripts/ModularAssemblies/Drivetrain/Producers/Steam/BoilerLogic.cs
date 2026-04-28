@@ -136,36 +136,6 @@ namespace NavalPowerSystems.Drivetrain.Producers.Steam
             PrevKp = CurKp;
             PrevKi = CurKi;
         }
-        private void UpdateControlInput()
-        {
-            var throttleStepUp = 0.005f;
-            var throttleStepDn = 0.0025f;
-            var moveIndicator = MyGridManager?.ForwardInput ?? 0f;
-
-            if (Math.Abs(moveIndicator) < 0.01f)
-                moveIndicator = 0f;
-            if (moveIndicator > 0.1f)
-            {
-                Terminal_Throttle.Value = Math.Min(Terminal_Throttle.Value + throttleStepUp, 1f);
-            }
-            else if (moveIndicator < -0.1f)
-            {
-                Terminal_Throttle.Value = Math.Max(Terminal_Throttle.Value - throttleStepUp, 0f);
-            }
-            if (!KeepThrottle)
-            {
-                if (moveIndicator == 0)
-                {
-                    //Gradually return to zero when no input is given
-                    if (Terminal_Throttle.Value > 0.01f)
-                        Terminal_Throttle.Value = Math.Max(Terminal_Throttle.Value - throttleStepDn, 0f);
-                    else if (Terminal_Throttle.Value < -0.01f)
-                        Terminal_Throttle.Value = Math.Min(Terminal_Throttle.Value + throttleStepDn, 0f);
-                    else
-                        Terminal_Throttle.Value = 0f;
-                }
-            }
-        }
         private void UpdateBoilerSteam()
         {
             if (!Block.IsWorking) return;
