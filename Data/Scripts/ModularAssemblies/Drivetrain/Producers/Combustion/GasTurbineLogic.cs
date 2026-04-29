@@ -67,12 +67,15 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         #endregion
 
         #region Turbine Specific
+        private const double DieselEnergy = 37600000; //Joules per liter
+        private static double GrossPowerWatts;
         private static double MoI_GG, MoI_PT;
         private double GearRatio = 16.36;
         private bool StarterActive = false;
         private bool IgnitionActive = false;
         private double GG_TargetRPM, GG_CurrentRPM;
         private double PT_TargetRPM, PT_CurrentRPM;
+        private double TargetTorque, CurrentTorque, MaxTorque;
         private const double GG_MaxRPM = 10000, GG_MinRPM = 4500;
         private const double PT_MaxRPM = 3600, PT_MinRPM = 0;
         #endregion
@@ -109,6 +112,8 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             InitResourceSinks();
             MoI_GG = CalculateMomentOfInertia(GG_MaxRPM);
             MoI_PT = CalculateMomentOfInertia(PT_MaxRPM);
+            MaxTorque = 9.5488 * GrossPowerWatts / GG_MaxRPM;
+            GrossPowerWatts = MyStats.MaxFuelFlow * DieselEnergy;
 
             LoadSettings();
             RequestEngineOn = Settings.EngineRequestOn;
@@ -305,6 +310,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         //Control fuel flow
         private void PIDController_Stage1()
         {
+            GG_TargetRPM = 0;
             double error = GG_TargetRPM - GG_CurrentRPM;
             double p = kP1 * error;
 
@@ -457,18 +463,23 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         public override float GetRPM()
         {
             if (IsGenSet)
-                return (float)RPM_Power;
+                return (float)PT_CurrentRPM;
             else
-                return (float)(RPM_Power / GearRatio * ClutchRatio);
+                return (float)(PT_CurrentRPM / GearRatio * ClutchRatio);
         }
 
         //Load in is divided by gear ratio
         public override double GetLoad()
         {
+            double availPowerIn = CurrentFuelFlow * DieselEnergy * MyStats.ThermalEfficiency;
+            double compressorLoad = availPowerIn * Math.Pow(GG_CurrentRPM / GG_MaxRPM, 3);
+            double externalLoad = 0;
             if (IsGenSet)
-                return Load_In;
+                externalLoad = Load_In;
             else
-                return Load_In / GearRatio * ClutchRatio;
+                externalLoad = Load_In / GearRatio * ClutchRatio;
+
+            return compressorLoad + externalLoad;
         }
 
         static void CreateControls<IMyFunctionalBlock>()
