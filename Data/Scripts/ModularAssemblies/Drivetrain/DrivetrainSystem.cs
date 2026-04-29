@@ -20,8 +20,6 @@ namespace NavalPowerSystems.Drivetrain
         private bool AssemblyDirty = true;
         private double CurrentRPM;
         private double TotalLoad;
-        private double TotalTorque;
-        private double SystemInertia = 5000;
 
         private List<IMyCubeBlock> AllBlocks = new List<IMyCubeBlock>();
         private List<IMyCubeBlock> Engines = new List<IMyCubeBlock>();
@@ -150,6 +148,8 @@ namespace NavalPowerSystems.Drivetrain
             foreach (var p in Producers)
             {
                 p.Load_In = TotalLoad;
+                CurrentRPM = Math.Max(CurrentRPM, p.GetRPM());
+                p.RPM_In = CurrentRPM;
             }
         }
 

@@ -67,57 +67,33 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         #endregion
 
         #region Turbine Specific
-        public bool IsGenSet;
+        private static double MoI_GG, MoI_PT;
         private double GearRatio = 16.36;
         private bool StarterActive = false;
         private bool IgnitionActive = false;
-        private double LoadTorque = 0;
-        private double CurrentTorque = 0;
-        private double ShaftPower = 0;
-        private double TargetRPM_Power;
-        private const double DieselHeatEnergy = 42000000;
-        private const double IgnitionRPM_Gas = 1200;
-        private const double CooldownRPM_Gas = 1500;
-        private const double IdleRPM_Gas = 4500;
-        private const double IdleRPM_Power = 1000;
-        private const double MaxRPM_Power = 3600;
-        private const double MaxRPM_Gas = 9500;
+        private double GG_TargetRPM, GG_CurrentRPM;
+        private double PT_TargetRPM, PT_CurrentRPM;
+        private const double GG_MaxRPM = 10000, GG_MinRPM = 4500;
+        private const double PT_MaxRPM = 3600, PT_MinRPM = 0;
         #endregion
 
         #region Resources
         private MyResourceSinkComponent SinkFuel;
         private MyResourceSinkComponent SinkO2;
         private double CurrentFuelFlow = 0;
-        private double TargetFuelFlow;
-        private double FuelFlowkgs => CurrentFuelFlow * 0.876;
+        private double TargetFuelFlow = 0;
         private double CurrentAirFlow = 0;
         #endregion
 
         #region PID
-        private double DischargeTemp => 288 * Math.Pow(MyStats.TPR, 0.2857);
-        private bool DGainInit_Gas;
-        private bool DGainInit_Power;
-        private double LastError_Gas = 0;
-        private double LastError_Power = 0;
-        private double LastValue_Gas = 0;
-        private double LastValue_Power = 0;
-        private double Kp_Gas = 0.4;
-        private double Kp_Power = 0.005;
-        private double Ki_Gas = 0.1;
-        private double Ki_Power = 0.001;
-        private double StoredIntegration_Gas;
-        private double StoredIntegration_Power;
-        private double IntegralSaturation_Gas = 0.05;
-        private double IntegralSaturation_Power = 0.15;
-        private double Kd_Gas;
-        private double Kd_Power;
-        private double RPM_Gas = 0;
-        private double RPM_Power = 0;
-        private static double MomentOfInertia_Gas;
-        private static double MomentOfInertia_Power;
-        private enum DerivativeMeasurement { Velocity, Rate }
-        private DerivativeMeasurement D_Measure_Gas;
-        private DerivativeMeasurement D_Measure_Power;
+        private double p1, i1, d1;
+        private double p2, i2, d2;
+        private double kP1 = 0.5, kI1 = 0.125, kD1 = 0;
+        private double kP2 = 0.1, kI2 = 0.005, kD2 = 0;
+        private double PrevError1;
+        private double PrevError2;
+        private double StoredInt1;
+        private double StoredInt2;
         #endregion
 
         public override void UpdateOnceBeforeFrame()
@@ -131,8 +107,8 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             ControlsDoOnce();
             UpdateSyncBeforeFrame();
             InitResourceSinks();
-            MomentOfInertia_Power = CalculateMomentOfInertia(MaxRPM_Power);
-            MomentOfInertia_Gas = CalculateMomentOfInertia(MaxRPM_Gas);
+            MoI_GG = CalculateMomentOfInertia(GG_MaxRPM);
+            MoI_PT = CalculateMomentOfInertia(PT_MaxRPM);
 
             LoadSettings();
             RequestEngineOn = Settings.EngineRequestOn;
@@ -149,8 +125,9 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             if (!Block.IsWorking) return;
             UpdateControlInput();
             UpdateState();
-            PIDController_Power();
-            PIDController_Gas();
+            if (!RequestEngineOn) return;
+            PIDController_Stage1();
+            PIDController_Stage2();
             CalculatePower();
             UpdateClutchStatus();
         }
@@ -290,7 +267,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             {
                 if (IsGenSet)
                 {
-                    TargetRPM_Power = MaxRPM_Power;
+                    
                 }
                 else
                 {
@@ -321,42 +298,27 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                                 Terminal_Throttle.Value = 0f;
                         }
                     }
-                    TargetRPM_Power = MathHelper.Clamp(MaxRPM_Power * Throttle, IdleRPM_Power, MaxRPM_Power);
                 }
             }
         }
 
         //Control fuel flow
-        private void PIDController_Power()
+        private void PIDController_Stage1()
         {
-            double error = TargetRPM_Power - RPM_Power;
-            double p = Kp_Power * error;
+            double error = GG_TargetRPM - GG_CurrentRPM;
+            double p = kP1 * error;
 
-            StoredIntegration_Power = MathHelper.Clamp(StoredIntegration_Power + error * PhysicsStep, -IntegralSaturation_Power, IntegralSaturation_Power);
-            double i = Ki_Power * StoredIntegration_Power;
+            StoredInt1 = (StoredInt1 + error) * PhysicsStep;
+            double i = kI1 * StoredInt1;
 
-            double rate = (error - LastError_Power) / PhysicsStep;
-            LastError_Power = error;
+            double rateValue = (GG_CurrentRPM - PrevError1) / PhysicsStep;
+            PrevError1 = GG_CurrentRPM;
 
-            double valueRate = (RPM_Power - LastValue_Power) / PhysicsStep;
-            LastValue_Power = RPM_Power;
+            double d = kD1 * -rateValue;
 
-            double deriveMeasure = 0;
-            if (DGainInit_Power)
-            {
-                if (D_Measure_Power == DerivativeMeasurement.Velocity)
-                    deriveMeasure = -valueRate;
-                else
-                    deriveMeasure = rate;
-            }
-            else
-                DGainInit_Power = true;
-
-            double d = Kd_Power * deriveMeasure;
-            TargetFuelFlow = MathHelper.Clamp(p + i + d, 0, MyStats.MaxFuelFlow);
         }
 
-        private void PIDController_Gas()
+        private void PIDController_Stage2()
         {
             double error = TargetFuelFlow - CurrentFuelFlow;
             double p = Kp_Gas * error;
@@ -382,23 +344,27 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                 DGainInit_Gas = true;
 
             double d = Kd_Gas * deriveMeasure;
-            CurrentFuelFlow = MathHelper.Clamp(p + i + d, 0, MyStats.MaxFuelFlow);
+            CurrentFuelFlow = MathHelper.Clamp(p + i + d, MyStats.MinFuelFlow, MyStats.MaxFuelFlow);
+            
         }
 
         private void CalculatePower()
         {
-            double rpmFromFuel = (FuelFlowkgs / MyStats.MaxFuelFlow) * MaxRPM_Gas;
-            double targetRPM = Math.Min(rpmFromFuel, MaxRPM_Gas);
-            RPM_Gas += (targetRPM - RPM_Gas) * 0.1 * PhysicsStep;
+            double thermalPower = CurrentFuelFlow * DieselHeatEnergy;
+            double turbinePower = thermalPower * MyStats.ThermalEfficiency;
+            double compressorLoad = MyStats.MaxPowerWatts * Math.Pow(RPM_Gas / MaxRPM_Gas, 3);
+            double netPowerGG = turbinePower - compressorLoad;
+            double netTorqueGG = netPowerGG / Math.Max(MathHelper.ToRadians(RPM_Gas), 1);
+            double ggAccel = netTorqueGG / MomentOfInertia_Gas * 9.549;
+            RPM_Gas += ggAccel * PhysicsStep;
+            MathHelper.Clamp(RPM_Gas, 0, MaxRPM_Gas);
 
-            double drivingTorque = ((FuelFlowkgs * DieselHeatEnergy * MyStats.ThermalEfficiency) * 0.35) / MathHelper.ToRadians(RPM_Power);
             double externalLoad = GetLoad();
-            double netTorque = drivingTorque - (MyStats.DampingCoefficient * RPM_Power) - MyStats.InternalFriction - externalLoad;
-
+            double netTorque = netTorqueGG - externalLoad;
             double currentOmega = MathHelper.ToRadians(RPM_Power);
-            double angleAccel = netTorque / MomentOfInertia_Power;
-            double newOmega = currentOmega + (angleAccel * PhysicsStep);
-            RPM_Power = MathHelper.ToDegrees(newOmega);
+            double ptAccel = netTorque / MomentOfInertia_Power * 9.549;
+            RPM_Power += ptAccel * PhysicsStep;
+            MathHelper.Clamp(RPM_Power, 0, MaxRPM_Power);
         }
 
         private void UpdateState()
@@ -414,17 +380,14 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                     }
                     break;
                 case EngineState.Starting:
-                    CurrentStateLabel = "Starting";
                     EngineStart();
-                    if (CurrentNg >= IgnitionNg)
+
+                    if (RPM_Gas >= IdleRPM_Gas && RPM_Power >= IdleRPM_Power)
                     {
-                        IgnitionActive = true;
-                    }
-                    if (CurrentNg >= MyStats.IdleRPM_Ng)
-                    {
-                        StarterActive = false;
-                        IgnitionActive = false;
                         Terminal_EngineState.Value = EngineState.Running;
+
+                        StoredIntegration_Gas = 0;
+                        StoredIntegration_Power = 0;
                     }
                     if (!RequestEngineOn) Terminal_EngineState.Value = EngineState.Stopping;
                     break;
@@ -441,7 +404,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                     StarterActive = false;
                     IgnitionActive = false;
 
-                    if (CurrentNg <= CooldownNg)
+                    if (RPM_Gas <= CooldownRPM_Gas)
                     {
                         DGainInit_Power = false;
                         DGainInit_Gas = false;
@@ -453,10 +416,22 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
         private void EngineStart()
         {
-            if (StarterActive && RPM_Gas < IgnitionRPM_Gas)
+            if (StarterActive)
             {
+                double rpmFactor = MathHelper.Clamp(1 - (RPM_Gas / IgnitionRPM_Gas * 0.9), 0, 1);
+                double starterTorque = 4000 * rpmFactor;
+
+                double omega = MathHelper.ToRadians(RPM_Gas);
+                double accel = starterTorque / MomentOfInertia_Gas;
+                omega += accel * PhysicsStep;
+                RPM_Gas = MathHelper.ToDegrees(omega);
                 //Init starter sounds
 
+                if (RPM_Gas >= IgnitionRPM_Gas)
+                    IgnitionActive = true;
+
+                if (RPM_Gas >= IdleRPM_Gas * 0.9)
+                    StarterActive = false;
             }
         }
 
