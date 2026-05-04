@@ -572,6 +572,26 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                 Control_Throttle.Writer = Control_Terminal_Throttle_Writer;
                 MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_Throttle);
             }
+
+            //Debug and testing controls
+            {
+                var Control_Terminal_PIDSelect = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlCombobox, IMyFunctionalBlock>("NPS_Engine_TerminalControl_PIDSelect");
+                Control_Terminal_PIDSelect.Title = MyStringId.GetOrCompute("PID Select");
+                Control_Terminal_PIDSelect.Visible = Control_Visible;
+                Control_Terminal_PIDSelect.ComboBoxContent = (list) =>
+                {
+                    list.Add(new MyTerminalControlComboBoxItem() { Key = 0, Value = MyStringId.GetOrCompute("GGkP") });
+                    list.Add(new MyTerminalControlComboBoxItem() { Key = 1, Value = MyStringId.GetOrCompute("GGkI") });
+                    list.Add(new MyTerminalControlComboBoxItem() { Key = 2, Value = MyStringId.GetOrCompute("GGkD") });
+                    list.Add(new MyTerminalControlComboBoxItem() { Key = 3, Value = MyStringId.GetOrCompute("PTkP") });
+                    list.Add(new MyTerminalControlComboBoxItem() { Key = 4, Value = MyStringId.GetOrCompute("PTkI") });
+                    list.Add(new MyTerminalControlComboBoxItem() { Key = 5, Value = MyStringId.GetOrCompute("PTkD") });
+                    list.Add(new MyTerminalControlComboBoxItem() { Key = 6, Value = MyStringId.GetOrCompute("FuelkP") });
+                    list.Add(new MyTerminalControlComboBoxItem() { Key = 7, Value = MyStringId.GetOrCompute("FuelkI") });
+                    list.Add(new MyTerminalControlComboBoxItem() { Key = 8, Value = MyStringId.GetOrCompute("FuelkD") });
+                };
+                Control_Terminal_PIDSelect.Getter = Control_Terminal_PIDSelect_Getter;
+            }
         }
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder info)
@@ -580,6 +600,12 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             info.AppendLine($"Gas Generator RPM: {CurrentRPM_GG:0.00}");
             info.AppendLine($"Power Turbine RPM: {CurrentRPM_PT:0.00}");
             info.AppendLine($"Fuel Flow: {CurrentFuelLps:0.00}");
+            info.AppendLine($"GGP:{GGkP:0.000} I:{GGkI:0.000} D:{GGkD:0.000}");
+            info.AppendLine($"GG eLast:{GGeLast:0.000} iStore:{GGiStore:0.000}");
+            info.AppendLine($"PTP:{PTkP:0.000} I:{PTkI:0.000} D:{PTkD:0.000}");
+            info.AppendLine($"PT eLast:{PTeLast:0.000} iStore:{PTiStore:0.000}");
+            info.AppendLine($"FuelP:{FuelkP:0.000} I:{FuelkI:0.000} D:{FuelkD:0.000}");
+            info.AppendLine($"Fuel eLast:{FueleLast:0.000} iStore:{FueliStore:0.000}");
             //info.AppendLine($"Air Flow: {CurrentAirLps:0.00}");
             //info.AppendLine($"Ambient Temperature: {T1:0.00}");
             //info.AppendLine($"Compressor Exit Temperature: {T2a:0.00}");
@@ -652,11 +678,17 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                 writer.Append((int)(logic.Terminal_Throttle * 100f)).Append('%');
         }
 
-        static void Control_Terminal_TestingGGkP_Getter(IMyTerminalBlock block)
+        static void Control_Terminal_PIDSelect_Getter(IMyTerminalBlock block, out long value)
         {
             var logic = GetLogic(block);
             if (logic != null)
-                logic.Terminal_Throttle.ValidateAndSet((float)logic.GGkP);
+            {
+                value = 0;
+            }
+            else
+            {
+                value = 0;
+            }
         }
 
         public static void UpdateControls()
