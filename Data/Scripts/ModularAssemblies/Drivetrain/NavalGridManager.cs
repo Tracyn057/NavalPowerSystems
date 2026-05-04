@@ -37,6 +37,7 @@ namespace NavalPowerSystems.Drivetrain
         public float RollInput { get; private set; }
         public float PitchInput { get; private set; }
         public float ForwardInput { get; private set; }
+        public float GridVelocity { get; private set; }
 
         public NavalGridManager(IMyCubeGrid grid)
         {
@@ -53,10 +54,10 @@ namespace NavalPowerSystems.Drivetrain
         {
             if (IMyGrid.Physics == null) return;
 
-            float gridVelocity = IMyGrid.Physics?.LinearVelocity.Length() ?? 0f;
-            if (gridVelocity > 0.1f)
+            GridVelocity = IMyGrid.Physics?.LinearVelocity.Length() ?? 0f;
+            if (GridVelocity > 0.1f)
             {
-                float dragForce = Update100Coefficient * (gridVelocity * gridVelocity) * -Math.Sign(gridVelocity);
+                float dragForce = Update100Coefficient * (GridVelocity * GridVelocity) * -Math.Sign(GridVelocity);
                 IMyGrid.Physics.AddForce(MyPhysicsForceType.ADD_BODY_FORCE_AND_BODY_TORQUE, -IMyGrid.Physics.LinearVelocity * dragForce, null, null);
             }
 

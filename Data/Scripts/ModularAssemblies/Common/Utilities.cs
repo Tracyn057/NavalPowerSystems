@@ -1,4 +1,5 @@
 ﻿using NavalPowerSystems;
+using NavalPowerSystems.Communication;
 using Sandbox.Definitions;
 using Sandbox.Game;
 using Sandbox.Game.EntityComponents;
@@ -8,7 +9,9 @@ using System;
 using System.Collections.Generic;
 using VRage.Game;
 using VRage.Game.ModAPI;
+using VRage.GameServices;
 using VRage.Utils;
+using VRageMath;
 
 namespace NavalPowerSystems.Common
 {
@@ -105,6 +108,44 @@ namespace NavalPowerSystems.Common
                         }
                 }
             }
+        }
+    }
+
+    public class PIDController
+    {
+        public bool isFrozen = false;
+        private double kP, kI, kD;
+        private double storedI;
+        private double lastError;
+        private double maxI;
+        private double dT = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
+
+        public PIDController(double p, double i, double d, double maxInt)
+        {
+            kP = p; kI = i; kD = d;
+            maxI = maxInt;
+        }
+
+        public double Update(double target, double current)
+        {
+            if (isFrozen) return 0;
+            double error = target - current;
+            double pOut = kP * error;
+
+            storedI = MathHelper.Clamp(storedI + (error * dT), -maxI, maxI);
+            double iOut = kI * storedI;
+
+            double rateOfChange = (error - lastError) / dT;
+            lastError = error;
+            double dOut = kD * rateOfChange;
+
+            ModularDefinition.ModularApi.Log($"PID Update - Target: {target}, Current: {current}, Error: {error}, P: {pOut}, I: {iOut}, D: {dOut}");
+            return pOut + iOut + dOut;
+        }
+
+        public void Reset()
+        {
+            storedI = 0; lastError = 0;
         }
     }
 }

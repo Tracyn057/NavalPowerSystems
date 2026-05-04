@@ -11,52 +11,35 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         public static readonly Dictionary<string, GasTurbineSettings> GasTurbineStats = new Dictionary<string, GasTurbineSettings>
         {
             {"NPS_Turbine_LM2500", new GasTurbineSettings{
-                MaxPowerWatts = 25060000, 
-                MaxFuelFlow = 1.89, 
-                MinFuelFlow = 0.115,
-                ThermalEfficiency = 0.36, 
-                IdleRPM_Ng = 4500, 
-                MaxRPM_Ng = 10000,
-                Kdrive = 0.23929,
-                DampingCoefficient = 89.54,
-                InternalFriction = 11252,
-                TPR = 18 } },
+                MaxFuelKgs = 1.66,
+                MaxAirKgs = 70.5,
+                PressureRatio = 24.3,
+                CompressorEfficiency = 0.82,
+                TurbineEfficiency = 0.86
+            } },
             {"NPS_Turbine_LM2500Plus", new GasTurbineSettings{
-                MaxPowerWatts = 30200000, 
-                MaxFuelFlow = 2.12, 
-                MinFuelFlow = 0.115,
-                ThermalEfficiency = 0.38, 
-                IdleRPM_Ng = 4500, 
-                MaxRPM_Ng = 10000,
-                Kdrive = 0.28837,
-                DampingCoefficient = 89.54,
-                InternalFriction = 11252,
-                TPR = 23 } },
+                MaxFuelKgs = 1.847,
+                MaxAirKgs = 85.9,
+                PressureRatio = 29.3,
+                CompressorEfficiency = 0.84,
+                TurbineEfficiency = 0.87
+            } },
             {"NPS_Turbine_LM2500PlusG4", new GasTurbineSettings{
-                MaxPowerWatts = 35320000, 
-                MaxFuelFlow = 2.47, 
-                MinFuelFlow = 0.115,
-                ThermalEfficiency = 0.39, 
-                IdleRPM_Ng = 4500, 
-                MaxRPM_Ng = 10000,
-                Kdrive = 0.33726,
-                DampingCoefficient = 89.54,
-                InternalFriction = 11252,
-                TPR = 23.3 } },
+                MaxFuelKgs = 2.149,
+                MaxAirKgs = 93,
+                PressureRatio = 29.3, 
+                CompressorEfficiency = 0.84,
+                TurbineEfficiency = 0.88
+            } },
         };
     }
 
     public class GasTurbineSettings
     {
-        public double MaxPowerWatts;
-        public double MaxFuelFlow; //Liters per second
-        public double MinFuelFlow; //Liters per second
-        public double ThermalEfficiency; 
-        public double MaxRPM_Ng; //Power Turbine Max RPM
-        public double IdleRPM_Ng; //Gas Generator Max RPM
-        public double Kdrive;
-        public double DampingCoefficient;
-        public double InternalFriction;
-        public double TPR;
+        public double MaxFuelKgs;
+        public double MaxAirKgs;
+        public double PressureRatio;
+        public double CompressorEfficiency;
+        public double TurbineEfficiency;
     }
 }

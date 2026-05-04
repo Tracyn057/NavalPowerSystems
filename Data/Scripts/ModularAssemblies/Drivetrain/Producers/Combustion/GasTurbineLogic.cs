@@ -1,4 +1,5 @@
-﻿using ProtoBuf;
+﻿using NavalPowerSystems.Common;
+using ProtoBuf;
 using Sandbox.Game.Entities;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.Localization;
@@ -14,6 +15,7 @@ using VRage.Game.Components;
 using VRage.Game.Entity;
 using VRage.Game.ModAPI.Network;
 using VRage.ModAPI;
+using VRage.Stats;
 using VRage.Sync;
 using VRage.Utils;
 using VRageMath;
@@ -66,37 +68,38 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         private MyEntity3DSoundEmitter AudioFarEmitter;
         #endregion
 
-        #region Turbine Specific
-        private const double DieselEnergy = 37600000; //Joules per liter
-        private static double GrossPowerWatts;
-        private static double MoI_GG, MoI_PT;
-        private double GearRatio = 16.36;
+        #region Turbine
+        private const double RPMToRadMult = 0.1047197551197, RadToRPMMult = 9.5493;
+        private const double SpecificHeatAir = 1005, DieselEnergy = 42700000, WattToHP = 0.001341022;
+        private const double GearRatio = 16.36;
+        private static double MoI_GG = 30, MoI_PT = 125;
+        private double UI_CurrentHP, UI_MaxHP, CurrentEGT;
         private bool StarterActive = false;
         private bool IgnitionActive = false;
-        private double GG_TargetRPM, GG_CurrentRPM;
-        private double PT_TargetRPM, PT_CurrentRPM;
-        private double TargetTorque, CurrentTorque, MaxTorque;
-        private const double GG_MaxRPM = 10000, GG_MinRPM = 4500;
-        private const double PT_MaxRPM = 3600, PT_MinRPM = 0;
+        private double TargetThrottle, CurrentFuelKgs;
+        private double RPMRatioGG, PressureRatio, CurrentAirKgs;
+        private double CurrentFuelLps => CurrentFuelKgs / 0.85;
+        private double CurrentAirLps => CurrentAirKgs * 816;
+        private double T1 = 288.15;
+        private double T2a = 288.15, T2s, T2a_Max;
+        private double T3 = 288.15, T3_Target = 288.15, T3_Max = 1500;
+        private double T4a = 288.15, T4s, T4a_Max;
+        private double TargetRPM_GG, CurrentRPM_GG, IdleRPM_GG = 4500, MaxRPM_GG = 10000;
+        private double TargetRPM_PT, CurrentRPM_PT, MaxRPM_PT = 3600;
         #endregion
 
         #region Resources
         private MyResourceSinkComponent SinkFuel;
         private MyResourceSinkComponent SinkO2;
-        private double CurrentFuelFlow = 0;
-        private double TargetFuelFlow = 0;
-        private double CurrentAirFlow = 0;
         #endregion
 
         #region PID
-        private double p1, i1, d1;
-        private double p2, i2, d2;
-        private double kP1 = 0.5, kI1 = 0.125, kD1 = 0;
-        private double kP2 = 0.1, kI2 = 0.005, kD2 = 0;
-        private double PrevError1;
-        private double PrevError2;
-        private double StoredInt1;
-        private double StoredInt2;
+        private double GGkP, GGkI, GGkD, GGiStore, GGiMax, GGeLast;
+        private double PTkP, PTkI, PTkD, PTiStore, PTiMax, PTeLast;
+        private double FuelkP, FuelkI, FuelkD, FueliStore, FueliMax, FueleLast;
+        private PIDController GGController = new PIDController(0.75, 0.25, 0, 2);
+        private PIDController PTController = new PIDController(0.0025, 0.002, 0.001, 2);
+        private PIDController FuelController = new PIDController(0.8, 0.4, 0, 0.75);
         #endregion
 
         public override void UpdateOnceBeforeFrame()
@@ -110,10 +113,9 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             ControlsDoOnce();
             UpdateSyncBeforeFrame();
             InitResourceSinks();
-            MoI_GG = CalculateMomentOfInertia(GG_MaxRPM);
-            MoI_PT = CalculateMomentOfInertia(PT_MaxRPM);
-            MaxTorque = 9.5488 * GrossPowerWatts / GG_MaxRPM;
-            GrossPowerWatts = MyStats.MaxFuelFlow * DieselEnergy;
+
+            T2a_Max = T1 + ((T1 * Math.Pow(MyStats.PressureRatio, 0.286)) - T1) / MyStats.CompressorEfficiency;
+            T4a_Max = T3_Max - MyStats.TurbineEfficiency * (T3_Max - (T3_Max / Math.Pow(MyStats.PressureRatio, 0.286)));
 
             LoadSettings();
             RequestEngineOn = Settings.EngineRequestOn;
@@ -128,13 +130,11 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         {
             base.UpdateAfterSimulation();
             if (!Block.IsWorking) return;
-            UpdateControlInput();
             UpdateState();
-            if (!RequestEngineOn) return;
-            PIDController_Stage1();
-            PIDController_Stage2();
-            CalculatePower();
             UpdateClutchStatus();
+            UpdateControlInput();
+            Controller();
+            TurbineSimulation();
         }
 
         public override void UpdateAfterSimulation100()
@@ -207,24 +207,18 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             UpdateControls();
         }
 
-        private double CalculateMomentOfInertia(double maxRPM)
-        {
-            double omega = (2.0 * Math.PI * maxRPM) / 60.0;
-            return (2.0 * 6.5 * MyStats.MaxPowerWatts) / (omega * omega);
-        }
-
         private bool InitResourceSinks()
         {
             var sinkFuelInfo = new MyResourceSinkInfo()
             {
-                MaxRequiredInput = (float)MyStats.MaxFuelFlow,
-                RequiredInputFunc = () => (float)CurrentFuelFlow * Config.globalFuelMult,
+                MaxRequiredInput = float.MaxValue,
+                RequiredInputFunc = () => (float)CurrentFuelLps,
                 ResourceTypeId = MyDefinitionId.Parse("MyObjectBuilder_GasProperties/DieselFuel"),
             };
             var sinkO2Info = new MyResourceSinkInfo()
             {
-                MaxRequiredInput = (float)MyStats.MaxFuelFlow * 30000f,
-                RequiredInputFunc = () => (float)CurrentFuelFlow * 30000 * Config.globalFuelMult,
+                MaxRequiredInput = float.MaxValue,
+                RequiredInputFunc = () => (float)CurrentAirLps,
                 ResourceTypeId = MyResourceDistributorComponent.OxygenId
             };
 
@@ -268,109 +262,189 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
         private void UpdateControlInput()
         {
-            if (CurrentState == EngineState.Running)
+            if (CurrentState == EngineState.Off)
             {
-                if (IsGenSet)
-                {
-                    
-                }
-                else
-                {
-                    var throttleStepUp = 0.005f;
-                    var throttleStepDn = 0.0025f;
-                    var moveIndicator = MyGridManager?.ForwardInput ?? 0f;
+                Terminal_Throttle.Value = 0f;
+                return;
+            }
 
-                    if (Math.Abs(moveIndicator) < 0.01f)
-                        moveIndicator = 0f;
-                    if (moveIndicator > 0.1f)
-                    {
-                        Terminal_Throttle.Value = Math.Min(Terminal_Throttle.Value + throttleStepUp, 1f);
-                    }
-                    else if (moveIndicator < -0.1f)
-                    {
-                        Terminal_Throttle.Value = Math.Max(Terminal_Throttle.Value - throttleStepUp, 0f);
-                    }
-                    if (!KeepThrottle)
-                    {
-                        if (moveIndicator == 0)
-                        {
-                            //Gradually return to zero when no input is given
-                            if (Terminal_Throttle.Value > 0.01f)
-                                Terminal_Throttle.Value = Math.Max(Terminal_Throttle.Value - throttleStepDn, 0f);
-                            else if (Terminal_Throttle.Value < -0.01f)
-                                Terminal_Throttle.Value = Math.Min(Terminal_Throttle.Value + throttleStepDn, 0f);
-                            else
-                                Terminal_Throttle.Value = 0f;
-                        }
-                    }
+            if (IsGenSet)
+                return;
+
+            var throttleStepUp = 0.005f;
+            var throttleStepDn = 0.0025f;
+            var moveIndicator = MyGridManager?.ForwardInput ?? 0f;
+
+            if (Math.Abs(moveIndicator) < 0.01f)
+                moveIndicator = 0f;
+            if (moveIndicator > 0.1f)
+            {
+                Terminal_Throttle.Value = Math.Min(Terminal_Throttle.Value + throttleStepUp, 1f);
+            }
+            else if (moveIndicator < -0.1f)
+            {
+                Terminal_Throttle.Value = Math.Max(Terminal_Throttle.Value - throttleStepUp, 0f);
+            }
+            if (!KeepThrottle)
+            {
+                if (moveIndicator == 0)
+                {
+                    //Gradually return to zero when no input is given
+                    if (Terminal_Throttle.Value > 0.01f)
+                        Terminal_Throttle.Value = Math.Max(Terminal_Throttle.Value - throttleStepDn, 0f);
+                    else if (Terminal_Throttle.Value < -0.01f)
+                        Terminal_Throttle.Value = Math.Min(Terminal_Throttle.Value + throttleStepDn, 0f);
+                    else
+                        Terminal_Throttle.Value = 0f;
                 }
             }
         }
 
-        //Control fuel flow
-        private void PIDController_Stage1()
+        private void Controller()
         {
-            GG_TargetRPM = 0;
-            double error = GG_TargetRPM - GG_CurrentRPM;
-            double p = kP1 * error;
+            if (CurrentState == EngineState.Off) return;
 
-            StoredInt1 = (StoredInt1 + error) * PhysicsStep;
-            double i = kI1 * StoredInt1;
+            double input = (Throttle * MaxRPM_GG) / MaxRPM_GG;
+            double power = (Throttle * MaxRPM_PT) / MaxRPM_PT;
+            double preTarget = Math.Max(input, power);
+            double target = Math.Max(preTarget, (IdleRPM_GG / MaxRPM_GG));
+            //double pidOutput = GGController.Update(target, CurrentRPM_GG);
+            double pidOutput = PIDUpdate(target, CurrentRPM_GG, GGkP, GGkI, GGkD, GGiStore, GGeLast, GGiMax, out GGiStore, out GGeLast);
+            double rawRequest = pidOutput * MyStats.MaxFuelKgs;
 
-            double rateValue = (GG_CurrentRPM - PrevError1) / PhysicsStep;
-            PrevError1 = GG_CurrentRPM;
-
-            double d = kD1 * -rateValue;
-
+            double request = FuelIntercept(rawRequest);
+            double controllerFuel = PIDUpdate(request, CurrentFuelKgs, FuelkP, FuelkI, FuelkD, FueliStore, FueleLast, FueliMax, out FueliStore, out FueleLast);
+            CurrentFuelKgs = MathHelper.Clamp(controllerFuel, 0, MyStats.MaxFuelKgs);
         }
 
-        private void PIDController_Stage2()
+        private double FuelIntercept(double fuelRequest)
         {
-            double error = TargetFuelFlow - CurrentFuelFlow;
-            double p = Kp_Gas * error;
+            double room = T3_Max - T2a;
+            double maxAllowed = (room * SpecificHeatAir * Math.Max(CurrentAirKgs, 2)) / (DieselEnergy * 0.97);
+            double surgeLimit = CurrentFuelKgs + (0.05 * PhysicsStep);
+            double finalRequest = Math.Min(fuelRequest, maxAllowed);
+            finalRequest = Math.Min(finalRequest, surgeLimit);
 
-            StoredIntegration_Gas = MathHelper.Clamp(StoredIntegration_Gas + error * PhysicsStep, -IntegralSaturation_Gas, IntegralSaturation_Gas);
-            double i = Ki_Gas * StoredIntegration_Gas;
+            return Math.Max(0, finalRequest);
+        }
 
-            double rate = (error - LastError_Gas) / PhysicsStep;
-            LastError_Gas = error;
+        private void ControllerGenSet()
+        {
+            double normPT = CurrentRPM_PT / MaxRPM_PT;
+            double genRequest = PTController.Update(1, normPT);
+            double normFuel = CurrentFuelKgs / MyStats.MaxFuelKgs;
+            double fuelPct = FuelController.Update(genRequest, normFuel);
 
-            double valueRate = (CurrentFuelFlow - LastValue_Gas) / PhysicsStep;
-            LastValue_Gas = CurrentFuelFlow;
+            CurrentFuelKgs = MathHelper.Clamp(fuelPct * MyStats.MaxFuelKgs, 0, MyStats.MaxFuelKgs);
+        }
 
-            double deriveMeasure = 0;
-            if (DGainInit_Gas)
+        private double PIDUpdate(double target, double current, double p, double i, double d, double iStore, double eLast, double iMax, out double iStoreOut, out double eLastOut)
+        {
+            var dT = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
+            double error = target - current;
+            double pOut = p * error;
+
+            iStore = MathHelper.Clamp(iStore + (error * dT), -iMax, iMax);
+            double iOut = i * iStore;
+
+            double rateOfChange = (error - eLast) / dT;
+            eLast = error;
+            double dOut = d * rateOfChange;
+
+            iStoreOut = iStore;
+            eLastOut = eLast;
+
+            ModularDefinition.ModularApi.Log($"PID Update - Target: {target}, Current: {current}, Error: {error}, P: {pOut}, I: {iOut}, D: {dOut}");
+            return pOut + iOut + dOut;
+        }
+
+        private void TurbineSimulation()
+        {
+            if (CurrentState == EngineState.Off)
             {
-                if (D_Measure_Gas == DerivativeMeasurement.Velocity)
-                    deriveMeasure = -valueRate;
-                else
-                    deriveMeasure = rate;
+                CurrentRPM_GG = 0;
+                CurrentRPM_PT = 0;
+                UI_CurrentHP = 0;
+                T2a += (T1 - T2a) * 0.1 * PhysicsStep;
+                T3 += (T1 - T3) * 0.2 * PhysicsStep;
+                T4a += (T1 - T4a) * 0.15 * PhysicsStep;
+
+                return;
             }
+
+            /* 
+             * T1 = Ambient Temp - 288.15K
+             * T2s = Ideal Compressor Exit Temp - T1 * PressureRatio^0.286
+             * T2a = Actual Compressor Exit Temp - T1 + (T2s - T1) / CompressorEfficiency
+             * T3 = Combustion Exit Temp - Idealized 1400-1600K
+             * T4s = Ideal Exhaust Temp - T3 / PressureRatio^0.286
+             * T4a = Actual Exhaust Temp - T3 - Turbine Efficiency * (T3 - T4s)
+             * 
+             * Nc = Compressor Efficiency
+             * Nt = Turbine Efficiency
+             * Cp = Specific Heat of Air - 1005 J/kg*K
+             * Wc = Compressor Work - Cp * (T2a - T1) -- Load on engine
+             * Wt = Turbine Work - Cp * (T3 - T4a) -- Power produced by engine
+             * Wnet = Wt - Wc -- Net power output
+             * Qin = Fuel Energy Input - Cp * (T3 - T2a) -- Energy added by fuel combustion
+             */
+
+            // Stage 0
+            RPMRatioGG = CurrentRPM_GG / MaxRPM_GG;
+            PressureRatio = 1 + (MyStats.PressureRatio - 1) * RPMRatioGG * RPMRatioGG;
+            CurrentAirKgs = MyStats.MaxAirKgs * Math.Pow(RPMRatioGG, 1.1);
+            MoI_GG = Math.Max(55 * Math.Pow(RPMRatioGG, 1.1), 10);
+            MoI_PT = Math.Max(175 * Math.Pow(RPMRatioGG, 1.1), 25);
+
+            double Nc = MyStats.CompressorEfficiency;
+            double Nt = MyStats.TurbineEfficiency;
+            double airFlow = Math.Max(0.01, CurrentAirKgs);
+            double thermalStep = 5;
+
+            // Stage 1 - Compressor
+            T2s = T1 * Math.Pow(PressureRatio, 0.286);
+            double targetT2Aa = T1 + (T2s - T1) / Nc;
+            T2a += (targetT2Aa - T2a) * (thermalStep) * PhysicsStep;
+            T2a = Math.Min(T2a, T2a_Max);
+            double Wc = (SpecificHeatAir * (T2a - T1)) * airFlow;
+
+            // Stage 2 - Combustion
+            double jitterMult = 2 + (5 * (CurrentFuelKgs / MyStats.MaxFuelKgs));
+            double jitter = MyUtils.GetRandomDouble(-5, 5) * jitterMult;
+            double fuelEnergy = DieselEnergy * CurrentFuelKgs * 0.97;
+            double targetT3 = T2a + (fuelEnergy / (SpecificHeatAir * airFlow)) + jitter;
+
+            if (CurrentFuelKgs < 0.01)
+                T3 = T2a * 0.975;
             else
-                DGainInit_Gas = true;
+                T3 += (targetT3 - T3) * (thermalStep) * PhysicsStep;
+            T3 = MathHelper.Clamp(T3, T1, T3_Max);
 
-            double d = Kd_Gas * deriveMeasure;
-            CurrentFuelFlow = MathHelper.Clamp(p + i + d, MyStats.MinFuelFlow, MyStats.MaxFuelFlow);
-            
-        }
+            //Stage 3 - Turbine
+            T4s = T3 / Math.Pow(PressureRatio, 0.286);
+            double targetT4Aa = T3 - Nt * (T3 - T4s);
+            T4a += (targetT4Aa - T4a) * thermalStep * PhysicsStep;
+            T4a = MathHelper.Clamp(T4a, T1, T4a_Max);
+            double Wt = (SpecificHeatAir * (T3 - T4a)) * airFlow;
 
-        private void CalculatePower()
-        {
-            double thermalPower = CurrentFuelFlow * DieselHeatEnergy;
-            double turbinePower = thermalPower * MyStats.ThermalEfficiency;
-            double compressorLoad = MyStats.MaxPowerWatts * Math.Pow(RPM_Gas / MaxRPM_Gas, 3);
-            double netPowerGG = turbinePower - compressorLoad;
-            double netTorqueGG = netPowerGG / Math.Max(MathHelper.ToRadians(RPM_Gas), 1);
-            double ggAccel = netTorqueGG / MomentOfInertia_Gas * 9.549;
-            RPM_Gas += ggAccel * PhysicsStep;
-            MathHelper.Clamp(RPM_Gas, 0, MaxRPM_Gas);
+            double Wnet = Wt - Wc;
+            double torqueC = (Wnet * RPMToRadMult) / Math.Max(CurrentRPM_GG, 1000);
+            double inertialDrag = 0.006 * CurrentRPM_GG * CurrentRPM_GG;
+            if (CurrentState == EngineState.Starting)
+            {
+                torqueC += StarterActive ? 5000 : 0;
+            }
 
-            double externalLoad = GetLoad();
-            double netTorque = netTorqueGG - externalLoad;
-            double currentOmega = MathHelper.ToRadians(RPM_Power);
-            double ptAccel = netTorque / MomentOfInertia_Power * 9.549;
-            RPM_Power += ptAccel * PhysicsStep;
-            MathHelper.Clamp(RPM_Power, 0, MaxRPM_Power);
+            double accelC = (torqueC / MoI_GG) * RadToRPMMult;
+            CurrentRPM_GG += accelC * PhysicsStep;
+            CurrentRPM_GG = MathHelper.Clamp(CurrentRPM_GG, 0, MaxRPM_GG);
+
+            double torqueP = (Wnet * RPMToRadMult) / Math.Max(CurrentRPM_PT, 500);
+            double stallMult = (2 - (CurrentRPM_PT / MaxRPM_GG));
+            double wNetP = (torqueP * stallMult) - Load_In;
+            double accelP = (wNetP / MoI_PT) * RadToRPMMult;
+            CurrentRPM_PT += accelP * PhysicsStep;
+            CurrentRPM_PT = MathHelper.Clamp(CurrentRPM_PT, 0, MaxRPM_PT);
         }
 
         private void UpdateState()
@@ -380,21 +454,21 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                 case EngineState.Off:
                     CurrentStateLabel = "Off";
                     if (RequestEngineOn)
-                    {
-                        StarterActive = true;
                         Terminal_EngineState.Value = EngineState.Starting;
-                    }
                     break;
                 case EngineState.Starting:
-                    EngineStart();
-
-                    if (RPM_Gas >= IdleRPM_Gas && RPM_Power >= IdleRPM_Power)
+                    CurrentStateLabel = "Starting";
+                    if (CurrentRPM_GG < 3750)
+                        StarterActive = true;
+                    if (CurrentRPM_GG >= 3500)
                     {
                         Terminal_EngineState.Value = EngineState.Running;
-
-                        StoredIntegration_Gas = 0;
-                        StoredIntegration_Power = 0;
+                        GGController.Reset();
+                        FuelController.Reset();
+                        PTController.Reset();
+                        StarterActive = false;
                     }
+
                     if (!RequestEngineOn) Terminal_EngineState.Value = EngineState.Stopping;
                     break;
                 case EngineState.Running:
@@ -405,54 +479,34 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                     }
                     break;
                 case EngineState.Stopping:
-                    EngineShutdown();
                     CurrentStateLabel = "Shutting Down";
-                    StarterActive = false;
-                    IgnitionActive = false;
-
-                    if (RPM_Gas <= CooldownRPM_Gas)
+                    if (CurrentRPM_GG < 1000)
                     {
-                        DGainInit_Power = false;
-                        DGainInit_Gas = false;
                         Terminal_EngineState.Value = EngineState.Off;
+                        GGController.Reset();
+                        PTController.Reset();
+                        FuelController.Reset();
                     }
                     break;
             }
         }
 
-        private void EngineStart()
-        {
-            if (StarterActive)
-            {
-                double rpmFactor = MathHelper.Clamp(1 - (RPM_Gas / IgnitionRPM_Gas * 0.9), 0, 1);
-                double starterTorque = 4000 * rpmFactor;
-
-                double omega = MathHelper.ToRadians(RPM_Gas);
-                double accel = starterTorque / MomentOfInertia_Gas;
-                omega += accel * PhysicsStep;
-                RPM_Gas = MathHelper.ToDegrees(omega);
-                //Init starter sounds
-
-                if (RPM_Gas >= IgnitionRPM_Gas)
-                    IgnitionActive = true;
-
-                if (RPM_Gas >= IdleRPM_Gas * 0.9)
-                    StarterActive = false;
-            }
-        }
-
-        private void EngineShutdown()
-        {
-
-        }
-
         private void UpdateClutchStatus()
         {
             if (ClutchLockout)
+            {
                 Terminal_ClutchRatio.Value = 0;
+                return;
+            }
+
+            if (IsGenSet)
+            {
+                Terminal_ClutchRatio.Value = 1;
+                return;
+            }
 
             var engageRange = 250;
-            var deltaRPM = RPM_Power - (RPM_In / GearRatio);
+            var deltaRPM = CurrentRPM_PT - (RPM_In / GearRatio);
             if (deltaRPM <= Math.Abs(engageRange))
                 Terminal_ClutchRatio.Value = 1;
             else
@@ -463,23 +517,21 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         public override float GetRPM()
         {
             if (IsGenSet)
-                return (float)PT_CurrentRPM;
+                return (float)CurrentRPM_PT;
             else
-                return (float)(PT_CurrentRPM / GearRatio * ClutchRatio);
+                return (float)(CurrentRPM_PT / GearRatio * ClutchRatio);
         }
 
         //Load in is divided by gear ratio
         public override double GetLoad()
         {
-            double availPowerIn = CurrentFuelFlow * DieselEnergy * MyStats.ThermalEfficiency;
-            double compressorLoad = availPowerIn * Math.Pow(GG_CurrentRPM / GG_MaxRPM, 3);
-            double externalLoad = 0;
+            double externalLoad;
             if (IsGenSet)
                 externalLoad = Load_In;
             else
                 externalLoad = Load_In / GearRatio * ClutchRatio;
 
-            return compressorLoad + externalLoad;
+            return externalLoad;
         }
 
         static void CreateControls<IMyFunctionalBlock>()
@@ -525,12 +577,15 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder info)
         {
             info.AppendLine($"Status: {CurrentStateLabel}");
-            info.AppendLine($"Gas Generator RPM: {RPM_Gas:0.00}");
-            info.AppendLine($"Power Turbine RPM: {RPM_Power:0.00}");
-            info.AppendLine($"Current Load: {Load_In:0.00}");
-            info.AppendLine($"Current Torque: {Torque_Out:0.00}");
-            info.AppendLine($"Net: {Torque_Out - Load_In:0.00}");
-            info.AppendLine($"Fuel Flow: {CurrentFuelFlow:0.00}");
+            info.AppendLine($"Gas Generator RPM: {CurrentRPM_GG:0.00}");
+            info.AppendLine($"Power Turbine RPM: {CurrentRPM_PT:0.00}");
+            info.AppendLine($"Fuel Flow: {CurrentFuelLps:0.00}");
+            //info.AppendLine($"Air Flow: {CurrentAirLps:0.00}");
+            //info.AppendLine($"Ambient Temperature: {T1:0.00}");
+            //info.AppendLine($"Compressor Exit Temperature: {T2a:0.00}");
+            //info.AppendLine($"Combustion Exit Temperature: {T3:0.00}");
+            //info.AppendLine($"Exhaust Temperature: {T4a:0.00}");
+
         }
 
         static void CreateActions<IMyFunctionalBlock>()
@@ -595,6 +650,13 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             var logic = GetLogic(block);
             if (logic != null)
                 writer.Append((int)(logic.Terminal_Throttle * 100f)).Append('%');
+        }
+
+        static void Control_Terminal_TestingGGkP_Getter(IMyTerminalBlock block)
+        {
+            var logic = GetLogic(block);
+            if (logic != null)
+                logic.Terminal_Throttle.ValidateAndSet((float)logic.GGkP);
         }
 
         public static void UpdateControls()
