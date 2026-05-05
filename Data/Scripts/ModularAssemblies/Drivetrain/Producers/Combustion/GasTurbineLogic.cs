@@ -76,7 +76,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         private double UI_CurrentHP, UI_MaxHP, CurrentEGT;
         private bool StarterActive = false;
         private bool IgnitionActive = false;
-        private double TargetThrottle, CurrentFuelKgs;
+        private double TargetThrottle, CurrentFuelKgs, TargetFuelKgs;
         private double RPMRatioGG, PressureRatio, CurrentAirKgs;
         private double CurrentFuelLps => CurrentFuelKgs / 0.85;
         private double CurrentAirLps => CurrentAirKgs * 816;
@@ -308,24 +308,33 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             double power = (Throttle * MaxRPM_PT) / MaxRPM_PT;
             double preTarget = Math.Max(input, power);
             double target = Math.Max(preTarget, (IdleRPM_GG / MaxRPM_GG));
-            //double pidOutput = GGController.Update(target, CurrentRPM_GG);
             double pidOutput = PIDUpdate(target, CurrentRPM_GG, GGkP, GGkI, GGkD, GGiStore, GGeLast, GGiMax, out GGiStore, out GGeLast);
-            double rawRequest = pidOutput * MyStats.MaxFuelKgs;
-
-            double request = FuelIntercept(rawRequest);
+            double request = pidOutput * MyStats.MaxFuelKgs;
             double controllerFuel = PIDUpdate(request, CurrentFuelKgs, FuelkP, FuelkI, FuelkD, FueliStore, FueleLast, FueliMax, out FueliStore, out FueleLast);
-            CurrentFuelKgs = MathHelper.Clamp(controllerFuel, 0, MyStats.MaxFuelKgs);
+            TargetFuelKgs = MathHelper.Clamp(controllerFuel, 0, MyStats.MaxFuelKgs);
+            FuelIntercept();
         }
 
-        private double FuelIntercept(double fuelRequest)
+        private void FuelIntercept()
         {
-            double room = T3_Max - T2a;
-            double maxAllowed = (room * SpecificHeatAir * Math.Max(CurrentAirKgs, 2)) / (DieselEnergy * 0.97);
-            double surgeLimit = CurrentFuelKgs + (0.05 * PhysicsStep);
-            double finalRequest = Math.Min(fuelRequest, maxAllowed);
-            finalRequest = Math.Min(finalRequest, surgeLimit);
+            double t3Max = 0;
+            double airRatio = CurrentAirKgs / MyStats.MaxAirKgs;
 
-            return Math.Max(0, finalRequest);
+            if (airRatio < 0.25)
+                t3Max = 800;
+            else if (airRatio < 0.5)
+                t3Max = 1000;
+            else if (airRatio < 0.75)
+                t3Max = 1250;
+            else
+                t3Max = 1500;
+
+            double headroom = t3Max - T2a;
+            double allowedFuel = (headroom * SpecificHeatAir * Math.Max(CurrentAirKgs, 2)) / (DieselEnergy * 0.97);
+
+            double fuelError = Math.Min(TargetFuelKgs, allowedFuel) - CurrentFuelKgs;
+            double step = 0.05 * PhysicsStep;
+            CurrentFuelKgs += MathHelper.Clamp(fuelError, -step, step);
         }
 
         private void ControllerGenSet()
@@ -391,15 +400,16 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
             // Stage 0
             RPMRatioGG = CurrentRPM_GG / MaxRPM_GG;
-            PressureRatio = 1 + (MyStats.PressureRatio - 1) * RPMRatioGG * RPMRatioGG;
-            CurrentAirKgs = MyStats.MaxAirKgs * Math.Pow(RPMRatioGG, 1.1);
+            PressureRatio = (MyStats.PressureRatio * 0.85) * Math.Pow(RPMRatioGG, 2) + (MyStats.PressureRatio * 0.15);
+            double airExp = 1 + 0.15 * (PressureRatio - 1);
+            CurrentAirKgs = MyStats.MaxAirKgs * Math.Pow(RPMRatioGG, airExp);
             MoI_GG = Math.Max(55 * Math.Pow(RPMRatioGG, 1.1), 10);
             MoI_PT = Math.Max(175 * Math.Pow(RPMRatioGG, 1.1), 25);
 
             double Nc = MyStats.CompressorEfficiency;
             double Nt = MyStats.TurbineEfficiency;
             double airFlow = Math.Max(0.01, CurrentAirKgs);
-            double thermalStep = 5;
+            double thermalStep = 2.5;
 
             // Stage 1 - Compressor
             T2s = T1 * Math.Pow(PressureRatio, 0.286);
@@ -429,13 +439,14 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
             double Wnet = Wt - Wc;
             double torqueC = (Wnet * RPMToRadMult) / Math.Max(CurrentRPM_GG, 1000);
-            double inertialDrag = 0.006 * CurrentRPM_GG * CurrentRPM_GG;
+            double inertialDrag = 0.0006 * CurrentRPM_GG * CurrentRPM_GG;
+
             if (CurrentState == EngineState.Starting)
             {
-                torqueC += StarterActive ? 5000 : 0;
+                torqueC += StarterActive ? 1250 : 0;
             }
 
-            double accelC = (torqueC / MoI_GG) * RadToRPMMult;
+            double accelC = ((torqueC - inertialDrag) / MoI_GG) * RadToRPMMult;
             CurrentRPM_GG += accelC * PhysicsStep;
             CurrentRPM_GG = MathHelper.Clamp(CurrentRPM_GG, 0, MaxRPM_GG);
 

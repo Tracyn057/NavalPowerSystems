@@ -20,7 +20,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             {"NPS_Turbine_LM2500Plus", new GasTurbineSettings{
                 MaxFuelKgs = 1.847,
                 MaxAirKgs = 85.9,
-                PressureRatio = 29.3,
+                PressureRatio = 27.3,
                 CompressorEfficiency = 0.84,
                 TurbineEfficiency = 0.87
             } },
