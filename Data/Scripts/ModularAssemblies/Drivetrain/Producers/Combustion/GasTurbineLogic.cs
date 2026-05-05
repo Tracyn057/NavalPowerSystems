@@ -94,6 +94,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         #endregion
 
         #region PID
+        private long PIDSelect = 0;
         private double GGkP, GGkI, GGkD, GGiStore, GGiMax, GGeLast;
         private double PTkP, PTkI, PTkD, PTiStore, PTiMax, PTeLast;
         private double FuelkP, FuelkI, FuelkD, FueliStore, FueliMax, FueleLast;
@@ -590,7 +591,46 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                     list.Add(new MyTerminalControlComboBoxItem() { Key = 7, Value = MyStringId.GetOrCompute("FuelkI") });
                     list.Add(new MyTerminalControlComboBoxItem() { Key = 8, Value = MyStringId.GetOrCompute("FuelkD") });
                 };
-                Control_Terminal_PIDSelect.Getter = Control_Terminal_PIDSelect_Getter;
+                Control_Terminal_PIDSelect.Getter = (block) =>
+                {
+                    var logic = GetLogic(block);
+                    return logic == null ? 0 : (long)logic.GetActivePIDValue();
+                };
+                Control_Terminal_PIDSelect.Setter = (block, value) =>
+                {
+                    var logic = GetLogic(block);
+                    if (logic != null)
+                    {
+                        logic.SetActivePIDValue(value);
+                        UpdateControls();
+                    }
+                };
+                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_Terminal_PIDSelect);
+            }
+            {
+                var Control_Terminal_PIDValue = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlTextbox, IMyFunctionalBlock>("NPS_Engine_TerminalControl_PIDValue");
+                Control_Terminal_PIDValue.Title = MyStringId.GetOrCompute("PID Value");
+                Control_Terminal_PIDValue.Visible = Control_Visible;
+                Control_Terminal_PIDValue.Getter = (block) =>
+                {
+                    var logic = GetLogic(block);
+                    if (logic == null) return new StringBuilder("0");
+
+                    double currentVal = logic.GetActivePIDValue();
+                    return new StringBuilder(currentVal.ToString("F4"));
+                };
+                Control_Terminal_PIDValue.Setter = (block, text) =>
+                {
+                    var logic = GetLogic(block);
+                    if (logic == null) return;
+
+                    double newValue;
+                    if (double.TryParse(text.ToString(), out newValue))
+                    {
+                        logic.SetActivePIDValue(newValue);
+                    }
+                };
+                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_Terminal_PIDValue);
             }
         }
 
@@ -678,16 +718,36 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                 writer.Append((int)(logic.Terminal_Throttle * 100f)).Append('%');
         }
 
-        static void Control_Terminal_PIDSelect_Getter(IMyTerminalBlock block, out long value)
+        public double GetActivePIDValue()
         {
-            var logic = GetLogic(block);
-            if (logic != null)
+            switch (PIDSelect)
             {
-                value = 0;
+                case 0: return GGkP;
+                case 1: return GGkI;
+                case 2: return GGkD;
+                case 3: return PTkP;
+                case 4: return PTkI;
+                case 5: return PTkD;
+                case 6: return FuelkP;
+                case 7: return FuelkI;
+                case 8: return FuelkD;
+                default: return 0;
             }
-            else
+        }
+
+        public void SetActivePIDValue(double value)
+        {
+            switch (PIDSelect)
             {
-                value = 0;
+                case 0: GGkP = value; break;
+                case 1: GGkI = value; break;
+                case 2: GGkD = value; break;
+                case 3: PTkP = value; break;
+                case 4: PTkI = value; break;
+                case 5: PTkD = value; break;
+                case 6: FuelkP = value; break;
+                case 7: FuelkI = value; break;
+                case 8: FuelkD = value; break;
             }
         }
 
