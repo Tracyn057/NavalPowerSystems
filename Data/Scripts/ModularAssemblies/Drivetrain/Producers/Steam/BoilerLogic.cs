@@ -109,11 +109,11 @@ namespace NavalPowerSystems.Drivetrain.Producers.Steam
 
             if (AutoMode)
             {
-                SetAdaptiveControl();
+                AdaptiveControl();
 
             }
         }
-        private void SetAdaptiveControl()
+        private void AdaptiveControl()
         {
             float error = MyStats.OperatingBar - CurrentBar;
             float deltaTime = (float)PhysicsStep;

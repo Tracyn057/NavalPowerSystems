@@ -213,7 +213,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             var sinkFuelInfo = new MyResourceSinkInfo()
             {
                 MaxRequiredInput = float.MaxValue,
-                RequiredInputFunc = () => (float)CurrentFuelLps,
+                RequiredInputFunc = () => (float)CurrentFuelLps * Config.globalFuelMult,
                 ResourceTypeId = MyDefinitionId.Parse("MyObjectBuilder_GasProperties/DieselFuel"),
             };
             var sinkO2Info = new MyResourceSinkInfo()
@@ -438,14 +438,16 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
             double Wnet = Wt - Wc;
             double torqueC = (Wnet * RPMToRadMult) / Math.Max(CurrentRPM_GG, 1000);
-            double inertialDrag = 0.00006 * CurrentRPM_GG * CurrentRPM_GG;
+            double inertialDrag = 0.000015 * CurrentRPM_GG * CurrentRPM_GG;
+            double mechanicalDrag = 0.05 * CurrentRPM_GG;
 
-            if (CurrentState == EngineState.Starting)
+            double starterTorque = 0;
+            if (StarterActive)
             {
-                torqueC += StarterActive ? 1250 : 0;
+                starterTorque = 1250 * (1 - RPMRatioGG);
             }
 
-            double accelC = ((torqueC - inertialDrag) / MoI_GG) * RadToRPMMult;
+            double accelC = ((torqueC - inertialDrag - mechanicalDrag + starterTorque) / MoI_GG) * RadToRPMMult;
             CurrentRPM_GG += accelC * PhysicsStep;
             CurrentRPM_GG = MathHelper.Clamp(CurrentRPM_GG, 0, MaxRPM_GG);
 
@@ -587,17 +589,11 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder info)
         {
             info.AppendLine($"Status: {CurrentStateLabel}");
-            info.AppendLine($"Gas Generator RPM: {CurrentRPM_GG:0.00}");
-            info.AppendLine($"Power Turbine RPM: {CurrentRPM_PT:0.00}");
+            info.AppendLine($"Gas Generator RPM: {CurrentRPM_GG:0}");
+            info.AppendLine($"Power Turbine RPM: {CurrentRPM_PT:0}");
             info.AppendLine($"Fuel Flow Target: {TargetFuelKgs}");
-            info.AppendLine($"Fuel Flow: {CurrentFuelKgs}");
-            info.AppendLine($"GGP:{GGkP:0.000} I:{GGkI:0.000} D:{GGkD:0.000}");
-            info.AppendLine($"GG eLast:{GGeLast:0.000} iStore:{GGiStore:0.000}");
-            info.AppendLine($"PTP:{PTkP:0.000} I:{PTkI:0.000} D:{PTkD:0.000}");
-            info.AppendLine($"PT eLast:{PTeLast:0.000} iStore:{PTiStore:0.000}");
-            info.AppendLine($"FuelP:{FuelkP:0.000} I:{FuelkI:0.000} D:{FuelkD:0.000}");
-            info.AppendLine($"Fuel eLast:{FueleLast:0.000} iStore:{FueliStore:0.000}");
-            //info.AppendLine($"Air Flow: {CurrentAirLps:0.00}");
+            info.AppendLine($"Fuel Flow: {CurrentFuelLps:0.000}");
+            //info.AppendLine($"Air Flow: {CurrentAirLps:0}");
             //info.AppendLine($"Ambient Temperature: {T1:0.00}");
             //info.AppendLine($"Compressor Exit Temperature: {T2a:0.00}");
             //info.AppendLine($"Combustion Exit Temperature: {T3:0.00}");
