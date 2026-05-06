@@ -76,13 +76,13 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         private double UI_CurrentHP, UI_MaxHP, CurrentEGT;
         private bool StarterActive = false;
         private bool IgnitionActive = false;
-        private double TargetThrottle, CurrentFuelKgs, TargetFuelKgs;
+        private double CurrentFuelKgs, TargetFuelKgs;
         private double RPMRatioGG, PressureRatio, CurrentAirKgs;
         private double CurrentFuelLps => CurrentFuelKgs / 0.85;
         private double CurrentAirLps => CurrentAirKgs * 816;
         private double T1 = 288.15;
         private double T2a = 288.15, T2s, T2a_Max;
-        private double T3 = 288.15, T3_Target = 288.15, T3_Max = 1500;
+        private double T3 = 288.15, T3_Max = 1500;
         private double T4a = 288.15, T4s, T4a_Max;
         private double TargetRPM_GG, CurrentRPM_GG, IdleRPM_GG = 4500, MaxRPM_GG = 10000;
         private double TargetRPM_PT, CurrentRPM_PT, MaxRPM_PT = 3600;
@@ -95,9 +95,9 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
         #region PID
         private long PIDSelect = 0;
-        private double GGkP, GGkI, GGkD, GGiStore, GGiMax, GGeLast;
-        private double PTkP, PTkI, PTkD, PTiStore, PTiMax, PTeLast;
-        private double FuelkP, FuelkI, FuelkD, FueliStore, FueliMax, FueleLast;
+        private double GGkP = 2.5, GGkI = 0, GGkD = 0, GGiStore = 0, GGiMax = 1, GGeLast = 0;
+        private double PTkP = 1.75, PTkI = 0, PTkD = 0, PTiStore = 0, PTiMax = 1, PTeLast = 0;
+        private double FuelkP = 1.5, FuelkI = 0, FuelkD = 0, FueliStore = 0, FueliMax = 1, FueleLast = 0;
         private PIDController GGController = new PIDController(0.75, 0.25, 0, 2);
         private PIDController PTController = new PIDController(0.0025, 0.002, 0.001, 2);
         private PIDController FuelController = new PIDController(0.8, 0.4, 0, 0.75);
@@ -305,11 +305,9 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         {
             if (CurrentState == EngineState.Off) return;
 
-            double input = (Throttle * MaxRPM_GG) / MaxRPM_GG;
-            double power = (Throttle * MaxRPM_PT) / MaxRPM_PT;
-            double preTarget = Math.Max(input, power);
-            double target = Math.Max(preTarget, (IdleRPM_GG / MaxRPM_GG));
-            double pidOutput = PIDUpdate(target, CurrentRPM_GG, GGkP, GGkI, GGkD, GGiStore, GGeLast, GGiMax, out GGiStore, out GGeLast);
+            double input = (Throttle * MaxRPM_PT) / MaxRPM_PT;
+            double target = Math.Max(input, (IdleRPM_GG / MaxRPM_GG));
+            double pidOutput = PIDUpdate(target, CurrentRPM_GG / MaxRPM_GG, GGkP, GGkI, GGkD, GGiStore, GGeLast, GGiMax, out GGiStore, out GGeLast);
             double request = pidOutput * MyStats.MaxFuelKgs;
             double controllerFuel = PIDUpdate(request, CurrentFuelKgs, FuelkP, FuelkI, FuelkD, FueliStore, FueleLast, FueliMax, out FueliStore, out FueleLast);
             TargetFuelKgs = MathHelper.Clamp(controllerFuel, 0, MyStats.MaxFuelKgs);
@@ -404,8 +402,8 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             PressureRatio = (MyStats.PressureRatio * 0.85) * Math.Pow(RPMRatioGG, 2) + (MyStats.PressureRatio * 0.15);
             double airExp = 1 + 0.15 * (PressureRatio - 1);
             CurrentAirKgs = MyStats.MaxAirKgs * Math.Pow(RPMRatioGG, airExp);
-            MoI_GG = Math.Max(55 * Math.Pow(RPMRatioGG, 1.1), 10);
-            MoI_PT = Math.Max(175 * Math.Pow(RPMRatioGG, 1.1), 25);
+            MoI_GG = Math.Max(35 * Math.Pow(RPMRatioGG, 1.1), 10);
+            MoI_PT = Math.Max(125 * Math.Pow(RPMRatioGG, 1.1), 25);
 
             double Nc = MyStats.CompressorEfficiency;
             double Nt = MyStats.TurbineEfficiency;
@@ -440,7 +438,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
             double Wnet = Wt - Wc;
             double torqueC = (Wnet * RPMToRadMult) / Math.Max(CurrentRPM_GG, 1000);
-            double inertialDrag = 0.0006 * CurrentRPM_GG * CurrentRPM_GG;
+            double inertialDrag = 0.00006 * CurrentRPM_GG * CurrentRPM_GG;
 
             if (CurrentState == EngineState.Starting)
             {
@@ -470,9 +468,9 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                     break;
                 case EngineState.Starting:
                     CurrentStateLabel = "Starting";
-                    if (CurrentRPM_GG < 3750)
+                    if (CurrentRPM_GG < 4250)
                         StarterActive = true;
-                    if (CurrentRPM_GG >= 3500)
+                    if (CurrentRPM_GG >= 4000)
                     {
                         Terminal_EngineState.Value = EngineState.Running;
                         GGController.Reset();
@@ -584,65 +582,6 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                 Control_Throttle.Writer = Control_Terminal_Throttle_Writer;
                 MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_Throttle);
             }
-
-            //Debug and testing controls
-            {
-                var Control_Terminal_PIDSelect = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlCombobox, IMyFunctionalBlock>("NPS_Engine_TerminalControl_PIDSelect");
-                Control_Terminal_PIDSelect.Title = MyStringId.GetOrCompute("PID Select");
-                Control_Terminal_PIDSelect.Visible = Control_Visible;
-                Control_Terminal_PIDSelect.ComboBoxContent = (list) =>
-                {
-                    list.Add(new MyTerminalControlComboBoxItem() { Key = 0, Value = MyStringId.GetOrCompute("GGkP") });
-                    list.Add(new MyTerminalControlComboBoxItem() { Key = 1, Value = MyStringId.GetOrCompute("GGkI") });
-                    list.Add(new MyTerminalControlComboBoxItem() { Key = 2, Value = MyStringId.GetOrCompute("GGkD") });
-                    list.Add(new MyTerminalControlComboBoxItem() { Key = 3, Value = MyStringId.GetOrCompute("PTkP") });
-                    list.Add(new MyTerminalControlComboBoxItem() { Key = 4, Value = MyStringId.GetOrCompute("PTkI") });
-                    list.Add(new MyTerminalControlComboBoxItem() { Key = 5, Value = MyStringId.GetOrCompute("PTkD") });
-                    list.Add(new MyTerminalControlComboBoxItem() { Key = 6, Value = MyStringId.GetOrCompute("FuelkP") });
-                    list.Add(new MyTerminalControlComboBoxItem() { Key = 7, Value = MyStringId.GetOrCompute("FuelkI") });
-                    list.Add(new MyTerminalControlComboBoxItem() { Key = 8, Value = MyStringId.GetOrCompute("FuelkD") });
-                };
-                Control_Terminal_PIDSelect.Getter = (block) =>
-                {
-                    var logic = GetLogic(block);
-                    return logic == null ? 0 : (long)logic.GetActivePIDValue();
-                };
-                Control_Terminal_PIDSelect.Setter = (block, value) =>
-                {
-                    var logic = GetLogic(block);
-                    if (logic != null)
-                    {
-                        logic.SetActivePIDValue(value);
-                        UpdateControls();
-                    }
-                };
-                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_Terminal_PIDSelect);
-            }
-            {
-                var Control_Terminal_PIDValue = MyAPIGateway.TerminalControls.CreateControl<IMyTerminalControlTextbox, IMyFunctionalBlock>("NPS_Engine_TerminalControl_PIDValue");
-                Control_Terminal_PIDValue.Title = MyStringId.GetOrCompute("PID Value");
-                Control_Terminal_PIDValue.Visible = Control_Visible;
-                Control_Terminal_PIDValue.Getter = (block) =>
-                {
-                    var logic = GetLogic(block);
-                    if (logic == null) return new StringBuilder("0");
-
-                    double currentVal = logic.GetActivePIDValue();
-                    return new StringBuilder(currentVal.ToString("F4"));
-                };
-                Control_Terminal_PIDValue.Setter = (block, text) =>
-                {
-                    var logic = GetLogic(block);
-                    if (logic == null) return;
-
-                    double newValue;
-                    if (double.TryParse(text.ToString(), out newValue))
-                    {
-                        logic.SetActivePIDValue(newValue);
-                    }
-                };
-                MyAPIGateway.TerminalControls.AddControl<IMyFunctionalBlock>(Control_Terminal_PIDValue);
-            }
         }
 
         private void AppendCustomInfo(IMyTerminalBlock block, StringBuilder info)
@@ -650,7 +589,8 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             info.AppendLine($"Status: {CurrentStateLabel}");
             info.AppendLine($"Gas Generator RPM: {CurrentRPM_GG:0.00}");
             info.AppendLine($"Power Turbine RPM: {CurrentRPM_PT:0.00}");
-            info.AppendLine($"Fuel Flow: {CurrentFuelLps:0.00}");
+            info.AppendLine($"Fuel Flow Target: {TargetFuelKgs}");
+            info.AppendLine($"Fuel Flow: {CurrentFuelKgs}");
             info.AppendLine($"GGP:{GGkP:0.000} I:{GGkI:0.000} D:{GGkD:0.000}");
             info.AppendLine($"GG eLast:{GGeLast:0.000} iStore:{GGiStore:0.000}");
             info.AppendLine($"PTP:{PTkP:0.000} I:{PTkI:0.000} D:{PTkD:0.000}");
@@ -727,39 +667,6 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             var logic = GetLogic(block);
             if (logic != null)
                 writer.Append((int)(logic.Terminal_Throttle * 100f)).Append('%');
-        }
-
-        public double GetActivePIDValue()
-        {
-            switch (PIDSelect)
-            {
-                case 0: return GGkP;
-                case 1: return GGkI;
-                case 2: return GGkD;
-                case 3: return PTkP;
-                case 4: return PTkI;
-                case 5: return PTkD;
-                case 6: return FuelkP;
-                case 7: return FuelkI;
-                case 8: return FuelkD;
-                default: return 0;
-            }
-        }
-
-        public void SetActivePIDValue(double value)
-        {
-            switch (PIDSelect)
-            {
-                case 0: GGkP = value; break;
-                case 1: GGkI = value; break;
-                case 2: GGkD = value; break;
-                case 3: PTkP = value; break;
-                case 4: PTkI = value; break;
-                case 5: PTkD = value; break;
-                case 6: FuelkP = value; break;
-                case 7: FuelkI = value; break;
-                case 8: FuelkD = value; break;
-            }
         }
 
         public static void UpdateControls()
