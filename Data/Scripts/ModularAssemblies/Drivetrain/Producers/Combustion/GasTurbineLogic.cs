@@ -75,7 +75,6 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         private static double MoI_GG = 30, MoI_PT = 125;
         private double UI_CurrentHP, UI_MaxHP, CurrentEGT;
         private bool StarterActive = false;
-        private bool IgnitionActive = false;
         private double CurrentFuelKgs, TargetFuelKgs;
         private double RPMRatioGG, PressureRatio, CurrentAirKgs;
         private double CurrentFuelLps => CurrentFuelKgs / 0.85;
@@ -84,7 +83,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         private double T2a = 288.15, T2s, T2a_Max;
         private double T3 = 288.15, T3_Max = 1500;
         private double T4a = 288.15, T4s, T4a_Max;
-        private double TargetRPM_GG, CurrentRPM_GG, IdleRPM_GG = 4500, MaxRPM_GG = 10000;
+        private double TargetRPM_GG, CurrentRPM_GG, IdleRPM_GG = 5000, MaxRPM_GG = 10000;
         private double TargetRPM_PT, CurrentRPM_PT, MaxRPM_PT = 3600;
         #endregion
 
@@ -95,9 +94,9 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
         #region PID
         private long PIDSelect = 0;
-        private double GGkP = 2.5, GGkI = 0, GGkD = 0, GGiStore = 0, GGiMax = 1, GGeLast = 0;
-        private double PTkP = 1.75, PTkI = 0, PTkD = 0, PTiStore = 0, PTiMax = 1, PTeLast = 0;
-        private double FuelkP = 1.5, FuelkI = 0, FuelkD = 0, FueliStore = 0, FueliMax = 1, FueleLast = 0;
+        private double GGkP = 3.6, GGkI = 12.0, GGkD = 0.27, GGiStore = 0, GGiMax = 0.5, GGeLast = 0;
+        private double PTkP = 1.75, PTkI = 0, PTkD = 0, PTiStore = 0, PTiMax = 1.5, PTeLast = 0;
+        private double FuelkP = 0.75, FuelkI = 0, FuelkD = 0, FueliStore = 0, FueliMax = 1.5, FueleLast = 0;
         private PIDController GGController = new PIDController(0.75, 0.25, 0, 2);
         private PIDController PTController = new PIDController(0.0025, 0.002, 0.001, 2);
         private PIDController FuelController = new PIDController(0.8, 0.4, 0, 0.75);
@@ -306,11 +305,14 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             if (CurrentState == EngineState.Off) return;
 
             double input = (Throttle * MaxRPM_PT) / MaxRPM_PT;
-            double target = Math.Max(input, (IdleRPM_GG / MaxRPM_GG));
+            double idle = IdleRPM_GG / MaxRPM_GG;
+            double target = Math.Max(input, idle);
             double pidOutput = PIDUpdate(target, CurrentRPM_GG / MaxRPM_GG, GGkP, GGkI, GGkD, GGiStore, GGeLast, GGiMax, out GGiStore, out GGeLast);
             double request = pidOutput * MyStats.MaxFuelKgs;
-            double controllerFuel = PIDUpdate(request, CurrentFuelKgs, FuelkP, FuelkI, FuelkD, FueliStore, FueleLast, FueliMax, out FueliStore, out FueleLast);
-            TargetFuelKgs = MathHelper.Clamp(controllerFuel, 0, MyStats.MaxFuelKgs);
+            //double controllerFuel = PIDUpdate(request, CurrentFuelKgs, FuelkP, FuelkI, FuelkD, FueliStore, FueleLast, FueliMax, out FueliStore, out FueleLast);
+            TargetFuelKgs = MathHelper.Clamp(request, 0, MyStats.MaxFuelKgs);
+            if (CurrentRPM_GG < IdleRPM_GG * 0.8)
+                TargetFuelKgs = 0;
             FuelIntercept();
         }
 
@@ -319,9 +321,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             double t3Max = 0;
             double airRatio = CurrentAirKgs / MyStats.MaxAirKgs;
 
-            if (airRatio < 0.25)
-                t3Max = 800;
-            else if (airRatio < 0.5)
+            if (airRatio < 0.5)
                 t3Max = 1000;
             else if (airRatio < 0.75)
                 t3Max = 1250;
@@ -332,7 +332,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             double allowedFuel = (headroom * SpecificHeatAir * Math.Max(CurrentAirKgs, 2)) / (DieselEnergy * 0.97);
 
             double fuelError = Math.Min(TargetFuelKgs, allowedFuel) - CurrentFuelKgs;
-            double step = 0.05 * PhysicsStep;
+            double step = 100 * PhysicsStep;
             CurrentFuelKgs += MathHelper.Clamp(fuelError, -step, step);
         }
 
@@ -399,7 +399,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
             // Stage 0
             RPMRatioGG = CurrentRPM_GG / MaxRPM_GG;
-            PressureRatio = (MyStats.PressureRatio * 0.85) * Math.Pow(RPMRatioGG, 2) + (MyStats.PressureRatio * 0.15);
+            PressureRatio = Math.Max((MyStats.PressureRatio * 0.85) * Math.Pow(RPMRatioGG, 2) + (MyStats.PressureRatio * 0.15), 1);
             double airExp = 1 + 0.15 * (PressureRatio - 1);
             CurrentAirKgs = MyStats.MaxAirKgs * Math.Pow(RPMRatioGG, airExp);
             MoI_GG = Math.Max(35 * Math.Pow(RPMRatioGG, 1.1), 10);
@@ -408,7 +408,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             double Nc = MyStats.CompressorEfficiency;
             double Nt = MyStats.TurbineEfficiency;
             double airFlow = Math.Max(0.01, CurrentAirKgs);
-            double thermalStep = 2.5;
+            double thermalStep = 5;
 
             // Stage 1 - Compressor
             T2s = T1 * Math.Pow(PressureRatio, 0.286);
@@ -438,14 +438,14 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
             double Wnet = Wt - Wc;
             double torqueC = (Wnet * RPMToRadMult) / Math.Max(CurrentRPM_GG, 1000);
-            double inertialDrag = 0.000015 * CurrentRPM_GG * CurrentRPM_GG;
-            double mechanicalDrag = 0.05 * CurrentRPM_GG;
+            double inertialDrag = 0;
+            double mechanicalDrag = 0;
+            //double inertialDrag = 0.000002 * CurrentRPM_GG * CurrentRPM_GG;
+            //double mechanicalDrag = 0.002 * CurrentRPM_GG;
 
             double starterTorque = 0;
             if (StarterActive)
-            {
-                starterTorque = 1250 * (1 - RPMRatioGG);
-            }
+                starterTorque = 1000 * (1 - RPMRatioGG);
 
             double accelC = ((torqueC - inertialDrag - mechanicalDrag + starterTorque) / MoI_GG) * RadToRPMMult;
             CurrentRPM_GG += accelC * PhysicsStep;
@@ -470,14 +470,12 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                     break;
                 case EngineState.Starting:
                     CurrentStateLabel = "Starting";
-                    if (CurrentRPM_GG < 4250)
+                    if (CurrentRPM_GG < 5000)
                         StarterActive = true;
-                    if (CurrentRPM_GG >= 4000)
+                    if (CurrentRPM_GG >= 5000)
                     {
                         Terminal_EngineState.Value = EngineState.Running;
-                        GGController.Reset();
-                        FuelController.Reset();
-                        PTController.Reset();
+                        GGiStore = 0;
                         StarterActive = false;
                     }
 
@@ -495,9 +493,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
                     if (CurrentRPM_GG < 1000)
                     {
                         Terminal_EngineState.Value = EngineState.Off;
-                        GGController.Reset();
-                        PTController.Reset();
-                        FuelController.Reset();
+                        GGiStore = 0;
                     }
                     break;
             }
@@ -591,13 +587,13 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             info.AppendLine($"Status: {CurrentStateLabel}");
             info.AppendLine($"Gas Generator RPM: {CurrentRPM_GG:0}");
             info.AppendLine($"Power Turbine RPM: {CurrentRPM_PT:0}");
-            info.AppendLine($"Fuel Flow Target: {TargetFuelKgs}");
-            info.AppendLine($"Fuel Flow: {CurrentFuelLps:0.000}");
-            //info.AppendLine($"Air Flow: {CurrentAirLps:0}");
+            info.AppendLine($"Fuel Flow Target: {TargetFuelKgs:0.0000}");
+            info.AppendLine($"Fuel Flow: {CurrentFuelKgs:0.0000}");
+            info.AppendLine($"Air Flow: {CurrentAirKgs:0.0000}");
             //info.AppendLine($"Ambient Temperature: {T1:0.00}");
-            //info.AppendLine($"Compressor Exit Temperature: {T2a:0.00}");
-            //info.AppendLine($"Combustion Exit Temperature: {T3:0.00}");
-            //info.AppendLine($"Exhaust Temperature: {T4a:0.00}");
+            info.AppendLine($"Compressor Exit Temperature: {T2a:0.0}");
+            info.AppendLine($"Combustion Exit Temperature: {T3:0.0}");
+            info.AppendLine($"Exhaust Temperature: {T4a:0.0}");
 
         }
 
