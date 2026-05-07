@@ -97,9 +97,6 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
         private double GGkP = 3.6, GGkI = 12.0, GGkD = 0.27, GGiStore = 0, GGiMax = 0.5, GGeLast = 0;
         private double PTkP = 1.75, PTkI = 0, PTkD = 0, PTiStore = 0, PTiMax = 1.5, PTeLast = 0;
         private double FuelkP = 0.75, FuelkI = 0, FuelkD = 0, FueliStore = 0, FueliMax = 1.5, FueleLast = 0;
-        private PIDController GGController = new PIDController(0.75, 0.25, 0, 2);
-        private PIDController PTController = new PIDController(0.0025, 0.002, 0.001, 2);
-        private PIDController FuelController = new PIDController(0.8, 0.4, 0, 0.75);
         #endregion
 
         public override void UpdateOnceBeforeFrame()
@@ -309,7 +306,6 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             double target = Math.Max(input, idle);
             double pidOutput = PIDUpdate(target, CurrentRPM_GG / MaxRPM_GG, GGkP, GGkI, GGkD, GGiStore, GGeLast, GGiMax, out GGiStore, out GGeLast);
             double request = pidOutput * MyStats.MaxFuelKgs;
-            //double controllerFuel = PIDUpdate(request, CurrentFuelKgs, FuelkP, FuelkI, FuelkD, FueliStore, FueleLast, FueliMax, out FueliStore, out FueleLast);
             TargetFuelKgs = MathHelper.Clamp(request, 0, MyStats.MaxFuelKgs);
             if (CurrentRPM_GG < IdleRPM_GG * 0.8)
                 TargetFuelKgs = 0;
@@ -332,7 +328,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             double allowedFuel = (headroom * SpecificHeatAir * Math.Max(CurrentAirKgs, 2)) / (DieselEnergy * 0.97);
 
             double fuelError = Math.Min(TargetFuelKgs, allowedFuel) - CurrentFuelKgs;
-            double step = 100 * PhysicsStep;
+            double step = 125 * PhysicsStep;
             CurrentFuelKgs += MathHelper.Clamp(fuelError, -step, step);
         }
 
@@ -397,7 +393,7 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
 
             double Nc = MyStats.CompressorEfficiency;
             double Nt = MyStats.TurbineEfficiency;
-            double airFlow = Math.Max(0.01, CurrentAirKgs);
+            double airFlow = Math.Max(2, CurrentAirKgs);
             double thermalStep = 5;
 
             // Stage 1 - Compressor
@@ -430,8 +426,6 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             double torqueC = (Wnet * RPMToRadMult) / Math.Max(CurrentRPM_GG, 1000);
             double inertialDrag = 0;
             double mechanicalDrag = 0;
-            //double inertialDrag = 0.000002 * CurrentRPM_GG * CurrentRPM_GG;
-            //double mechanicalDrag = 0.002 * CurrentRPM_GG;
 
             double starterTorque = 0;
             if (StarterActive)
