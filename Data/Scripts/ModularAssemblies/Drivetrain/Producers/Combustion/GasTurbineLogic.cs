@@ -336,16 +336,6 @@ namespace NavalPowerSystems.Drivetrain.Producers.Combustion
             CurrentFuelKgs += MathHelper.Clamp(fuelError, -step, step);
         }
 
-        private void ControllerGenSet()
-        {
-            double normPT = CurrentRPM_PT / MaxRPM_PT;
-            double genRequest = PTController.Update(1, normPT);
-            double normFuel = CurrentFuelKgs / MyStats.MaxFuelKgs;
-            double fuelPct = FuelController.Update(genRequest, normFuel);
-
-            CurrentFuelKgs = MathHelper.Clamp(fuelPct * MyStats.MaxFuelKgs, 0, MyStats.MaxFuelKgs);
-        }
-
         private double PIDUpdate(double target, double current, double p, double i, double d, double iStore, double eLast, double iMax, out double iStoreOut, out double eLastOut)
         {
             var dT = MyEngineConstants.PHYSICS_STEP_SIZE_IN_SECONDS;
